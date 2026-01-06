@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Download, Film } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,17 +40,42 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
+import { useTMDB } from '@/hooks/useTMDB';
 import { Movie } from '@/types/database';
+
+interface TMDBMovie {
+  tmdb_id: number;
+  title: string;
+  description: string;
+  poster_url: string | null;
+  backdrop_url: string | null;
+  release_date: string;
+  rating: number;
+  duration_minutes?: number;
+  genre?: string[];
+  director?: string | null;
+  cast_members?: string[];
+}
 
 export default function MoviesAdmin() {
   const { toast } = useToast();
+  const { fetchNowPlaying, fetchUpcoming, fetchDetails, searchMovies, loading: tmdbLoading, syncMovieFromTMDB } = useTMDB();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [tmdbDialogOpen, setTmdbDialogOpen] = useState(false);
   const [editingMovie, setEditingMovie] = useState<Movie | null>(null);
   const [saving, setSaving] = useState(false);
+  
+  // TMDB state
+  const [tmdbMovies, setTmdbMovies] = useState<TMDBMovie[]>([]);
+  const [tmdbSearch, setTmdbSearch] = useState('');
+  const [tmdbTab, setTmdbTab] = useState('now_playing');
+  const [importingId, setImportingId] = useState<number | null>(null);
 
   // Form state
   const [title, setTitle] = useState('');
@@ -194,6 +219,53 @@ export default function MoviesAdmin() {
     movie.title.toLowerCase().includes(search.toLowerCase())
   );
 
+  // TMDB Functions
+  const loadTMDBMovies = async (tab: string) => {
+    let result;
+    if (tab === 'now_playing') {
+      result = await fetchNowPlaying();
+    } else if (tab === 'upcoming') {
+      result = await fetchUpcoming();
+    }
+    if (result && 'movies' in result) {
+      setTmdbMovies(result.movies || []);
+    }
+  };
+
+  const handleTMDBSearch = async () => {
+    if (!tmdbSearch.trim()) return;
+    const result = await searchMovies(tmdbSearch);
+    if (result && 'movies' in result) {
+      setTmdbMovies(result.movies || []);
+    }
+  };
+
+  const handleImportMovie = async (tmdbMovie: TMDBMovie, status: 'now_showing' | 'coming_soon') => {
+    setImportingId(tmdbMovie.tmdb_id);
+    try {
+      // Get full details first
+      const details = await fetchDetails(String(tmdbMovie.tmdb_id));
+      const movieToSync = details as TMDBMovie || tmdbMovie;
+      
+      await syncMovieFromTMDB(movieToSync, status);
+      toast({ title: `"${tmdbMovie.title}" imported successfully!` });
+      fetchMovies();
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Import failed',
+        description: error.message || 'Failed to import movie.',
+      });
+    } finally {
+      setImportingId(null);
+    }
+  };
+
+  const openTMDBDialog = () => {
+    setTmdbDialogOpen(true);
+    loadTMDBMovies('now_playing');
+  };
+
   if (loading) {
     return (
       <div className="p-8">
@@ -207,16 +279,21 @@ export default function MoviesAdmin() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold">Movies</h1>
-        <Dialog open={dialogOpen} onOpenChange={(open) => {
-          setDialogOpen(open);
-          if (!open) resetForm();
-        }}>
-          <DialogTrigger asChild>
-            <Button className="cinema-gradient">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Movie
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={openTMDBDialog}>
+            <Download className="h-4 w-4 mr-2" />
+            Import from TMDB
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={(open) => {
+            setDialogOpen(open);
+            if (!open) resetForm();
+          }}>
+            <DialogTrigger asChild>
+              <Button className="cinema-gradient">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Movie
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingMovie ? 'Edit Movie' : 'Add New Movie'}</DialogTitle>
@@ -347,7 +424,94 @@ export default function MoviesAdmin() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
+
+      {/* TMDB Import Dialog */}
+      <Dialog open={tmdbDialogOpen} onOpenChange={setTmdbDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Film className="h-5 w-5" />
+              Import Movies from TMDB
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Search TMDB movies..."
+                value={tmdbSearch}
+                onChange={(e) => setTmdbSearch(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleTMDBSearch()}
+              />
+              <Button onClick={handleTMDBSearch} disabled={tmdbLoading}>
+                <Search className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <Tabs value={tmdbTab} onValueChange={(v) => { setTmdbTab(v); loadTMDBMovies(v); }}>
+              <TabsList>
+                <TabsTrigger value="now_playing">Now Playing</TabsTrigger>
+                <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            <ScrollArea className="h-[400px]">
+              {tmdbLoading ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {[...Array(6)].map((_, i) => (
+                    <Skeleton key={i} className="h-48 rounded-lg" />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {tmdbMovies.map((movie) => (
+                    <div key={movie.tmdb_id} className="bg-card border rounded-lg overflow-hidden">
+                      <img
+                        src={movie.poster_url || '/placeholder.svg'}
+                        alt={movie.title}
+                        className="w-full h-40 object-cover"
+                      />
+                      <div className="p-3">
+                        <h4 className="font-medium text-sm truncate">{movie.title}</h4>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          {movie.release_date} • ⭐ {movie.rating}
+                        </p>
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 text-xs"
+                            disabled={importingId === movie.tmdb_id}
+                            onClick={() => handleImportMovie(movie, 'now_showing')}
+                          >
+                            {importingId === movie.tmdb_id ? '...' : 'Now Showing'}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            className="flex-1 text-xs"
+                            disabled={importingId === movie.tmdb_id}
+                            onClick={() => handleImportMovie(movie, 'coming_soon')}
+                          >
+                            {importingId === movie.tmdb_id ? '...' : 'Coming Soon'}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {!tmdbLoading && tmdbMovies.length === 0 && (
+                <p className="text-center text-muted-foreground py-8">
+                  No movies found. Try searching or switching tabs.
+                </p>
+              )}
+            </ScrollArea>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <div className="mb-6">
         <div className="relative max-w-sm">
