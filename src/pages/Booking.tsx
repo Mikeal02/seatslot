@@ -247,16 +247,14 @@ export default function Booking() {
               selectedSeats={selectedSeats}
             />
 
-            {selectedSeats.length > 0 && (
-              <Button
-                onClick={handleConfirmBooking}
-                disabled={booking}
-                className="w-full cinema-gradient"
-                size="lg"
-              >
-                {booking ? 'Confirming...' : 'Confirm Booking'}
-              </Button>
-            )}
+            <Button
+              onClick={handleConfirmBooking}
+              disabled={booking || selectedSeats.length === 0}
+              className="w-full cinema-gradient"
+              size="lg"
+            >
+              {booking ? 'Confirming...' : selectedSeats.length === 0 ? 'Select Seats to Continue' : `Confirm Booking (${selectedSeats.length} seats)`}
+            </Button>
           </div>
         </div>
       </main>
