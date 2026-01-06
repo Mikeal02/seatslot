@@ -1,1 +1,4 @@
 project_id = "sohijcvuoqyfwnkagbso"
+
+[functions.tmdb-movies]
+verify_jwt = false
