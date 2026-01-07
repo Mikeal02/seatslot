@@ -23,9 +23,16 @@ interface TMDBMovie {
     cast: { name: string; character: string }[];
     crew: { name: string; job: string }[];
   };
+  videos?: {
+    results: { key: string; site: string; type: string; official: boolean }[];
+  };
 }
 
 async function fetchFromTMDB(endpoint: string): Promise<any> {
+  if (!TMDB_API_KEY) {
+    throw new Error('TMDB_API_KEY is not configured');
+  }
+  
   const url = `${TMDB_BASE_URL}${endpoint}${endpoint.includes('?') ? '&' : '?'}api_key=${TMDB_API_KEY}`;
   console.log(`Fetching from TMDB: ${endpoint}`);
   
@@ -36,6 +43,26 @@ async function fetchFromTMDB(endpoint: string): Promise<any> {
     throw new Error(`TMDB API error: ${response.status}`);
   }
   return response.json();
+}
+
+function getTrailerKey(videos?: TMDBMovie['videos']): string | null {
+  if (!videos?.results?.length) return null;
+  
+  // Prefer official YouTube trailers
+  const officialTrailer = videos.results.find(
+    v => v.site === 'YouTube' && v.type === 'Trailer' && v.official
+  );
+  if (officialTrailer) return officialTrailer.key;
+  
+  // Fallback to any YouTube trailer
+  const anyTrailer = videos.results.find(
+    v => v.site === 'YouTube' && v.type === 'Trailer'
+  );
+  if (anyTrailer) return anyTrailer.key;
+  
+  // Fallback to any YouTube video
+  const anyYouTube = videos.results.find(v => v.site === 'YouTube');
+  return anyYouTube?.key || null;
 }
 
 function transformMovie(movie: TMDBMovie, includeDetails = false) {
@@ -49,17 +76,19 @@ function transformMovie(movie: TMDBMovie, includeDetails = false) {
     rating: Math.round(movie.vote_average * 10) / 10,
   };
 
-  if (includeDetails && movie.runtime && movie.genres && movie.credits) {
-    const director = movie.credits.crew.find(c => c.job === 'Director');
-    const cast = movie.credits.cast.slice(0, 10).map(c => c.name);
-    const genres = movie.genres.map(g => g.name);
+  if (includeDetails) {
+    const director = movie.credits?.crew.find(c => c.job === 'Director');
+    const cast = movie.credits?.cast.slice(0, 10).map(c => c.name) || [];
+    const genres = movie.genres?.map(g => g.name) || [];
+    const trailerKey = getTrailerKey(movie.videos);
 
     return {
       ...base,
-      duration_minutes: movie.runtime,
+      duration_minutes: movie.runtime || 120,
       genre: genres,
       director: director?.name || null,
       cast_members: cast,
+      trailer_key: trailerKey,
     };
   }
 
@@ -72,6 +101,19 @@ serve(async (req) => {
   }
 
   try {
+    // Check if API key is configured
+    if (!TMDB_API_KEY) {
+      return new Response(JSON.stringify({ 
+        error: 'TMDB_API_KEY not configured',
+        movies: [],
+        total_pages: 0,
+        page: 1
+      }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const url = new URL(req.url);
     const action = url.searchParams.get('action') || 'now_playing';
     const movieId = url.searchParams.get('movie_id');
@@ -117,7 +159,7 @@ serve(async (req) => {
         if (!movieId) {
           throw new Error('movie_id is required for details action');
         }
-        const data = await fetchFromTMDB(`/movie/${movieId}?append_to_response=credits`);
+        const data = await fetchFromTMDB(`/movie/${movieId}?append_to_response=credits,videos`);
         result = transformMovie(data, true);
         break;
       }
@@ -147,7 +189,7 @@ serve(async (req) => {
   } catch (error: unknown) {
     console.error('Error in tmdb-movies function:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: message }), {
+    return new Response(JSON.stringify({ error: message, movies: [] }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
