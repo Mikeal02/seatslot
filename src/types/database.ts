@@ -11,6 +11,7 @@ export interface Movie {
   director: string | null;
   release_date: string | null;
   status: 'now_showing' | 'coming_soon';
+  trailer_key?: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { ShowtimeSelector } from '@/components/booking/ShowtimeSelector';
+import { MovieTrailer } from '@/components/movies/MovieTrailer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -19,6 +20,7 @@ export default function MovieDetails() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [movie, setMovie] = useState<Movie | null>(null);
+  const [trailerKey, setTrailerKey] = useState<string | null>(null);
   const [showtimes, setShowtimes] = useState<Showtime[]>([]);
   const [selectedShowtime, setSelectedShowtime] = useState<Showtime | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,6 +42,14 @@ export default function MovieDetails() {
 
       if (movieError) throw movieError;
       setMovie(movieData as Movie);
+      
+      // Check if movie has trailer_key, if not try to fetch from TMDB
+      if (movieData.trailer_key) {
+        setTrailerKey(movieData.trailer_key);
+      } else {
+        // Try to fetch trailer from TMDB
+        fetchTrailerFromTMDB(movieData.title);
+      }
 
       // Fetch showtimes with screen and theatre info
       const { data: showtimeData, error: showtimeError } = await supabase
@@ -67,6 +77,45 @@ export default function MovieDetails() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTrailerFromTMDB = async (title: string) => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tmdb-movies?action=search&query=${encodeURIComponent(title)}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+        }
+      );
+      
+      if (!res.ok) return;
+      
+      const data = await res.json();
+      if (data.movies?.[0]?.tmdb_id) {
+        // Fetch details with trailer
+        const detailsRes = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tmdb-movies?action=details&movie_id=${data.movies[0].tmdb_id}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            },
+          }
+        );
+        
+        if (detailsRes.ok) {
+          const details = await detailsRes.json();
+          if (details.trailer_key) {
+            setTrailerKey(details.trailer_key);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching trailer:', error);
     }
   };
 
@@ -164,6 +213,7 @@ export default function MovieDetails() {
                     </Badge>
                   ))}
                 </div>
+                <MovieTrailer trailerKey={trailerKey} movieTitle={movie.title} />
               </div>
             </div>
           </div>
