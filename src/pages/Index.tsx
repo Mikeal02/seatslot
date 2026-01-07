@@ -6,6 +6,7 @@ import { HeroSection } from '@/components/movies/HeroSection';
 import { MovieGrid } from '@/components/movies/MovieGrid';
 import { Movie } from '@/types/database';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 
 interface TMDBMovie {
   tmdb_id: number;
@@ -19,6 +20,7 @@ interface TMDBMovie {
   genre?: string[];
   director?: string | null;
   cast_members?: string[];
+  trailer_key?: string | null;
 }
 
 const Index = () => {
@@ -26,6 +28,7 @@ const Index = () => {
   const [comingSoon, setComingSoon] = useState<Movie[]>([]);
   const [featuredMovie, setFeaturedMovie] = useState<Movie | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     syncAndFetchMovies();
@@ -34,7 +37,11 @@ const Index = () => {
   const syncAndFetchMovies = async () => {
     try {
       // First, try to sync movies from TMDB
-      await syncTMDBMovies();
+      const syncSuccess = await syncTMDBMovies();
+      
+      if (!syncSuccess) {
+        console.log('TMDB sync skipped or failed, fetching from database only');
+      }
       
       // Then fetch from database
       const { data: movies, error } = await supabase
@@ -50,6 +57,14 @@ const Index = () => {
       setNowShowing(now as Movie[]);
       setComingSoon(coming as Movie[]);
       setFeaturedMovie((now[0] as Movie) || null);
+      
+      if (movies?.length === 0) {
+        toast({
+          title: 'No movies found',
+          description: 'Add a TMDB API key to import movies automatically.',
+          variant: 'default',
+        });
+      }
     } catch (error) {
       console.error('Error fetching movies:', error);
     } finally {
@@ -57,7 +72,7 @@ const Index = () => {
     }
   };
 
-  const syncTMDBMovies = async () => {
+  const syncTMDBMovies = async (): Promise<boolean> => {
     try {
       // Fetch now playing from TMDB
       const nowPlayingRes = await fetch(
@@ -70,12 +85,22 @@ const Index = () => {
         }
       );
       
-      if (nowPlayingRes.ok) {
-        const nowPlayingData = await nowPlayingRes.json();
-        if (nowPlayingData.movies) {
-          for (const movie of nowPlayingData.movies.slice(0, 8)) {
-            await upsertMovie(movie, 'now_showing');
-          }
+      if (!nowPlayingRes.ok) {
+        console.warn('TMDB API returned error');
+        return false;
+      }
+      
+      const nowPlayingData = await nowPlayingRes.json();
+      
+      // Check if there's an error (API key not configured)
+      if (nowPlayingData.error) {
+        console.warn('TMDB API error:', nowPlayingData.error);
+        return false;
+      }
+      
+      if (nowPlayingData.movies?.length > 0) {
+        for (const movie of nowPlayingData.movies.slice(0, 8)) {
+          await upsertMovie(movie, 'now_showing');
         }
       }
 
@@ -92,14 +117,17 @@ const Index = () => {
       
       if (upcomingRes.ok) {
         const upcomingData = await upcomingRes.json();
-        if (upcomingData.movies) {
+        if (upcomingData.movies?.length > 0) {
           for (const movie of upcomingData.movies.slice(0, 6)) {
             await upsertMovie(movie, 'coming_soon');
           }
         }
       }
+      
+      return true;
     } catch (error) {
       console.error('Error syncing TMDB movies:', error);
+      return false;
     }
   };
 
@@ -111,36 +139,27 @@ const Index = () => {
         .ilike('title', tmdbMovie.title)
         .maybeSingle();
 
+      const movieData = {
+        title: tmdbMovie.title,
+        description: tmdbMovie.description,
+        poster_url: tmdbMovie.poster_url,
+        backdrop_url: tmdbMovie.backdrop_url,
+        release_date: tmdbMovie.release_date,
+        rating: tmdbMovie.rating,
+        duration_minutes: tmdbMovie.duration_minutes || 120,
+        genre: tmdbMovie.genre || [],
+        director: tmdbMovie.director,
+        cast_members: tmdbMovie.cast_members || [],
+        status,
+      };
+
       if (existing) {
         await supabase
           .from('movies')
-          .update({
-            description: tmdbMovie.description,
-            poster_url: tmdbMovie.poster_url,
-            backdrop_url: tmdbMovie.backdrop_url,
-            release_date: tmdbMovie.release_date,
-            rating: tmdbMovie.rating,
-            duration_minutes: tmdbMovie.duration_minutes || 120,
-            genre: tmdbMovie.genre || [],
-            director: tmdbMovie.director,
-            cast_members: tmdbMovie.cast_members || [],
-            status,
-          })
+          .update(movieData)
           .eq('id', existing.id);
       } else {
-        await supabase.from('movies').insert({
-          title: tmdbMovie.title,
-          description: tmdbMovie.description,
-          poster_url: tmdbMovie.poster_url,
-          backdrop_url: tmdbMovie.backdrop_url,
-          release_date: tmdbMovie.release_date,
-          rating: tmdbMovie.rating,
-          duration_minutes: tmdbMovie.duration_minutes || 120,
-          genre: tmdbMovie.genre || [],
-          director: tmdbMovie.director,
-          cast_members: tmdbMovie.cast_members || [],
-          status,
-        });
+        await supabase.from('movies').insert(movieData);
       }
     } catch (error) {
       console.error('Error upserting movie:', error);
@@ -174,17 +193,30 @@ const Index = () => {
       <main className="flex-1">
         {featuredMovie && <HeroSection movie={featuredMovie} />}
         
-        <MovieGrid
-          movies={nowShowing}
-          title="Now Showing"
-          subtitle="Book tickets for movies currently in theatres"
-        />
+        {nowShowing.length > 0 && (
+          <MovieGrid
+            movies={nowShowing}
+            title="Now Showing"
+            subtitle="Book tickets for movies currently in theatres"
+          />
+        )}
         
-        <MovieGrid
-          movies={comingSoon}
-          title="Coming Soon"
-          subtitle="Get ready for upcoming blockbusters"
-        />
+        {comingSoon.length > 0 && (
+          <MovieGrid
+            movies={comingSoon}
+            title="Coming Soon"
+            subtitle="Get ready for upcoming blockbusters"
+          />
+        )}
+        
+        {nowShowing.length === 0 && comingSoon.length === 0 && (
+          <div className="container mx-auto px-4 py-20 text-center">
+            <h2 className="text-2xl font-bold mb-4">No Movies Available</h2>
+            <p className="text-muted-foreground">
+              Movies will appear here once the TMDB API is configured.
+            </p>
+          </div>
+        )}
       </main>
 
       <Footer />

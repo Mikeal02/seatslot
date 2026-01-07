@@ -110,6 +110,7 @@ export type Database = {
           release_date: string | null
           status: string
           title: string
+          trailer_key: string | null
           updated_at: string
         }
         Insert: {
@@ -126,6 +127,7 @@ export type Database = {
           release_date?: string | null
           status?: string
           title: string
+          trailer_key?: string | null
           updated_at?: string
         }
         Update: {
@@ -142,6 +144,7 @@ export type Database = {
           release_date?: string | null
           status?: string
           title?: string
+          trailer_key?: string | null
           updated_at?: string
         }
         Relationships: []
