@@ -24,7 +24,7 @@ export function BookingSummary({ movie, showtime, selectedSeats }: BookingSummar
   }, {} as Record<string, Seat[]>);
 
   return (
-    <Card className="bg-card border-border sticky top-20">
+    <Card className="bg-card border-border max-h-[calc(100vh-8rem)] overflow-y-auto">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Ticket className="h-5 w-5 text-primary" />
