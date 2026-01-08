@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { CheckCircle, Calendar, Clock, MapPin, Ticket, Download } from 'lucide-react';
+import { CheckCircle, Calendar, Clock, MapPin, Ticket } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -110,12 +111,25 @@ export default function BookingConfirmation() {
 
           {/* Ticket Card */}
           <Card className="bg-card border-border overflow-hidden">
-            <div className="cinema-gradient p-4 text-center">
-              <Ticket className="h-6 w-6 mx-auto mb-2 text-white" />
-              <p className="text-white/80 text-sm">Booking ID</p>
-              <p className="text-white font-mono text-lg">
-                {booking.id.slice(0, 8).toUpperCase()}
-              </p>
+            <div className="cinema-gradient p-6 text-center">
+              <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+                <div className="bg-white p-3 rounded-lg">
+                  <QRCodeSVG
+                    value={`CINEMAGIC-TICKET:${booking.id}|${movie.title}|${booking.showtime.show_date}|${booking.showtime.show_time}|${seats.map(s => `${s.row_label}${s.seat_number}`).join(',')}`}
+                    size={120}
+                    level="H"
+                    includeMargin={false}
+                  />
+                </div>
+                <div>
+                  <Ticket className="h-6 w-6 mx-auto mb-2 text-white" />
+                  <p className="text-white/80 text-sm">Booking ID</p>
+                  <p className="text-white font-mono text-lg">
+                    {booking.id.slice(0, 8).toUpperCase()}
+                  </p>
+                  <p className="text-white/60 text-xs mt-2">Scan QR code at entry</p>
+                </div>
+              </div>
             </div>
 
             <CardContent className="p-6 space-y-6">
