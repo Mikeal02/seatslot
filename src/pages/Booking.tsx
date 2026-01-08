@@ -240,7 +240,7 @@ export default function Booking() {
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="lg:sticky lg:top-20 space-y-4">
             <BookingSummary
               movie={movie}
               showtime={showtime}
