@@ -104,9 +104,9 @@ const Index = () => {
         }
       }
 
-      // Fetch upcoming from TMDB
-      const upcomingRes = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tmdb-movies?action=upcoming`,
+      // Fetch popular/trending from TMDB for "Coming Soon" section
+      const popularRes = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tmdb-movies?action=popular`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -115,10 +115,20 @@ const Index = () => {
         }
       );
       
-      if (upcomingRes.ok) {
-        const upcomingData = await upcomingRes.json();
-        if (upcomingData.movies?.length > 0) {
-          for (const movie of upcomingData.movies.slice(0, 6)) {
+      if (popularRes.ok) {
+        const popularData = await popularRes.json();
+        if (popularData.movies?.length > 0) {
+          // Filter to only include recent movies (released in last 2 years or upcoming)
+          const today = new Date();
+          const twoYearsAgo = new Date(today.getFullYear() - 2, today.getMonth(), today.getDate());
+          
+          const trendingMovies = popularData.movies.filter((movie: TMDBMovie) => {
+            if (!movie.release_date) return false;
+            const releaseDate = new Date(movie.release_date);
+            return releaseDate >= twoYearsAgo;
+          });
+          
+          for (const movie of trendingMovies.slice(0, 6)) {
             await upsertMovie(movie, 'coming_soon');
           }
         }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Search, Filter, X, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Filter, X, Loader2, Ticket } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -20,6 +21,7 @@ const GENRE_LIST = [
 ];
 
 export default function Movies() {
+  const navigate = useNavigate();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -27,6 +29,7 @@ export default function Movies() {
   const [showFilters, setShowFilters] = useState(false);
   const [tmdbResults, setTmdbResults] = useState<any[]>([]);
   const [searchingTMDB, setSearchingTMDB] = useState(false);
+  const [importingMovie, setImportingMovie] = useState<number | null>(null);
   const { searchMovies } = useTMDB();
   const { toast } = useToast();
 
@@ -77,6 +80,82 @@ export default function Movies() {
       console.error('TMDB search error:', error);
     } finally {
       setSearchingTMDB(false);
+    }
+  };
+
+  const importAndBookMovie = async (tmdbMovie: any) => {
+    setImportingMovie(tmdbMovie.tmdb_id);
+    try {
+      // Insert movie into database
+      const movieData = {
+        title: tmdbMovie.title,
+        description: tmdbMovie.description,
+        poster_url: tmdbMovie.poster_url,
+        backdrop_url: tmdbMovie.backdrop_url,
+        release_date: tmdbMovie.release_date,
+        rating: tmdbMovie.rating || 0,
+        duration_minutes: tmdbMovie.duration_minutes || 120,
+        genre: tmdbMovie.genre || [],
+        director: tmdbMovie.director || null,
+        cast_members: tmdbMovie.cast_members || [],
+        status: 'now_showing',
+      };
+
+      const { data: insertedMovie, error: insertError } = await supabase
+        .from('movies')
+        .insert(movieData)
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+
+      // Get a random screen for showtimes
+      const { data: screens } = await supabase
+        .from('screens')
+        .select('id')
+        .limit(3);
+
+      if (screens && screens.length > 0) {
+        // Create showtimes for next 7 days
+        const showtimes = [];
+        const times = ['10:00', '14:00', '18:00', '21:00'];
+        
+        for (let day = 0; day < 7; day++) {
+          const date = new Date();
+          date.setDate(date.getDate() + day);
+          const showDate = date.toISOString().split('T')[0];
+          
+          for (const screen of screens) {
+            for (const time of times) {
+              showtimes.push({
+                movie_id: insertedMovie.id,
+                screen_id: screen.id,
+                show_date: showDate,
+                show_time: time,
+              });
+            }
+          }
+        }
+
+        await supabase.from('showtimes').insert(showtimes);
+      }
+
+      toast({
+        title: 'Movie imported!',
+        description: `${tmdbMovie.title} is now available for booking.`,
+      });
+
+      // Navigate to booking page
+      navigate(`/movie/${insertedMovie.id}`);
+    } catch (error) {
+      console.error('Import error:', error);
+      toast({
+        title: 'Import failed',
+        description: 'Could not import movie. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setImportingMovie(null);
     }
   };
 
@@ -199,11 +278,15 @@ export default function Movies() {
         {tmdbResults.length > 0 && (
           <div className="mb-8 p-4 bg-card/50 rounded-lg border border-border">
             <h3 className="text-sm font-medium mb-3 text-muted-foreground">
-              Results from TMDB (not in our library)
+              Results from TMDB - Click to book tickets
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
               {tmdbResults.map((movie) => (
-                <div key={movie.tmdb_id} className="relative group">
+                <div
+                  key={movie.tmdb_id}
+                  className="relative group cursor-pointer"
+                  onClick={() => importAndBookMovie(movie)}
+                >
                   <img
                     src={movie.poster_url || '/placeholder.svg'}
                     alt={movie.title}
@@ -212,6 +295,18 @@ export default function Movies() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent rounded-lg flex flex-col justify-end p-2">
                     <p className="text-xs font-medium text-white line-clamp-2">{movie.title}</p>
                     <p className="text-xs text-white/60">{movie.release_date?.split('-')[0]}</p>
+                    <Button
+                      size="sm"
+                      className="mt-2 h-7 text-xs cinema-gradient"
+                      disabled={importingMovie === movie.tmdb_id}
+                    >
+                      {importingMovie === movie.tmdb_id ? (
+                        <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                      ) : (
+                        <Ticket className="h-3 w-3 mr-1" />
+                      )}
+                      Book Now
+                    </Button>
                   </div>
                 </div>
               ))}
