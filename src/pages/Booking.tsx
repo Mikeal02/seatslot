@@ -159,9 +159,33 @@ export default function Booking() {
         throw new Error('Some seats were already booked. Please try again.');
       }
 
+      // Send ticket email
+      const screen = showtime?.screen;
+      const theatre = screen?.theatre;
+      if (user?.email && movie && showtime && screen && theatre) {
+        try {
+          await supabase.functions.invoke('send-ticket-email', {
+            body: {
+              email: user.email,
+              bookingId: bookingData.id,
+              movieTitle: movie.title,
+              showDate: showtime.show_date,
+              showTime: showtime.show_time,
+              theatreName: theatre.name,
+              screenName: screen.name,
+              seats: selectedSeats.map(s => `${s.row_label}${s.seat_number}`),
+              totalAmount,
+            },
+          });
+        } catch (emailError) {
+          console.error('Failed to send ticket email:', emailError);
+          // Don't fail the booking if email fails
+        }
+      }
+
       toast({
         title: 'Booking confirmed!',
-        description: 'Your tickets have been booked successfully.',
+        description: 'Your tickets have been booked and sent to your email.',
       });
 
       navigate(`/booking-confirmation/${bookingData.id}`);

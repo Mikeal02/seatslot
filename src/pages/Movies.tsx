@@ -86,28 +86,23 @@ export default function Movies() {
   const importAndBookMovie = async (tmdbMovie: any) => {
     setImportingMovie(tmdbMovie.tmdb_id);
     try {
-      // Insert movie into database
-      const movieData = {
-        title: tmdbMovie.title,
-        description: tmdbMovie.description,
-        poster_url: tmdbMovie.poster_url,
-        backdrop_url: tmdbMovie.backdrop_url,
-        release_date: tmdbMovie.release_date,
-        rating: tmdbMovie.rating || 0,
-        duration_minutes: tmdbMovie.duration_minutes || 120,
-        genre: tmdbMovie.genre || [],
-        director: tmdbMovie.director || null,
-        cast_members: tmdbMovie.cast_members || [],
-        status: 'now_showing',
-      };
+      // Use secure RPC function to import movie
+      const { data: movieId, error: importError } = await supabase.rpc('import_movie_from_tmdb', {
+        p_title: tmdbMovie.title,
+        p_description: tmdbMovie.description || null,
+        p_poster_url: tmdbMovie.poster_url || null,
+        p_backdrop_url: tmdbMovie.backdrop_url || null,
+        p_release_date: tmdbMovie.release_date || null,
+        p_duration_minutes: tmdbMovie.duration_minutes || 120,
+        p_rating: tmdbMovie.rating || null,
+        p_genre: tmdbMovie.genre || [],
+        p_director: tmdbMovie.director || null,
+        p_cast_members: tmdbMovie.cast_members || [],
+        p_trailer_key: null,
+        p_status: 'now_showing',
+      });
 
-      const { data: insertedMovie, error: insertError } = await supabase
-        .from('movies')
-        .insert(movieData)
-        .select()
-        .single();
-
-      if (insertError) throw insertError;
+      if (importError) throw importError;
 
       // Get a random screen for showtimes
       const { data: screens } = await supabase
@@ -128,7 +123,7 @@ export default function Movies() {
           for (const screen of screens) {
             for (const time of times) {
               showtimes.push({
-                movie_id: insertedMovie.id,
+                movie_id: movieId,
                 screen_id: screen.id,
                 show_date: showDate,
                 show_time: time,
@@ -146,7 +141,7 @@ export default function Movies() {
       });
 
       // Navigate to booking page
-      navigate(`/movie/${insertedMovie.id}`);
+      navigate(`/movie/${movieId}`);
     } catch (error) {
       console.error('Import error:', error);
       toast({
