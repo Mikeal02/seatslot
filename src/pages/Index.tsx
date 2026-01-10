@@ -141,13 +141,25 @@ const Index = () => {
     }
   };
 
-  const upsertMovie = async (tmdbMovie: TMDBMovie, status: 'now_showing' | 'coming_soon') => {
+  const determineMovieStatus = (releaseDate: string | null): 'now_showing' | 'coming_soon' => {
+    if (!releaseDate) return 'now_showing';
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const release = new Date(releaseDate);
+    release.setHours(0, 0, 0, 0);
+    return release <= today ? 'now_showing' : 'coming_soon';
+  };
+
+  const upsertMovie = async (tmdbMovie: TMDBMovie, _preferredStatus: 'now_showing' | 'coming_soon') => {
     try {
       const { data: existing } = await supabase
         .from('movies')
         .select('id')
         .ilike('title', tmdbMovie.title)
         .maybeSingle();
+
+      // Determine actual status based on release date
+      const actualStatus = determineMovieStatus(tmdbMovie.release_date);
 
       const movieData = {
         title: tmdbMovie.title,
@@ -160,7 +172,7 @@ const Index = () => {
         genre: tmdbMovie.genre || [],
         director: tmdbMovie.director,
         cast_members: tmdbMovie.cast_members || [],
-        status,
+        status: actualStatus,
       };
 
       if (existing) {
