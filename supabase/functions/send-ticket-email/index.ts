@@ -166,22 +166,38 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (!emailResponse.ok) {
       console.error("Resend API error:", data);
+      
+      // Check if it's the domain verification error
+      if (data.name === 'validation_error' && data.message?.includes('only send testing emails')) {
+        console.warn("Resend is in test mode - emails can only be sent to the verified account email");
+        // Return success but with a warning - booking still succeeded
+        return new Response(JSON.stringify({ 
+          success: true, 
+          warning: "Email delivery limited in test mode. Verify a domain at resend.com/domains for production.",
+          testMode: true
+        }), {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
+      
       throw new Error(data.message || "Failed to send email");
     }
 
-    console.log("Ticket email sent successfully:", data);
+    console.log("Ticket email sent successfully to:", email);
 
-    return new Response(JSON.stringify(data), {
+    return new Response(JSON.stringify({ success: true, data }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: unknown) {
     console.error("Error sending ticket email:", error);
     const message = error instanceof Error ? error.message : "Failed to send email";
+    // Don't fail the booking just because email failed
     return new Response(
-      JSON.stringify({ error: message }),
+      JSON.stringify({ success: false, error: message, emailFailed: true }),
       {
-        status: 500,
+        status: 200, // Return 200 so booking doesn't fail
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );

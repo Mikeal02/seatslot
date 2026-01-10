@@ -277,7 +277,7 @@ export default function MovieDetails() {
               )}
 
               {/* Showtimes */}
-              {movie.status === 'now_showing' && (
+              {showtimes.length > 0 && (
                 <div>
                   <h2 className="text-xl font-semibold mb-4">Select Showtime</h2>
                   <ShowtimeSelector
@@ -291,7 +291,7 @@ export default function MovieDetails() {
 
             {/* Booking Card */}
             <div className="lg:col-span-1">
-              {movie.status === 'now_showing' ? (
+              {showtimes.length > 0 ? (
                 <div className="sticky top-20 p-6 rounded-lg bg-card border border-border">
                   <h3 className="text-lg font-semibold mb-4">Book Tickets</h3>
                   {selectedShowtime ? (
@@ -326,13 +326,19 @@ export default function MovieDetails() {
                 </div>
               ) : (
                 <div className="sticky top-20 p-6 rounded-lg bg-card border border-border text-center">
-                  <Badge variant="secondary" className="mb-4">Coming Soon</Badge>
+                  <Badge variant="secondary" className="mb-4">
+                    {movie.release_date && new Date(movie.release_date) > new Date() ? 'Coming Soon' : 'No Showtimes'}
+                  </Badge>
                   <p className="text-sm text-muted-foreground">
-                    This movie is not yet available for booking.
-                    {movie.release_date && (
-                      <span className="block mt-2">
-                        Expected release: {format(parseISO(movie.release_date), 'MMMM d, yyyy')}
-                      </span>
+                    {movie.release_date && new Date(movie.release_date) > new Date() ? (
+                      <>
+                        This movie is not yet available for booking.
+                        <span className="block mt-2">
+                          Expected release: {format(parseISO(movie.release_date), 'MMMM d, yyyy')}
+                        </span>
+                      </>
+                    ) : (
+                      'No showtimes are currently available for this movie.'
                     )}
                   </p>
                 </div>
