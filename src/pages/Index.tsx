@@ -51,8 +51,23 @@ const Index = () => {
 
       if (error) throw error;
 
-      const now = movies?.filter((m) => m.status === 'now_showing') || [];
-      const coming = movies?.filter((m) => m.status === 'coming_soon') || [];
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // Always derive sections from release_date to avoid stale/incorrect status values in DB
+      const now = (movies || []).filter((m) => {
+        if (!m.release_date) return true;
+        const release = new Date(m.release_date);
+        release.setHours(0, 0, 0, 0);
+        return release <= today;
+      });
+
+      const coming = (movies || []).filter((m) => {
+        if (!m.release_date) return false;
+        const release = new Date(m.release_date);
+        release.setHours(0, 0, 0, 0);
+        return release > today;
+      });
 
       setNowShowing(now as Movie[]);
       setComingSoon(coming as Movie[]);
