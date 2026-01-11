@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Film, User, LogOut, Ticket, Settings } from 'lucide-react';
+import { Film, User, LogOut, Ticket, Settings, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -13,11 +14,14 @@ import { useAuth } from '@/hooks/useAuth';
 export function Header() {
   const { user, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
   };
+
+  const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
     <header className="sticky top-0 z-50 glass-effect">
@@ -28,6 +32,7 @@ export function Header() {
             <span className="text-xl font-bold cinema-gradient-text">CineBook</span>
           </Link>
 
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
             <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Home
@@ -42,7 +47,17 @@ export function Header() {
             )}
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -88,6 +103,35 @@ export function Header() {
             )}
           </div>
         </div>
+
+        {/* Mobile Navigation Menu */}
+        {mobileMenuOpen && (
+          <nav className="md:hidden border-t border-border py-4 space-y-2">
+            <Link
+              to="/"
+              onClick={closeMobileMenu}
+              className="block px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
+            >
+              Home
+            </Link>
+            <Link
+              to="/movies"
+              onClick={closeMobileMenu}
+              className="block px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
+            >
+              Movies
+            </Link>
+            {user && (
+              <Link
+                to="/bookings"
+                onClick={closeMobileMenu}
+                className="block px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
+              >
+                My Bookings
+              </Link>
+            )}
+          </nav>
+        )}
       </div>
     </header>
   );
