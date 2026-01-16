@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Filter, X, Loader2, Ticket } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { MovieCard } from '@/components/movies/MovieCard';
+import { AdvancedFilters, FilterOptions, defaultFilters } from '@/components/movies/AdvancedFilters';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +31,7 @@ export default function Movies() {
   const [tmdbResults, setTmdbResults] = useState<any[]>([]);
   const [searchingTMDB, setSearchingTMDB] = useState(false);
   const [importingMovie, setImportingMovie] = useState<number | null>(null);
+  const [advancedFilters, setAdvancedFilters] = useState<FilterOptions>(defaultFilters);
   const { searchMovies } = useTMDB();
   const { toast } = useToast();
 
@@ -165,17 +167,49 @@ export default function Movies() {
   const clearFilters = () => {
     setSelectedGenres([]);
     setSearch('');
+    setAdvancedFilters(defaultFilters);
   };
 
-  const filteredMovies = movies.filter((movie) => {
-    const matchesSearch = movie.title.toLowerCase().includes(search.toLowerCase()) ||
-      movie.genre.some((g) => g.toLowerCase().includes(search.toLowerCase()));
-    
-    const matchesGenre = selectedGenres.length === 0 ||
-      movie.genre.some(g => selectedGenres.some(sg => g.toLowerCase().includes(sg.toLowerCase())));
+  // Apply all filters including advanced
+  const filteredMovies = useMemo(() => {
+    let result = movies.filter((movie) => {
+      const matchesSearch = movie.title.toLowerCase().includes(search.toLowerCase()) ||
+        movie.genre.some((g) => g.toLowerCase().includes(search.toLowerCase()));
+      
+      const matchesGenre = selectedGenres.length === 0 ||
+        movie.genre.some(g => selectedGenres.some(sg => g.toLowerCase().includes(sg.toLowerCase())));
 
-    return matchesSearch && matchesGenre;
-  });
+      // Advanced filters
+      const matchesRating = (movie.rating || 0) >= advancedFilters.minRating;
+      const matchesDuration = movie.duration_minutes <= advancedFilters.maxDuration;
+      const matchesAdvancedGenre = advancedFilters.genres.length === 0 ||
+        movie.genre.some(g => advancedFilters.genres.some(ag => g.toLowerCase().includes(ag.toLowerCase())));
+
+      return matchesSearch && matchesGenre && matchesRating && matchesDuration && matchesAdvancedGenre;
+    });
+
+    // Sort
+    result.sort((a, b) => {
+      let comparison = 0;
+      switch (advancedFilters.sortBy) {
+        case 'rating':
+          comparison = (b.rating || 0) - (a.rating || 0);
+          break;
+        case 'release_date':
+          comparison = new Date(b.release_date || 0).getTime() - new Date(a.release_date || 0).getTime();
+          break;
+        case 'title':
+          comparison = a.title.localeCompare(b.title);
+          break;
+        case 'duration':
+          comparison = a.duration_minutes - b.duration_minutes;
+          break;
+      }
+      return advancedFilters.sortOrder === 'asc' ? -comparison : comparison;
+    });
+
+    return result;
+  }, [movies, search, selectedGenres, advancedFilters]);
 
   const nowShowing = filteredMovies.filter((m) => m.status === 'now_showing');
   const comingSoon = filteredMovies.filter((m) => m.status === 'coming_soon');
@@ -217,6 +251,12 @@ export default function Movies() {
                 <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
               )}
             </div>
+            <AdvancedFilters
+              filters={advancedFilters}
+              onFiltersChange={setAdvancedFilters}
+              onReset={() => setAdvancedFilters(defaultFilters)}
+              genres={GENRE_LIST}
+            />
             <Button
               variant={showFilters ? 'default' : 'outline'}
               size="icon"
