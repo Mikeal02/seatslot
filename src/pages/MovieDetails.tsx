@@ -6,6 +6,8 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { ShowtimeSelector } from '@/components/booking/ShowtimeSelector';
 import { MovieTrailer } from '@/components/movies/MovieTrailer';
+import { MovieReviews } from '@/components/movies/MovieReviews';
+import { WishlistButton } from '@/components/movies/WishlistButton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -199,12 +201,20 @@ export default function MovieDetails() {
                 className="w-32 md:w-48 rounded-lg shadow-2xl hidden sm:block"
               />
               <div className="space-y-4">
-                <Button variant="ghost" size="sm" asChild className="mb-2">
-                  <Link to="/">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back
-                  </Link>
-                </Button>
+                <div className="flex items-center gap-2 mb-2">
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/">
+                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      Back
+                    </Link>
+                  </Button>
+                  <WishlistButton 
+                    movieId={movie.id} 
+                    movieTitle={movie.title}
+                    variant="outline"
+                    className="bg-background/50 hover:bg-background/80"
+                  />
+                </div>
                 <h1 className="text-3xl md:text-5xl font-bold">{movie.title}</h1>
                 <div className="flex flex-wrap gap-2">
                   {movie.genre.map((g) => (
@@ -277,6 +287,9 @@ export default function MovieDetails() {
               )}
 
               {/* Showtimes */}
+              {/* Reviews Section */}
+              <MovieReviews movieId={movie.id} />
+
               {showtimes.length > 0 && (
                 <div>
                   <h2 className="text-xl font-semibold mb-4">Select Showtime</h2>

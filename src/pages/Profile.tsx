@@ -4,6 +4,8 @@ import { User, Mail, Phone, Save, Ticket, Calendar, Clock, Film, MapPin, LogOut 
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { LoyaltyCard } from '@/components/loyalty/LoyaltyCard';
+import { PointsHistory } from '@/components/loyalty/PointsHistory';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -202,9 +204,10 @@ export default function Profile() {
           </div>
 
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="profile">Profile Settings</TabsTrigger>
-              <TabsTrigger value="bookings">Booking History</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="profile">Profile</TabsTrigger>
+              <TabsTrigger value="rewards">Rewards</TabsTrigger>
+              <TabsTrigger value="bookings">Bookings</TabsTrigger>
             </TabsList>
 
             <TabsContent value="profile">
@@ -273,6 +276,11 @@ export default function Profile() {
                   </Button>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="rewards" className="space-y-6">
+              <LoyaltyCard />
+              <PointsHistory />
             </TabsContent>
 
             <TabsContent value="bookings">
