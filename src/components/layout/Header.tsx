@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Film, User, LogOut, Ticket, Settings, Menu, X } from 'lucide-react';
+import { Film, User, LogOut, Ticket, Settings, Menu, X, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -41,9 +41,15 @@ export function Header() {
               Movies
             </Link>
             {user && (
-              <Link to="/bookings" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                My Bookings
-              </Link>
+              <>
+                <Link to="/bookings" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  My Bookings
+                </Link>
+                <Link to="/wishlist" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+                  <Heart className="h-4 w-4" />
+                  Wishlist
+                </Link>
+              </>
             )}
           </nav>
 
@@ -122,13 +128,23 @@ export function Header() {
               Movies
             </Link>
             {user && (
-              <Link
-                to="/bookings"
-                onClick={closeMobileMenu}
-                className="block px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
-              >
-                My Bookings
-              </Link>
+              <>
+                <Link
+                  to="/bookings"
+                  onClick={closeMobileMenu}
+                  className="block px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
+                >
+                  My Bookings
+                </Link>
+                <Link
+                  to="/wishlist"
+                  onClick={closeMobileMenu}
+                  className="block px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors flex items-center gap-2"
+                >
+                  <Heart className="h-4 w-4" />
+                  Wishlist
+                </Link>
+              </>
             )}
           </nav>
         )}
