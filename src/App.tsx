@@ -12,6 +12,7 @@ import Booking from "./pages/Booking";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import MyBookings from "./pages/MyBookings";
 import Profile from "./pages/Profile";
+import Wishlist from "./pages/Wishlist";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/Dashboard";
 import MoviesAdmin from "./pages/admin/MoviesAdmin";
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/booking-confirmation/:bookingId" element={<BookingConfirmation />} />
             <Route path="/bookings" element={<MyBookings />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/wishlist" element={<Wishlist />} />
             
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>

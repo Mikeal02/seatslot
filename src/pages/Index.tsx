@@ -4,6 +4,8 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { HeroSection } from '@/components/movies/HeroSection';
 import { MovieGrid } from '@/components/movies/MovieGrid';
+import { QuickRebook } from '@/components/booking/QuickRebook';
+import { MovieRecommendations } from '@/components/movies/MovieRecommendations';
 import { Movie } from '@/types/database';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -231,6 +233,11 @@ const Index = () => {
       <main className="flex-1">
         {featuredMovie && <HeroSection movie={featuredMovie} />}
         
+        {/* Quick Rebook for returning users */}
+        <div className="container mx-auto px-4 py-8">
+          <QuickRebook />
+        </div>
+        
         {nowShowing.length > 0 && (
           <MovieGrid
             movies={nowShowing}
@@ -238,6 +245,11 @@ const Index = () => {
             subtitle="Book tickets for movies currently in theatres"
           />
         )}
+        
+        {/* Personalized Recommendations */}
+        <div className="container mx-auto px-4 py-8">
+          <MovieRecommendations limit={6} />
+        </div>
         
         {comingSoon.length > 0 && (
           <MovieGrid

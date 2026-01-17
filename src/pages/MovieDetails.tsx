@@ -7,7 +7,9 @@ import { Footer } from '@/components/layout/Footer';
 import { ShowtimeSelector } from '@/components/booking/ShowtimeSelector';
 import { MovieTrailer } from '@/components/movies/MovieTrailer';
 import { MovieReviews } from '@/components/movies/MovieReviews';
+import { MovieRecommendations } from '@/components/movies/MovieRecommendations';
 import { WishlistButton } from '@/components/movies/WishlistButton';
+import { SocialShare } from '@/components/movies/SocialShare';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -214,6 +216,11 @@ export default function MovieDetails() {
                     variant="outline"
                     className="bg-background/50 hover:bg-background/80"
                   />
+                  <SocialShare 
+                    title={movie.title}
+                    description={movie.description || `Watch ${movie.title} - ${movie.genre.join(', ')}`}
+                    variant="outline"
+                  />
                 </div>
                 <h1 className="text-3xl md:text-5xl font-bold">{movie.title}</h1>
                 <div className="flex flex-wrap gap-2">
@@ -357,6 +364,15 @@ export default function MovieDetails() {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Recommendations Section */}
+          <div className="mt-12">
+            <MovieRecommendations 
+              currentMovieId={movie.id} 
+              currentGenres={movie.genre} 
+              limit={6}
+            />
           </div>
         </section>
       </main>
