@@ -237,11 +237,11 @@ export default function MovieDetails() {
         </section>
 
         {/* Movie Info */}
-        <section className="container mx-auto px-4 py-8">
-          <div className="grid lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
+        <section className="container mx-auto px-4 py-4 sm:py-8">
+          <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+            <div className="lg:col-span-2 space-y-6 lg:space-y-8">
               {/* Details */}
-              <div className="flex flex-wrap gap-6 text-sm">
+              <div className="flex flex-wrap gap-3 sm:gap-6 text-xs sm:text-sm">
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-primary" />
                   <span>{movie.duration_minutes} minutes</span>
@@ -310,10 +310,10 @@ export default function MovieDetails() {
             </div>
 
             {/* Booking Card */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 order-first lg:order-last">
               {showtimes.length > 0 ? (
-                <div className="sticky top-20 p-6 rounded-lg bg-card border border-border">
-                  <h3 className="text-lg font-semibold mb-4">Book Tickets</h3>
+                <div className="lg:sticky lg:top-20 p-4 sm:p-6 rounded-lg bg-card border border-border">
+                  <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Book Tickets</h3>
                   {selectedShowtime ? (
                     <div className="space-y-4">
                       <div className="text-sm space-y-2">
@@ -345,8 +345,8 @@ export default function MovieDetails() {
                   )}
                 </div>
               ) : (
-                <div className="sticky top-20 p-6 rounded-lg bg-card border border-border text-center">
-                  <Badge variant="secondary" className="mb-4">
+                <div className="lg:sticky lg:top-20 p-4 sm:p-6 rounded-lg bg-card border border-border text-center">
+                  <Badge variant="secondary" className="mb-3 sm:mb-4">
                     {movie.release_date && new Date(movie.release_date) > new Date() ? 'Coming Soon' : 'No Showtimes'}
                   </Badge>
                   <p className="text-sm text-muted-foreground">

@@ -83,12 +83,12 @@ export default function Wishlist() {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
 
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="flex items-center gap-3 mb-8">
-          <Heart className="h-8 w-8 text-primary fill-primary" />
-          <h1 className="text-3xl font-bold">My Wishlist</h1>
+      <main className="flex-1 container mx-auto px-4 py-6 sm:py-8">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+          <Heart className="h-6 w-6 sm:h-8 sm:w-8 text-primary fill-primary" />
+          <h1 className="text-2xl sm:text-3xl font-bold">My Wishlist</h1>
           {movies.length > 0 && (
-            <Badge variant="secondary" className="ml-2">
+            <Badge variant="secondary" className="text-xs sm:text-sm">
               {movies.length} {movies.length === 1 ? 'movie' : 'movies'}
             </Badge>
           )}
@@ -112,22 +112,22 @@ export default function Wishlist() {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {movies.map((movie) => {
               const nowShowing = isNowShowing(movie.release_date);
               return (
                 <Card key={movie.id} className="overflow-hidden group hover:border-primary/50 transition-colors">
-                  <div className="flex gap-4 p-4">
+                  <div className="flex gap-3 sm:gap-4 p-3 sm:p-4">
                     <Link to={`/movie/${movie.id}`} className="shrink-0">
                       <img
                         src={movie.poster_url || '/placeholder.svg'}
                         alt={movie.title}
-                        className="w-24 h-36 object-cover rounded-lg group-hover:opacity-90 transition-opacity"
+                        className="w-20 h-28 sm:w-24 sm:h-36 object-cover rounded-lg group-hover:opacity-90 transition-opacity"
                       />
                     </Link>
                     <div className="flex-1 min-w-0">
                       <Link to={`/movie/${movie.id}`}>
-                        <h3 className="font-semibold text-lg line-clamp-2 hover:text-primary transition-colors">
+                        <h3 className="font-semibold text-base sm:text-lg line-clamp-2 hover:text-primary transition-colors">
                           {movie.title}
                         </h3>
                       </Link>

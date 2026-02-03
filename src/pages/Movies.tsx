@@ -235,35 +235,38 @@ export default function Movies() {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
 
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <h1 className="text-3xl font-bold">All Movies</h1>
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1 md:w-80">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search movies from TMDB..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-10"
+      <main className="flex-1 container mx-auto px-4 py-6 sm:py-8">
+        <div className="flex flex-col gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h1 className="text-2xl sm:text-3xl font-bold">All Movies</h1>
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1 sm:w-60 md:w-80">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search movies..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-10 text-sm"
+                />
+                {searchingTMDB && (
+                  <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+              </div>
+              <AdvancedFilters
+                filters={advancedFilters}
+                onFiltersChange={setAdvancedFilters}
+                onReset={() => setAdvancedFilters(defaultFilters)}
+                genres={GENRE_LIST}
               />
-              {searchingTMDB && (
-                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
-              )}
+              <Button
+                variant={showFilters ? 'default' : 'outline'}
+                size="icon"
+                onClick={() => setShowFilters(!showFilters)}
+                className="shrink-0"
+              >
+                <Filter className="h-4 w-4" />
+              </Button>
             </div>
-            <AdvancedFilters
-              filters={advancedFilters}
-              onFiltersChange={setAdvancedFilters}
-              onReset={() => setAdvancedFilters(defaultFilters)}
-              genres={GENRE_LIST}
-            />
-            <Button
-              variant={showFilters ? 'default' : 'outline'}
-              size="icon"
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <Filter className="h-4 w-4" />
-            </Button>
           </div>
         </div>
 
@@ -350,14 +353,14 @@ export default function Movies() {
         )}
 
         <Tabs defaultValue="now_showing" className="w-full">
-          <TabsList>
-            <TabsTrigger value="now_showing">
+          <TabsList className="w-full sm:w-auto grid grid-cols-3 sm:inline-flex">
+            <TabsTrigger value="now_showing" className="text-xs sm:text-sm">
               Now Showing ({nowShowing.length})
             </TabsTrigger>
-            <TabsTrigger value="coming_soon">
+            <TabsTrigger value="coming_soon" className="text-xs sm:text-sm">
               Coming Soon ({comingSoon.length})
             </TabsTrigger>
-            <TabsTrigger value="all">
+            <TabsTrigger value="all" className="text-xs sm:text-sm">
               All ({filteredMovies.length})
             </TabsTrigger>
           </TabsList>
