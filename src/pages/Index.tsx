@@ -9,21 +9,7 @@ import { MovieRecommendations } from '@/components/movies/MovieRecommendations';
 import { Movie } from '@/types/database';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-
-interface TMDBMovie {
-  tmdb_id: number;
-  title: string;
-  description: string;
-  poster_url: string | null;
-  backdrop_url: string | null;
-  release_date: string;
-  rating: number;
-  duration_minutes?: number;
-  genre?: string[];
-  director?: string | null;
-  cast_members?: string[];
-  trailer_key?: string | null;
-}
+import { useMovieSync } from '@/hooks/useMovieSync';
 
 const Index = () => {
   const [nowShowing, setNowShowing] = useState<Movie[]>([]);
@@ -31,178 +17,69 @@ const Index = () => {
   const [featuredMovie, setFeaturedMovie] = useState<Movie | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { syncMovies } = useMovieSync();
 
   useEffect(() => {
-    syncAndFetchMovies();
+    loadMovies();
   }, []);
 
-  const syncAndFetchMovies = async () => {
+  const loadMovies = async () => {
     try {
-      // First, try to sync movies from TMDB
-      const syncSuccess = await syncTMDBMovies();
-      
-      if (!syncSuccess) {
-        console.log('TMDB sync skipped or failed, fetching from database only');
-      }
-      
-      // Then fetch from database
-      const { data: movies, error } = await supabase
-        .from('movies')
-        .select('*')
-        .order('rating', { ascending: false });
+      // Immediately fetch from database first (fast)
+      await fetchMoviesFromDB();
+      setLoading(false);
 
-      if (error) throw error;
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      // Always derive sections from release_date to avoid stale/incorrect status values in DB
-      const now = (movies || []).filter((m) => {
-        if (!m.release_date) return true;
-        const release = new Date(m.release_date);
-        release.setHours(0, 0, 0, 0);
-        return release <= today;
-      });
-
-      const coming = (movies || []).filter((m) => {
-        if (!m.release_date) return false;
-        const release = new Date(m.release_date);
-        release.setHours(0, 0, 0, 0);
-        return release > today;
-      });
-
-      setNowShowing(now as Movie[]);
-      setComingSoon(coming as Movie[]);
-      setFeaturedMovie((now[0] as Movie) || null);
-      
-      if (movies?.length === 0) {
-        toast({
-          title: 'No movies found',
-          description: 'Add a TMDB API key to import movies automatically.',
-          variant: 'default',
-        });
+      // Then sync in background (won't block UI)
+      const synced = await syncMovies();
+      if (synced) {
+        // Refresh movies after sync completes
+        await fetchMoviesFromDB();
       }
     } catch (error) {
-      console.error('Error fetching movies:', error);
-    } finally {
+      console.error('Error loading movies:', error);
       setLoading(false);
     }
   };
 
-  const syncTMDBMovies = async (): Promise<boolean> => {
-    try {
-      // Fetch now playing from TMDB
-      const nowPlayingRes = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tmdb-movies?action=now_playing`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          },
-        }
-      );
-      
-      if (!nowPlayingRes.ok) {
-        console.warn('TMDB API returned error');
-        return false;
-      }
-      
-      const nowPlayingData = await nowPlayingRes.json();
-      
-      // Check if there's an error (API key not configured)
-      if (nowPlayingData.error) {
-        console.warn('TMDB API error:', nowPlayingData.error);
-        return false;
-      }
-      
-      if (nowPlayingData.movies?.length > 0) {
-        for (const movie of nowPlayingData.movies.slice(0, 8)) {
-          await upsertMovie(movie, 'now_showing');
-        }
-      }
+  const fetchMoviesFromDB = async () => {
+    const { data: movies, error } = await supabase
+      .from('movies')
+      .select('*')
+      .order('rating', { ascending: false });
 
-      // Fetch upcoming movies from TMDB for "Coming Soon" section
-      const upcomingRes = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tmdb-movies?action=upcoming`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          },
-        }
-      );
-      
-      if (upcomingRes.ok) {
-        const upcomingData = await upcomingRes.json();
-        if (upcomingData.movies?.length > 0) {
-          // Filter to only include movies with future release dates
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          
-          const futureMovies = upcomingData.movies.filter((movie: TMDBMovie) => {
-            if (!movie.release_date) return false;
-            const releaseDate = new Date(movie.release_date);
-            releaseDate.setHours(0, 0, 0, 0);
-            return releaseDate > today;
-          });
-          
-          for (const movie of futureMovies.slice(0, 6)) {
-            await upsertMovie(movie, 'coming_soon');
-          }
-        }
-      }
-      
-      return true;
-    } catch (error) {
-      console.error('Error syncing TMDB movies:', error);
-      return false;
+    if (error) {
+      console.error('Error fetching movies:', error);
+      return;
     }
-  };
 
-  const determineMovieStatus = (releaseDate: string | null): 'now_showing' | 'coming_soon' => {
-    if (!releaseDate) return 'now_showing';
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const release = new Date(releaseDate);
-    release.setHours(0, 0, 0, 0);
-    return release <= today ? 'now_showing' : 'coming_soon';
-  };
 
-  const upsertMovie = async (tmdbMovie: TMDBMovie, _preferredStatus: 'now_showing' | 'coming_soon') => {
-    try {
-      const { data: existing } = await supabase
-        .from('movies')
-        .select('id')
-        .ilike('title', tmdbMovie.title)
-        .maybeSingle();
+    // Derive sections from release_date
+    const now = (movies || []).filter((m) => {
+      if (!m.release_date) return true;
+      const release = new Date(m.release_date);
+      release.setHours(0, 0, 0, 0);
+      return release <= today;
+    });
 
-      // Determine actual status based on release date
-      const actualStatus = determineMovieStatus(tmdbMovie.release_date);
+    const coming = (movies || []).filter((m) => {
+      if (!m.release_date) return false;
+      const release = new Date(m.release_date);
+      release.setHours(0, 0, 0, 0);
+      return release > today;
+    });
 
-      const movieData = {
-        title: tmdbMovie.title,
-        description: tmdbMovie.description,
-        poster_url: tmdbMovie.poster_url,
-        backdrop_url: tmdbMovie.backdrop_url,
-        release_date: tmdbMovie.release_date,
-        rating: tmdbMovie.rating,
-        duration_minutes: tmdbMovie.duration_minutes || 120,
-        genre: tmdbMovie.genre || [],
-        director: tmdbMovie.director,
-        cast_members: tmdbMovie.cast_members || [],
-        status: actualStatus,
-      };
+    setNowShowing(now as Movie[]);
+    setComingSoon(coming as Movie[]);
+    setFeaturedMovie((now[0] as Movie) || null);
 
-      if (existing) {
-        await supabase
-          .from('movies')
-          .update(movieData)
-          .eq('id', existing.id);
-      } else {
-        await supabase.from('movies').insert(movieData);
-      }
-    } catch (error) {
-      console.error('Error upserting movie:', error);
+    if (movies?.length === 0) {
+      toast({
+        title: 'No movies found',
+        description: 'Add a TMDB API key to import movies automatically.',
+        variant: 'default',
+      });
     }
   };
 
