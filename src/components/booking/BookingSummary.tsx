@@ -24,25 +24,25 @@ export function BookingSummary({ movie, showtime, selectedSeats }: BookingSummar
   }, {} as Record<string, Seat[]>);
 
   return (
-    <Card className="bg-card border-border max-h-[calc(100vh-8rem)] overflow-y-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Ticket className="h-5 w-5 text-primary" />
+    <Card className="bg-card border-border max-h-[calc(100vh-8rem)] overflow-y-auto glow-card">
+      <CardHeader className="px-4 sm:px-6 py-4">
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+          <Ticket className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
           Booking Summary
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 px-4 sm:px-6">
         {/* Movie Info */}
         <div className="flex gap-3">
           <img
             src={movie.poster_url || '/placeholder.svg'}
             alt={movie.title}
-            className="w-16 h-24 object-cover rounded"
+            className="w-12 sm:w-16 h-18 sm:h-24 object-cover rounded shrink-0"
           />
-          <div>
-            <h3 className="font-semibold">{movie.title}</h3>
-            <p className="text-sm text-muted-foreground">
-              {movie.duration_minutes} min • {movie.genre.join(', ')}
+          <div className="min-w-0">
+            <h3 className="font-semibold text-sm sm:text-base truncate">{movie.title}</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
+              {movie.duration_minutes} min • {movie.genre.slice(0, 2).join(', ')}
             </p>
           </div>
         </div>
@@ -50,18 +50,18 @@ export function BookingSummary({ movie, showtime, selectedSeats }: BookingSummar
         <Separator />
 
         {/* Showtime Info */}
-        <div className="space-y-2 text-sm">
+        <div className="space-y-2 text-xs sm:text-sm">
           <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span>{formattedDate}</span>
+            <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground shrink-0" />
+            <span className="truncate">{formattedDate}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-muted-foreground" />
+            <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground shrink-0" />
             <span>{formattedTime}</span>
           </div>
           <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-muted-foreground" />
-            <span>
+            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground shrink-0" />
+            <span className="truncate">
               {showtime.screen?.theatre?.name} - {showtime.screen?.name}
             </span>
           </div>
@@ -73,17 +73,17 @@ export function BookingSummary({ movie, showtime, selectedSeats }: BookingSummar
 
             {/* Selected Seats */}
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <Armchair className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center gap-2 text-xs sm:text-sm font-medium">
+                <Armchair className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                 <span>Selected Seats ({selectedSeats.length})</span>
               </div>
               
               {Object.entries(seatsByType).map(([type, seats]) => (
-                <div key={type} className="flex justify-between text-sm">
-                  <span className="capitalize text-muted-foreground">
+                <div key={type} className="flex justify-between text-xs sm:text-sm gap-2">
+                  <span className="capitalize text-muted-foreground shrink-0">
                     {type} ({seats.length}x)
                   </span>
-                  <span>
+                  <span className="truncate text-right">
                     {seats.map((s) => `${s.row_label}${s.seat_number}`).join(', ')}
                   </span>
                 </div>
@@ -93,7 +93,7 @@ export function BookingSummary({ movie, showtime, selectedSeats }: BookingSummar
             <Separator />
 
             {/* Price Breakdown */}
-            <div className="space-y-2 text-sm">
+            <div className="space-y-2 text-xs sm:text-sm">
               {Object.entries(seatsByType).map(([type, seats]) => {
                 const typeTotal = seats.reduce((sum, s) => sum + Number(s.price), 0);
                 return (
@@ -110,7 +110,7 @@ export function BookingSummary({ movie, showtime, selectedSeats }: BookingSummar
             <Separator />
 
             {/* Total */}
-            <div className="flex justify-between font-bold text-lg">
+            <div className="flex justify-between font-bold text-base sm:text-lg">
               <span>Total</span>
               <span className="cinema-gradient-text">₹{totalAmount.toFixed(2)}</span>
             </div>
@@ -118,7 +118,7 @@ export function BookingSummary({ movie, showtime, selectedSeats }: BookingSummar
         )}
 
         {selectedSeats.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-4">
+          <p className="text-xs sm:text-sm text-muted-foreground text-center py-4">
             Select seats to see the price
           </p>
         )}

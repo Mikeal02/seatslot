@@ -242,19 +242,28 @@ export default function Booking() {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
 
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <Button variant="ghost" size="sm" asChild className="mb-6">
+      <main className="flex-1 container mx-auto px-4 py-4 sm:py-8 overflow-x-hidden">
+        <Button variant="ghost" size="sm" asChild className="mb-4 sm:mb-6">
           <Link to={`/movie/${movie.id}`}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Movie
           </Link>
         </Button>
 
-        <h1 className="text-3xl font-bold mb-8">Select Your Seats</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-8">Select Your Seats</h1>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-4 sm:gap-8">
+          {/* Booking Summary - Mobile First */}
+          <div className="lg:hidden space-y-4">
+            <BookingSummary
+              movie={movie}
+              showtime={showtime}
+              selectedSeats={selectedSeats}
+            />
+          </div>
+
           <div className="lg:col-span-2">
-            <div className="bg-card rounded-lg p-6 border border-border">
+            <div className="bg-card rounded-lg p-3 sm:p-6 border border-border overflow-hidden">
               <SeatSelection
                 seats={seats}
                 bookedSeatIds={bookedSeatIds}
@@ -264,7 +273,8 @@ export default function Booking() {
             </div>
           </div>
 
-          <div className="lg:sticky lg:top-20 space-y-4">
+          {/* Booking Summary - Desktop */}
+          <div className="hidden lg:block lg:sticky lg:top-20 space-y-4 self-start">
             <BookingSummary
               movie={movie}
               showtime={showtime}
@@ -281,6 +291,20 @@ export default function Booking() {
             </Button>
           </div>
         </div>
+
+        {/* Fixed bottom button for mobile */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border safe-bottom">
+          <Button
+            onClick={handleConfirmBooking}
+            disabled={booking || selectedSeats.length === 0}
+            className="w-full cinema-gradient"
+            size="lg"
+          >
+            {booking ? 'Confirming...' : selectedSeats.length === 0 ? 'Select Seats' : `Confirm (${selectedSeats.length} seats)`}
+          </Button>
+        </div>
+        {/* Spacer for fixed button on mobile */}
+        <div className="lg:hidden h-20" />
       </main>
 
       <Footer />

@@ -312,7 +312,7 @@ export default function MovieDetails() {
             {/* Booking Card */}
             <div className="lg:col-span-1 order-first lg:order-last">
               {showtimes.length > 0 ? (
-                <div className="lg:sticky lg:top-20 p-4 sm:p-6 rounded-lg bg-card border border-border">
+                <div className="lg:sticky lg:top-20 p-4 sm:p-6 rounded-lg bg-card border border-border glow-card">
                   <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Book Tickets</h3>
                   {selectedShowtime ? (
                     <div className="space-y-4">
@@ -327,7 +327,7 @@ export default function MovieDetails() {
                         </p>
                         <p>
                           <span className="text-muted-foreground">Theatre: </span>
-                          {selectedShowtime.screen?.theatre?.name}
+                          <span className="break-words">{selectedShowtime.screen?.theatre?.name}</span>
                         </p>
                       </div>
                       <Button
@@ -345,7 +345,7 @@ export default function MovieDetails() {
                   )}
                 </div>
               ) : (
-                <div className="lg:sticky lg:top-20 p-4 sm:p-6 rounded-lg bg-card border border-border text-center">
+                <div className="lg:sticky lg:top-20 p-4 sm:p-6 rounded-lg bg-card border border-border glow-card text-center">
                   <Badge variant="secondary" className="mb-3 sm:mb-4">
                     {movie.release_date && new Date(movie.release_date) > new Date() ? 'Coming Soon' : 'No Showtimes'}
                   </Badge>

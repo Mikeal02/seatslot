@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/useAuth';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export function Header() {
   const { user, isAdmin, signOut } = useAuth();
@@ -24,12 +25,12 @@ export function Header() {
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
-    <header className="sticky top-0 z-50 glass-effect">
+    <header className="sticky top-0 z-50 glass-effect safe-top">
       <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <Film className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold cinema-gradient-text">CineBook</span>
+        <div className="flex h-16 items-center justify-between gap-2">
+          <Link to="/" className="flex items-center gap-2 shrink-0">
+            <Film className="h-7 w-7 sm:h-8 sm:w-8 text-primary" />
+            <span className="text-lg sm:text-xl font-bold cinema-gradient-text">CineBook</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -53,7 +54,10 @@ export function Header() {
             )}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             {/* Mobile Menu Button */}
             <Button
               variant="ghost"
@@ -103,7 +107,7 @@ export function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button asChild variant="default" className="cinema-gradient">
+              <Button asChild variant="default" size="sm" className="cinema-gradient text-xs sm:text-sm px-3 sm:px-4">
                 <Link to="/auth">Sign In</Link>
               </Button>
             )}
