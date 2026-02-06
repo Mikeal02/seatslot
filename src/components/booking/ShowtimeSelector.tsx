@@ -49,7 +49,7 @@ export function ShowtimeSelector({
           <Calendar className="h-4 w-4" />
           <span className="text-sm font-medium">Select Date</span>
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin -mx-1 px-1">
           {dates.map((date) => {
             const isSelected = isSameDay(date, selectedDate);
             return (
@@ -57,17 +57,17 @@ export function ShowtimeSelector({
                 key={date.toISOString()}
                 onClick={() => setSelectedDate(date)}
                 className={cn(
-                  'flex flex-col items-center min-w-[70px] p-3 rounded-lg border transition-all',
+                  'flex flex-col items-center min-w-[60px] sm:min-w-[70px] p-2 sm:p-3 rounded-lg border transition-all shrink-0',
                   isSelected
                     ? 'bg-primary text-primary-foreground border-primary'
                     : 'bg-card border-border hover:border-primary/50'
                 )}
               >
-                <span className="text-xs font-medium uppercase">
+                <span className="text-[10px] sm:text-xs font-medium uppercase">
                   {format(date, 'EEE')}
                 </span>
-                <span className="text-lg font-bold">{format(date, 'd')}</span>
-                <span className="text-xs">{format(date, 'MMM')}</span>
+                <span className="text-base sm:text-lg font-bold">{format(date, 'd')}</span>
+                <span className="text-[10px] sm:text-xs">{format(date, 'MMM')}</span>
               </button>
             );
           })}
@@ -84,21 +84,21 @@ export function ShowtimeSelector({
           </Card>
         ) : (
           Object.entries(groupedByTheatre).map(([theatreName, { theatre, showtimes: theatreShowtimes }]) => (
-            <Card key={theatreName} className="bg-card border-border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-start justify-between">
-                  <div>
-                    <span>{theatreName}</span>
+            <Card key={theatreName} className="bg-card border-border glow-card">
+              <CardHeader className="pb-3 px-4 sm:px-6">
+                <CardTitle className="text-base sm:text-lg flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1">
+                  <div className="min-w-0">
+                    <span className="block truncate">{theatreName}</span>
                     {theatre && (
-                      <div className="flex items-center gap-1 text-sm font-normal text-muted-foreground mt-1">
-                        <MapPin className="h-3 w-3" />
-                        <span>{theatre.location}, {theatre.city}</span>
+                      <div className="flex items-center gap-1 text-xs sm:text-sm font-normal text-muted-foreground mt-1">
+                        <MapPin className="h-3 w-3 shrink-0" />
+                        <span className="truncate">{theatre.location}, {theatre.city}</span>
                       </div>
                     )}
                   </div>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-4 sm:px-6">
                 <div className="flex flex-wrap gap-2">
                   {theatreShowtimes
                     .sort((a, b) => a.show_time.localeCompare(b.show_time))
@@ -112,8 +112,9 @@ export function ShowtimeSelector({
                         <Button
                           key={st.id}
                           variant={isSelected ? 'default' : 'outline'}
+                          size="sm"
                           className={cn(
-                            'min-w-[100px]',
+                            'min-w-[80px] sm:min-w-[100px] text-xs sm:text-sm',
                             isSelected && 'cinema-gradient'
                           )}
                           onClick={() => onSelect(st)}
@@ -125,7 +126,7 @@ export function ShowtimeSelector({
                     })}
                 </div>
                 {theatreShowtimes[0]?.screen && (
-                  <Badge variant="secondary" className="mt-3">
+                  <Badge variant="secondary" className="mt-3 text-xs">
                     {theatreShowtimes[0].screen.name}
                   </Badge>
                 )}

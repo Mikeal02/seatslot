@@ -2,58 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Cinema Dark Theme - Movie Ticket Booking System */
+/* Cinema Theme - Movie Ticket Booking System */
 
 @layer base {
+  /* Light Theme - Clean white with glowing edges */
   :root {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 95%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 9%;
 
-    --card: 0 0% 7%;
-    --card-foreground: 0 0% 95%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
 
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
 
-    --primary: 0 84% 60%;
+    --primary: 0 84% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 4% 16%;
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
 
-    --muted: 240 4% 16%;
-    --muted-foreground: 0 0% 64%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 43 96% 56%;
+    --accent: 43 96% 50%;
     --accent-foreground: 0 0% 9%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 84% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 4% 16%;
-    --input: 240 4% 16%;
-    --ring: 0 84% 60%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 84% 50%;
 
     --radius: 0.75rem;
 
-    /* Custom cinema colors */
-    --cinema-red: 0 84% 60%;
-    --cinema-gold: 43 96% 56%;
-    --cinema-dark: 240 10% 4%;
-    --cinema-darker: 240 10% 2%;
-    --cinema-card: 240 6% 10%;
-    --cinema-gradient: linear-gradient(135deg, hsl(0 84% 60%) 0%, hsl(43 96% 56%) 100%);
+    /* Custom cinema colors for light mode */
+    --cinema-red: 0 84% 50%;
+    --cinema-gold: 43 96% 50%;
+    --cinema-dark: 0 0% 98%;
+    --cinema-darker: 0 0% 96%;
+    --cinema-card: 0 0% 100%;
+    --cinema-gradient: linear-gradient(135deg, hsl(0 84% 50%) 0%, hsl(43 96% 50%) 100%);
 
-    --sidebar-background: 240 6% 6%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 0 84% 60%;
+    /* Glow effects for light mode */
+    --glow-primary: 0 84% 50%;
+    --glow-accent: 43 96% 50%;
+    --glow-strength: 0.15;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 9%;
+    --sidebar-primary: 0 84% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 4% 16%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 240 4% 16%;
-    --sidebar-ring: 0 84% 60%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 9%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 0 84% 50%;
   }
 
+  /* Dark Theme */
   .dark {
     --background: 0 0% 4%;
     --foreground: 0 0% 95%;
@@ -83,6 +90,19 @@
     --input: 240 4% 16%;
     --ring: 0 84% 60%;
 
+    /* Custom cinema colors for dark mode */
+    --cinema-red: 0 84% 60%;
+    --cinema-gold: 43 96% 56%;
+    --cinema-dark: 240 10% 4%;
+    --cinema-darker: 240 10% 2%;
+    --cinema-card: 240 6% 10%;
+    --cinema-gradient: linear-gradient(135deg, hsl(0 84% 60%) 0%, hsl(43 96% 56%) 100%);
+
+    /* Glow effects for dark mode */
+    --glow-primary: 0 84% 60%;
+    --glow-accent: 43 96% 56%;
+    --glow-strength: 0.3;
+
     --sidebar-background: 240 6% 6%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 0 84% 60%;
@@ -99,9 +119,14 @@
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden;
   }
 }
 
@@ -118,9 +143,77 @@
   }
 
   .glass-effect {
-    background: hsl(var(--card) / 0.8);
+    background: hsl(var(--card) / 0.9);
     backdrop-filter: blur(12px);
-    border: 1px solid hsl(var(--border) / 0.5);
+    border-bottom: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  /* Light mode specific glass effect */
+  :root .glass-effect {
+    box-shadow: 0 1px 3px hsl(var(--glow-primary) / 0.1);
+  }
+
+  /* Dark mode specific glass effect */
+  .dark .glass-effect {
+    background: hsl(var(--card) / 0.8);
+  }
+
+  /* Glow card effect for light mode */
+  .glow-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  :root .glow-card::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--glow-primary) / var(--glow-strength)),
+      transparent 50%,
+      hsl(var(--glow-accent) / var(--glow-strength))
+    );
+    border-radius: inherit;
+    z-index: -1;
+    filter: blur(8px);
+  }
+
+  :root .glow-card {
+    box-shadow: 
+      0 0 20px hsl(var(--glow-primary) / 0.08),
+      0 0 40px hsl(var(--glow-accent) / 0.05),
+      0 4px 16px hsl(0 0% 0% / 0.05);
+  }
+
+  .dark .glow-card {
+    box-shadow: 
+      0 0 20px hsl(var(--glow-primary) / 0.15),
+      0 0 40px hsl(var(--glow-accent) / 0.1);
+  }
+
+  /* Glow border effect */
+  .glow-border {
+    position: relative;
+  }
+
+  :root .glow-border::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--glow-primary) / 0.3),
+      hsl(var(--glow-accent) / 0.3)
+    );
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
   }
 
   .seat-available {
@@ -142,10 +235,65 @@
   .seat-vip {
     @apply border-2 border-accent;
   }
+
+  /* Responsive container utilities */
+  .container-fluid {
+    @apply w-full max-w-full px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Prevent text overflow */
+  .text-truncate {
+    @apply truncate;
+  }
+
+  /* Scrollable container */
+  .scroll-container {
+    @apply overflow-x-auto scrollbar-thin;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Thin scrollbar */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted)) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border-radius: 3px;
+  }
+
+  /* Safe area padding for mobile */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0);
   }
 }
