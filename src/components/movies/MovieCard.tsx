@@ -23,12 +23,12 @@ export function MovieCard({ movie }: MovieCardProps) {
   const nowShowing = isNowShowing(movie.release_date);
   
   return (
-    <Card className="group overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 glow-card">
-      <div className="relative aspect-[2/3] overflow-hidden">
+    <Card className="group overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 glow-card h-full flex flex-col">
+      <div className="relative w-full overflow-hidden" style={{ paddingBottom: '150%' }}>
         <img
           src={movie.poster_url || '/placeholder.svg'}
           alt={movie.title}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
@@ -48,9 +48,9 @@ export function MovieCard({ movie }: MovieCardProps) {
         </div>
       </div>
 
-      <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3">
-        <div>
-          <h3 className="font-semibold text-sm sm:text-lg line-clamp-1 group-hover:text-primary transition-colors">
+      <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3 flex-1 flex flex-col">
+        <div className="flex-1">
+          <h3 className="font-semibold text-sm sm:text-base line-clamp-2 group-hover:text-primary transition-colors leading-tight">
             {movie.title}
           </h3>
           <div className="flex flex-wrap gap-1 mt-1 sm:mt-2">
@@ -64,7 +64,7 @@ export function MovieCard({ movie }: MovieCardProps) {
 
         <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
-            <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+            <Clock className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
             <span>{movie.duration_minutes} min</span>
           </div>
         </div>

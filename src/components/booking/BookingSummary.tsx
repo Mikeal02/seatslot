@@ -34,13 +34,17 @@ export function BookingSummary({ movie, showtime, selectedSeats }: BookingSummar
       <CardContent className="space-y-4 px-4 sm:px-6">
         {/* Movie Info */}
         <div className="flex gap-3">
-          <img
-            src={movie.poster_url || '/placeholder.svg'}
-            alt={movie.title}
-            className="w-12 sm:w-16 h-18 sm:h-24 object-cover rounded shrink-0"
-          />
-          <div className="min-w-0">
-            <h3 className="font-semibold text-sm sm:text-base truncate">{movie.title}</h3>
+          <div className="w-12 sm:w-16 shrink-0">
+            <div className="relative w-full" style={{ paddingBottom: '150%' }}>
+              <img
+                src={movie.poster_url || '/placeholder.svg'}
+                alt={movie.title}
+                className="absolute inset-0 w-full h-full object-cover rounded"
+              />
+            </div>
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="font-semibold text-sm sm:text-base line-clamp-2">{movie.title}</h3>
             <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
               {movie.duration_minutes} min • {movie.genre.slice(0, 2).join(', ')}
             </p>
