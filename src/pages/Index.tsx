@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
@@ -88,12 +89,33 @@ const Index = () => {
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
         <div className="flex-1">
-          <Skeleton className="h-[70vh] w-full" />
+          {/* Hero Skeleton */}
+          <div className="relative h-[75vh] min-h-[550px] overflow-hidden">
+            <Skeleton className="absolute inset-0" />
+            <div className="relative container mx-auto px-4 h-full flex items-center">
+              <div className="max-w-2xl space-y-6">
+                <Skeleton className="h-6 w-32" />
+                <Skeleton className="h-16 w-full max-w-lg" />
+                <Skeleton className="h-20 w-full max-w-md" />
+                <div className="flex gap-4">
+                  <Skeleton className="h-12 w-40" />
+                  <Skeleton className="h-12 w-32" />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Grid Skeleton */}
           <div className="container mx-auto px-4 py-12">
-            <Skeleton className="h-8 w-48 mb-8" />
+            <Skeleton className="h-10 w-48 mb-3" />
+            <Skeleton className="h-5 w-72 mb-8" />
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {[...Array(6)].map((_, i) => (
-                <Skeleton key={i} className="aspect-[2/3] rounded-lg" />
+                <div key={i} className="space-y-3">
+                  <Skeleton className="aspect-[2/3] rounded-lg" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-3 w-1/2" />
+                </div>
               ))}
             </div>
           </div>
@@ -111,9 +133,15 @@ const Index = () => {
         {featuredMovie && <HeroSection movie={featuredMovie} />}
         
         {/* Quick Rebook for returning users */}
-        <div className="container mx-auto px-4 py-8">
+        <motion.div 
+          className="container mx-auto px-4 py-8"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
           <QuickRebook />
-        </div>
+        </motion.div>
         
         {nowShowing.length > 0 && (
           <MovieGrid
@@ -124,9 +152,15 @@ const Index = () => {
         )}
         
         {/* Personalized Recommendations */}
-        <div className="container mx-auto px-4 py-8">
+        <motion.div 
+          className="container mx-auto px-4 py-8"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
           <MovieRecommendations limit={6} />
-        </div>
+        </motion.div>
         
         {comingSoon.length > 0 && (
           <MovieGrid
@@ -137,12 +171,17 @@ const Index = () => {
         )}
         
         {nowShowing.length === 0 && comingSoon.length === 0 && (
-          <div className="container mx-auto px-4 py-20 text-center">
+          <motion.div 
+            className="container mx-auto px-4 py-20 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
             <h2 className="text-2xl font-bold mb-4">No Movies Available</h2>
             <p className="text-muted-foreground">
               Movies will appear here once the TMDB API is configured.
             </p>
-          </div>
+          </motion.div>
         )}
       </main>
 
