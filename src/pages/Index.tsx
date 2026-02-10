@@ -7,6 +7,7 @@ import { HeroSection } from '@/components/movies/HeroSection';
 import { MovieGrid } from '@/components/movies/MovieGrid';
 import { QuickRebook } from '@/components/booking/QuickRebook';
 import { MovieRecommendations } from '@/components/movies/MovieRecommendations';
+import { StatsSection } from '@/components/home/StatsSection';
 import { Movie } from '@/types/database';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -26,14 +27,10 @@ const Index = () => {
 
   const loadMovies = async () => {
     try {
-      // Immediately fetch from database first (fast)
       await fetchMoviesFromDB();
       setLoading(false);
-
-      // Then sync in background (won't block UI)
       const synced = await syncMovies();
       if (synced) {
-        // Refresh movies after sync completes
         await fetchMoviesFromDB();
       }
     } catch (error) {
@@ -56,7 +53,6 @@ const Index = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Derive sections from release_date
     const now = (movies || []).filter((m) => {
       if (!m.release_date) return true;
       const release = new Date(m.release_date);
@@ -89,7 +85,6 @@ const Index = () => {
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
         <div className="flex-1">
-          {/* Hero Skeleton */}
           <div className="relative h-[75vh] min-h-[550px] overflow-hidden">
             <Skeleton className="absolute inset-0" />
             <div className="relative container mx-auto px-4 h-full flex items-center">
@@ -104,8 +99,6 @@ const Index = () => {
               </div>
             </div>
           </div>
-          
-          {/* Grid Skeleton */}
           <div className="container mx-auto px-4 py-12">
             <Skeleton className="h-10 w-48 mb-3" />
             <Skeleton className="h-5 w-72 mb-8" />
@@ -126,13 +119,19 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <motion.div 
+      className="min-h-screen flex flex-col bg-background"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <Header />
       
       <main className="flex-1">
         {featuredMovie && <HeroSection movie={featuredMovie} />}
         
-        {/* Quick Rebook for returning users */}
+        {/* Quick Rebook */}
         <motion.div 
           className="container mx-auto px-4 py-8"
           initial={{ opacity: 0, y: 20 }}
@@ -150,6 +149,9 @@ const Index = () => {
             subtitle="Book tickets for movies currently in theatres"
           />
         )}
+
+        {/* Stats Section */}
+        <StatsSection />
         
         {/* Personalized Recommendations */}
         <motion.div 
@@ -186,7 +188,7 @@ const Index = () => {
       </main>
 
       <Footer />
-    </div>
+    </motion.div>
   );
 };
 
