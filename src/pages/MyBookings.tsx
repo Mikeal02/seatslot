@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { format, parseISO, isPast } from 'date-fns';
+import { motion } from 'framer-motion';
 import { Ticket, Calendar, Clock, MapPin, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
@@ -244,7 +245,12 @@ export default function MyBookings() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <motion.div 
+      className="min-h-screen flex flex-col bg-background"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       <Header />
 
       <main className="flex-1 container mx-auto px-4 py-8">
@@ -315,6 +321,6 @@ export default function MyBookings() {
       </main>
 
       <Footer />
-    </div>
+    </motion.div>
   );
 }

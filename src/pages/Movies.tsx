@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Search, Filter, X, Loader2, Ticket } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
@@ -232,9 +233,13 @@ export default function Movies() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <motion.div 
+      className="min-h-screen flex flex-col bg-background"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       <Header />
-
       <main className="flex-1 container mx-auto px-4 py-6 sm:py-8">
         <div className="flex flex-col gap-4 mb-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -410,6 +415,6 @@ export default function Movies() {
       </main>
 
       <Footer />
-    </div>
+    </motion.div>
   );
 }
