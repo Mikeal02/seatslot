@@ -61,39 +61,53 @@ export default function MovieDetails() {
         fetchTrailerFromTMDB(movieData.title);
       }
 
-      // Check if movie was released within last 90 days
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const ninetyDaysAgo = new Date(today);
-      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-      
-      const releaseDate = movieData.release_date ? new Date(movieData.release_date) : null;
-      const isWithin90Days = releaseDate && releaseDate >= ninetyDaysAgo && releaseDate <= today;
-      
-      // Set flag for UI display
-      setIsMovieOlderThan90Days(releaseDate ? releaseDate < ninetyDaysAgo : false);
-
-      // Only fetch showtimes if movie was released within last 90 days
-      let showtimeData: Showtime[] = [];
-      if (isWithin90Days) {
-        const { data, error: showtimeError } = await supabase
-          .from('showtimes')
-          .select(`
+      // Always fetch showtimes first
+      const { data: showtimeData, error: showtimeError } = await supabase
+        .from('showtimes')
+        .select(`
+          *,
+          screen:screens(
             *,
-            screen:screens(
-              *,
-              theatre:theatres(*)
-            )
-          `)
-          .eq('movie_id', id)
-          .gte('show_date', new Date().toISOString().split('T')[0])
-          .order('show_date')
-          .order('show_time');
+            theatre:theatres(*)
+          )
+        `)
+        .eq('movie_id', id)
+        .gte('show_date', new Date().toISOString().split('T')[0])
+        .order('show_date')
+        .order('show_time');
 
-        if (showtimeError) throw showtimeError;
-        showtimeData = (data || []) as Showtime[];
-        setShowtimes(showtimeData);
+      if (showtimeError) throw showtimeError;
+      const showtimes = (showtimeData || []) as Showtime[];
+
+      // Check if movie was released within last 90 days
+      // Extract date part only (in case release_date has time component)
+      const releaseDateStr = movieData.release_date ? movieData.release_date.split('T')[0] : null;
+      
+      if (releaseDateStr) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const ninetyDaysAgo = new Date(today);
+        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+        ninetyDaysAgo.setHours(0, 0, 0, 0);
+        
+        const releaseDate = new Date(releaseDateStr);
+        releaseDate.setHours(0, 0, 0, 0);
+        
+        // Movie is within 90 days if release date is between 90 days ago and today (inclusive)
+        const isWithin90Days = releaseDate >= ninetyDaysAgo && releaseDate <= today;
+        
+        // Set flag for UI display
+        setIsMovieOlderThan90Days(!isWithin90Days);
+
+        // Only show showtimes if movie was released within last 90 days
+        if (isWithin90Days) {
+          setShowtimes(showtimes);
+        } else {
+          setShowtimes([]);
+        }
       } else {
+        // No release date - don't show showtimes
+        setIsMovieOlderThan90Days(false);
         setShowtimes([]);
       }
 
@@ -436,6 +450,18 @@ export default function MovieDetails() {
                     <h2 className="text-xl font-semibold mb-2">Showtimes Not Available</h2>
                     <p className="text-muted-foreground">
                       This movie was released more than 90 days ago. Showtimes are only available for movies released within the last 90 days.
+                    </p>
+                  </motion.div>
+                ) : movie.release_date ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8 }}
+                    className="p-6 bg-muted/50 rounded-lg border border-border text-center"
+                  >
+                    <h2 className="text-xl font-semibold mb-2">No Showtimes Available</h2>
+                    <p className="text-muted-foreground">
+                      There are currently no showtimes scheduled for this movie. Please check back later.
                     </p>
                   </motion.div>
                 ) : null}
