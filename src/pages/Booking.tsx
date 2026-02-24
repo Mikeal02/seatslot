@@ -199,7 +199,7 @@ export default function Booking() {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
 
-      <main className="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-8 overflow-x-hidden">
+      <main id="main-content" className="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-8 overflow-x-hidden">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <Button variant="ghost" size="sm" asChild>
             <Link to={`/movie/${movie.id}`}>

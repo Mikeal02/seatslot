@@ -112,7 +112,7 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-background p-6 sm:p-8 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920')] bg-cover bg-center" />
       <div className="absolute inset-0 bg-background/95 dark:bg-background/98" />
@@ -139,8 +139,9 @@ export default function Auth() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
+        className="w-full max-w-lg px-2"
       >
-        <Card className="w-full max-w-md relative bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl">
+        <Card className="w-full max-w-lg relative bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl">
           <CardHeader className="text-center pb-2">
             <Link to="/" className="flex items-center justify-center gap-2.5 mb-4">
               <motion.div

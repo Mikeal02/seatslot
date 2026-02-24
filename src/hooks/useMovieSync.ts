@@ -114,7 +114,6 @@ export function useMovieSync() {
     
     // Check cache unless forced
     if (!forceSync && !shouldSync()) {
-      console.log('Movies synced recently, using cache');
       return true;
     }
 

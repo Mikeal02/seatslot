@@ -171,11 +171,77 @@ export default function Movies() {
     setAdvancedFilters(defaultFilters);
   };
 
+  // Calculate search relevance score
+  const calculateRelevanceScore = (movie: Movie, searchTerm: string): number => {
+    if (!searchTerm) return 0;
+    
+    const searchLower = searchTerm.toLowerCase().trim();
+    const titleLower = movie.title.toLowerCase();
+    const descriptionLower = (movie.description || '').toLowerCase();
+    const genreLower = movie.genre.map(g => g.toLowerCase()).join(' ');
+    const directorLower = (movie.director || '').toLowerCase();
+    
+    let score = 0;
+    
+    // Exact title match gets highest score
+    if (titleLower === searchLower) {
+      score += 1000;
+    }
+    // Title starts with search term
+    else if (titleLower.startsWith(searchLower)) {
+      score += 500;
+    }
+    // Title contains search term
+    else if (titleLower.includes(searchLower)) {
+      score += 300;
+    }
+    // Partial matches in title (e.g., "Aveng" matches "Avengers")
+    else {
+      const titleWords = titleLower.split(/\s+/);
+      const searchWords = searchLower.split(/\s+/);
+      for (const searchWord of searchWords) {
+        for (const titleWord of titleWords) {
+          if (titleWord.startsWith(searchWord) || searchWord.startsWith(titleWord)) {
+            score += 200;
+            break;
+          }
+        }
+      }
+    }
+    
+    // Genre matches
+    if (genreLower.includes(searchLower)) {
+      score += 100;
+    }
+    
+    // Director matches
+    if (directorLower.includes(searchLower)) {
+      score += 50;
+    }
+    
+    // Description matches (lower weight)
+    if (descriptionLower.includes(searchLower)) {
+      score += 25;
+    }
+    
+    return score;
+  };
+
   // Apply all filters including advanced
   const filteredMovies = useMemo(() => {
+    const searchTerm = search.trim().toLowerCase();
+    
     let result = movies.filter((movie) => {
-      const matchesSearch = movie.title.toLowerCase().includes(search.toLowerCase()) ||
-        movie.genre.some((g) => g.toLowerCase().includes(search.toLowerCase()));
+      // Search filter - supports partial matches and is case-insensitive
+      const matchesSearch = !searchTerm || 
+        movie.title.toLowerCase().includes(searchTerm) ||
+        movie.genre.some((g) => g.toLowerCase().includes(searchTerm)) ||
+        (movie.description || '').toLowerCase().includes(searchTerm) ||
+        (movie.director || '').toLowerCase().includes(searchTerm) ||
+        // Partial word matching (e.g., "Aveng" matches "Avengers")
+        movie.title.toLowerCase().split(/\s+/).some(word => 
+          word.startsWith(searchTerm) || searchTerm.startsWith(word)
+        );
       
       const matchesGenre = selectedGenres.length === 0 ||
         movie.genre.some(g => selectedGenres.some(sg => g.toLowerCase().includes(sg.toLowerCase())));
@@ -189,25 +255,56 @@ export default function Movies() {
       return matchesSearch && matchesGenre && matchesRating && matchesDuration && matchesAdvancedGenre;
     });
 
-    // Sort
-    result.sort((a, b) => {
-      let comparison = 0;
-      switch (advancedFilters.sortBy) {
-        case 'rating':
-          comparison = (b.rating || 0) - (a.rating || 0);
-          break;
-        case 'release_date':
-          comparison = new Date(b.release_date || 0).getTime() - new Date(a.release_date || 0).getTime();
-          break;
-        case 'title':
-          comparison = a.title.localeCompare(b.title);
-          break;
-        case 'duration':
-          comparison = a.duration_minutes - b.duration_minutes;
-          break;
-      }
-      return advancedFilters.sortOrder === 'asc' ? -comparison : comparison;
-    });
+    // Sort by relevance if search term exists, otherwise by advanced filters
+    if (searchTerm) {
+      // Sort by relevance score first, then by advanced filters
+      result.sort((a, b) => {
+        const scoreA = calculateRelevanceScore(a, searchTerm);
+        const scoreB = calculateRelevanceScore(b, searchTerm);
+        
+        if (scoreB !== scoreA) {
+          return scoreB - scoreA; // Higher relevance first
+        }
+        
+        // If relevance is same, use advanced filter sorting
+        let comparison = 0;
+        switch (advancedFilters.sortBy) {
+          case 'rating':
+            comparison = (b.rating || 0) - (a.rating || 0);
+            break;
+          case 'release_date':
+            comparison = new Date(b.release_date || 0).getTime() - new Date(a.release_date || 0).getTime();
+            break;
+          case 'title':
+            comparison = a.title.localeCompare(b.title);
+            break;
+          case 'duration':
+            comparison = a.duration_minutes - b.duration_minutes;
+            break;
+        }
+        return advancedFilters.sortOrder === 'asc' ? -comparison : comparison;
+      });
+    } else {
+      // No search term - sort by advanced filters only
+      result.sort((a, b) => {
+        let comparison = 0;
+        switch (advancedFilters.sortBy) {
+          case 'rating':
+            comparison = (b.rating || 0) - (a.rating || 0);
+            break;
+          case 'release_date':
+            comparison = new Date(b.release_date || 0).getTime() - new Date(a.release_date || 0).getTime();
+            break;
+          case 'title':
+            comparison = a.title.localeCompare(b.title);
+            break;
+          case 'duration':
+            comparison = a.duration_minutes - b.duration_minutes;
+            break;
+        }
+        return advancedFilters.sortOrder === 'asc' ? -comparison : comparison;
+      });
+    }
 
     return result;
   }, [movies, search, selectedGenres, advancedFilters]);
@@ -219,7 +316,7 @@ export default function Movies() {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
-        <main className="flex-1 container mx-auto px-4 py-8">
+        <main id="main-content" className="flex-1 container mx-auto px-4 py-8">
           <Skeleton className="h-8 w-48 mb-8" />
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {[...Array(12)].map((_, i) => (

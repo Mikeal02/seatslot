@@ -38,7 +38,8 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
         <div className="relative w-full overflow-hidden" style={{ paddingBottom: '150%' }}>
           <img
             src={movie.poster_url || '/placeholder.svg'}
-            alt={movie.title}
+            alt={`${movie.title} movie poster`}
+            loading="lazy"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
           

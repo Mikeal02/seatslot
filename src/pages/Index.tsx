@@ -34,8 +34,12 @@ const Index = () => {
         await fetchMoviesFromDB();
       }
     } catch (error) {
-      console.error('Error loading movies:', error);
       setLoading(false);
+      toast({
+        variant: 'destructive',
+        title: 'Failed to load movies',
+        description: 'Please refresh the page to try again.',
+      });
     }
   };
 
@@ -46,7 +50,11 @@ const Index = () => {
       .order('rating', { ascending: false });
 
     if (error) {
-      console.error('Error fetching movies:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to fetch movies. Please try again later.',
+      });
       return;
     }
 
@@ -128,7 +136,7 @@ const Index = () => {
     >
       <Header />
       
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         {featuredMovie && <HeroSection movie={featuredMovie} />}
         
         {/* Quick Rebook */}

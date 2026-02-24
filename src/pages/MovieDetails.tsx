@@ -11,6 +11,7 @@ import { MovieReviews } from '@/components/movies/MovieReviews';
 import { MovieRecommendations } from '@/components/movies/MovieRecommendations';
 import { WishlistButton } from '@/components/movies/WishlistButton';
 import { SocialShare } from '@/components/movies/SocialShare';
+import { MetaTags } from '@/components/MetaTags';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -32,6 +33,7 @@ export default function MovieDetails() {
   const [loading, setLoading] = useState(true);
   const [reviewStats, setReviewStats] = useState({ count: 0, avg: 0 });
   const [bookingCount, setBookingCount] = useState(0);
+  const [isMovieOlderThan90Days, setIsMovieOlderThan90Days] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -59,23 +61,41 @@ export default function MovieDetails() {
         fetchTrailerFromTMDB(movieData.title);
       }
 
-      // Fetch showtimes with screen and theatre info
-      const { data: showtimeData, error: showtimeError } = await supabase
-        .from('showtimes')
-        .select(`
-          *,
-          screen:screens(
-            *,
-            theatre:theatres(*)
-          )
-        `)
-        .eq('movie_id', id)
-        .gte('show_date', new Date().toISOString().split('T')[0])
-        .order('show_date')
-        .order('show_time');
+      // Check if movie was released within last 90 days
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const ninetyDaysAgo = new Date(today);
+      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+      
+      const releaseDate = movieData.release_date ? new Date(movieData.release_date) : null;
+      const isWithin90Days = releaseDate && releaseDate >= ninetyDaysAgo && releaseDate <= today;
+      
+      // Set flag for UI display
+      setIsMovieOlderThan90Days(releaseDate ? releaseDate < ninetyDaysAgo : false);
 
-      if (showtimeError) throw showtimeError;
-      setShowtimes(showtimeData as Showtime[]);
+      // Only fetch showtimes if movie was released within last 90 days
+      let showtimeData: Showtime[] = [];
+      if (isWithin90Days) {
+        const { data, error: showtimeError } = await supabase
+          .from('showtimes')
+          .select(`
+            *,
+            screen:screens(
+              *,
+              theatre:theatres(*)
+            )
+          `)
+          .eq('movie_id', id)
+          .gte('show_date', new Date().toISOString().split('T')[0])
+          .order('show_date')
+          .order('show_time');
+
+        if (showtimeError) throw showtimeError;
+        showtimeData = (data || []) as Showtime[];
+        setShowtimes(showtimeData);
+      } else {
+        setShowtimes([]);
+      }
 
       // Fetch review stats
       const { data: reviews } = await supabase
@@ -89,7 +109,7 @@ export default function MovieDetails() {
       }
 
       // Fetch booking count for popularity
-      const showtimeIds = (showtimeData || []).map((s: any) => s.id);
+      const showtimeIds = showtimeData.map((s) => s.id);
       if (showtimeIds.length > 0) {
         const { count } = await supabase
           .from('bookings')
@@ -212,9 +232,16 @@ export default function MovieDetails() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
+      <MetaTags
+        title={movie.title}
+        description={movie.description || undefined}
+        image={movie.poster_url || movie.backdrop_url || undefined}
+        movie={movie}
+        type="movie"
+      />
       <Header />
 
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         {/* Hero Section with Parallax */}
         <section className="relative h-[55vh] min-h-[420px] overflow-hidden">
           <motion.div 
@@ -225,7 +252,8 @@ export default function MovieDetails() {
           >
             <img
               src={movie.backdrop_url || movie.poster_url || '/placeholder.svg'}
-              alt={movie.title}
+              alt={`${movie.title} backdrop`}
+              loading="eager"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/20" />
@@ -236,7 +264,8 @@ export default function MovieDetails() {
             <div className="flex gap-6 items-end w-full">
               <motion.img
                 src={movie.poster_url || '/placeholder.svg'}
-                alt={movie.title}
+                alt={`${movie.title} poster`}
+                loading="eager"
                 className="w-32 md:w-48 rounded-lg shadow-2xl hidden sm:block border-2 border-border/20"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -384,7 +413,7 @@ export default function MovieDetails() {
 
               {/* Showtimes */}
               <AnimatePresence>
-                {showtimes.length > 0 && (
+                {showtimes.length > 0 ? (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -397,7 +426,19 @@ export default function MovieDetails() {
                       onSelect={setSelectedShowtime}
                     />
                   </motion.div>
-                )}
+                ) : isMovieOlderThan90Days ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8 }}
+                    className="p-6 bg-muted/50 rounded-lg border border-border text-center"
+                  >
+                    <h2 className="text-xl font-semibold mb-2">Showtimes Not Available</h2>
+                    <p className="text-muted-foreground">
+                      This movie was released more than 90 days ago. Showtimes are only available for movies released within the last 90 days.
+                    </p>
+                  </motion.div>
+                ) : null}
               </AnimatePresence>
             </div>
 

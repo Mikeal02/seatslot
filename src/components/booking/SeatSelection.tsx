@@ -122,13 +122,15 @@ export function SeatSelection({
                       } : {}}
                       transition={{ duration: 0.3 }}
                       className={cn(
-                        'w-5 h-5 sm:w-8 sm:h-8 rounded text-[8px] sm:text-xs font-medium transition-all duration-200',
-                        isBooked && 'seat-booked',
+                        'w-5 h-5 sm:w-8 sm:h-8 rounded text-[8px] sm:text-xs font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+                        isBooked && 'seat-booked cursor-not-allowed',
                         isSelected && 'seat-selected',
                         !isBooked && !isSelected && 'seat-available',
                         seat.seat_type === 'premium' && 'seat-premium',
                         seat.seat_type === 'vip' && 'seat-vip'
                       )}
+                      aria-label={`${row}${seat.seat_number}, ${seat.seat_type} seat, ₹${seat.price}${isBooked ? ', booked' : isSelected ? ', selected' : ', available'}`}
+                      aria-pressed={isSelected}
                       title={`${row}${seat.seat_number} - ${seat.seat_type} - ₹${seat.price}`}
                     >
                       {seat.seat_number}
