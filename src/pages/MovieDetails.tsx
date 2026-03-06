@@ -79,37 +79,9 @@ export default function MovieDetails() {
       if (showtimeError) throw showtimeError;
       const showtimes = (showtimeData || []) as Showtime[];
 
-      // Check if movie was released within last 90 days
-      // Extract date part only (in case release_date has time component)
-      const releaseDateStr = movieData.release_date ? movieData.release_date.split('T')[0] : null;
-      
-      if (releaseDateStr) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const ninetyDaysAgo = new Date(today);
-        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-        ninetyDaysAgo.setHours(0, 0, 0, 0);
-        
-        const releaseDate = new Date(releaseDateStr);
-        releaseDate.setHours(0, 0, 0, 0);
-        
-        // Movie is within 90 days if release date is between 90 days ago and today (inclusive)
-        const isWithin90Days = releaseDate >= ninetyDaysAgo && releaseDate <= today;
-        
-        // Set flag for UI display
-        setIsMovieOlderThan90Days(!isWithin90Days);
-
-        // Only show showtimes if movie was released within last 90 days
-        if (isWithin90Days) {
-          setShowtimes(showtimes);
-        } else {
-          setShowtimes([]);
-        }
-      } else {
-        // No release date - don't show showtimes
-        setIsMovieOlderThan90Days(false);
-        setShowtimes([]);
-      }
+      // Always show showtimes if they exist - no date restriction
+      setShowtimes(showtimes);
+      setIsMovieOlderThan90Days(false);
 
       // Fetch review stats
       const { data: reviews } = await supabase

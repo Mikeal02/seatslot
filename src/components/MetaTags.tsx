@@ -61,7 +61,7 @@ export function MetaTags({ title, description, image, movie, type = 'website' }:
           bestRating: '10',
         } : undefined,
         datePublished: movie.release_date,
-        duration: movie.duration ? `PT${movie.duration}M` : undefined,
+        duration: movie.duration_minutes ? `PT${movie.duration_minutes}M` : undefined,
         genre: movie.genre,
       };
 

@@ -8,6 +8,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { SeatSelection } from '@/components/booking/SeatSelection';
 import { BookingSummary } from '@/components/booking/BookingSummary';
+import { ConcessionSelector, SelectedConcession } from '@/components/booking/ConcessionSelector';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
@@ -26,8 +27,11 @@ export default function Booking() {
   const [seats, setSeats] = useState<Seat[]>([]);
   const [bookedSeatIds, setBookedSeatIds] = useState<string[]>([]);
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
+  const [selectedConcessions, setSelectedConcessions] = useState<SelectedConcession[]>([]);
   const [loading, setLoading] = useState(true);
   const [booking, setBooking] = useState(false);
+
+  const concessionTotal = selectedConcessions.reduce((sum, s) => sum + s.item.price * s.quantity, 0);
 
   const { timeLeft, formattedTime, isExpired } = useBookingTimer(selectedSeats.length > 0);
 
@@ -115,7 +119,7 @@ export default function Booking() {
 
     setBooking(true);
     try {
-      const totalAmount = selectedSeats.reduce((sum, seat) => sum + Number(seat.price), 0);
+      const totalAmount = selectedSeats.reduce((sum, seat) => sum + Number(seat.price), 0) + concessionTotal;
 
       const { data: bookingData, error: bookingError } = await supabase
         .from('bookings')
@@ -134,6 +138,25 @@ export default function Booking() {
       if (seatsError) {
         await supabase.from('bookings').delete().eq('id', bookingData.id);
         throw new Error('Some seats were already booked. Please try again.');
+      }
+
+      // Save concession order if any
+      if (selectedConcessions.length > 0) {
+        const { data: concessionOrder } = await supabase
+          .from('concession_orders')
+          .insert({ booking_id: bookingData.id, user_id: user!.id, total_amount: concessionTotal })
+          .select()
+          .single();
+
+        if (concessionOrder) {
+          const orderItems = selectedConcessions.map(s => ({
+            order_id: concessionOrder.id,
+            item_id: s.item.id,
+            quantity: s.quantity,
+            price: s.item.price,
+          }));
+          await supabase.from('concession_order_items').insert(orderItems);
+        }
       }
 
       // Send ticket email
@@ -231,7 +254,7 @@ export default function Booking() {
         <div className="grid lg:grid-cols-3 gap-4 sm:gap-8">
           {/* Booking Summary - Mobile First */}
           <div className="lg:hidden space-y-4">
-            <BookingSummary movie={movie} showtime={showtime} selectedSeats={selectedSeats} />
+            <BookingSummary movie={movie} showtime={showtime} selectedSeats={selectedSeats} concessionTotal={concessionTotal} />
           </div>
 
           <div className="lg:col-span-2">
@@ -248,11 +271,23 @@ export default function Booking() {
                 onSelectionChange={setSelectedSeats}
               />
             </motion.div>
+
+            {/* Concessions */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+            >
+              <ConcessionSelector
+                selectedItems={selectedConcessions}
+                onItemsChange={setSelectedConcessions}
+              />
+            </motion.div>
           </div>
 
           {/* Booking Summary - Desktop */}
           <div className="hidden lg:block lg:sticky lg:top-20 space-y-4 self-start">
-            <BookingSummary movie={movie} showtime={showtime} selectedSeats={selectedSeats} />
+            <BookingSummary movie={movie} showtime={showtime} selectedSeats={selectedSeats} concessionTotal={concessionTotal} />
             <Button
               onClick={handleConfirmBooking}
               disabled={booking || selectedSeats.length === 0}
