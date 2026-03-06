@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { format, addDays, isSameDay, parseISO } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Clock, MapPin, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, MapPin } from 'lucide-react';
+import { SeatAvailabilityBadge } from '@/components/booking/SeatAvailabilityBadge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -127,7 +128,7 @@ export function ShowtimeSelector({
                             'h:mm a'
                           );
                           return (
-                            <motion.div key={st.id} whileTap={{ scale: 0.95 }}>
+                            <motion.div key={st.id} whileTap={{ scale: 0.95 }} className="flex flex-col items-center gap-0.5">
                               <Button
                                 variant={isSelected ? 'default' : 'outline'}
                                 size="sm"
@@ -140,6 +141,7 @@ export function ShowtimeSelector({
                                 <Clock className="h-3 w-3 mr-1 shrink-0" />
                                 {formattedTime}
                               </Button>
+                              <SeatAvailabilityBadge showtimeId={st.id} screenId={st.screen_id} />
                             </motion.div>
                           );
                         })}

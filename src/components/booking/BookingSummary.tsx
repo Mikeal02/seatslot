@@ -8,10 +8,12 @@ interface BookingSummaryProps {
   movie: Movie;
   showtime: Showtime;
   selectedSeats: Seat[];
+  concessionTotal?: number;
 }
 
-export function BookingSummary({ movie, showtime, selectedSeats }: BookingSummaryProps) {
-  const totalAmount = selectedSeats.reduce((sum, seat) => sum + Number(seat.price), 0);
+export function BookingSummary({ movie, showtime, selectedSeats, concessionTotal = 0 }: BookingSummaryProps) {
+  const seatTotal = selectedSeats.reduce((sum, seat) => sum + Number(seat.price), 0);
+  const totalAmount = seatTotal + concessionTotal;
   const formattedTime = format(parseISO(`2000-01-01T${showtime.show_time}`), 'h:mm a');
   const formattedDate = format(parseISO(showtime.show_date), 'EEEE, MMMM d, yyyy');
 
@@ -110,6 +112,16 @@ export function BookingSummary({ movie, showtime, selectedSeats }: BookingSummar
                 );
               })}
             </div>
+
+            {concessionTotal > 0 && (
+              <>
+                <Separator />
+                <div className="flex justify-between text-xs sm:text-sm">
+                  <span className="text-muted-foreground">🍿 Snacks & Drinks</span>
+                  <span>₹{concessionTotal.toFixed(2)}</span>
+                </div>
+              </>
+            )}
 
             <Separator />
 
