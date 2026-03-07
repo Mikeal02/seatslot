@@ -72,10 +72,9 @@ export function MovieRecommendations({
               .from('movies')
               .select('*')
               .overlaps('genre', topGenres)
-              .neq('id', currentMovieId || '')
+              .neq('id', currentMovieId || '00000000-0000-0000-0000-000000000000')
               .order('rating', { ascending: false })
               .limit(limit);
-
             if (movies && movies.length > 0) {
               recommendedMovies = movies as Movie[];
               recommendationReason = `Based on your love for ${topGenres.slice(0, 2).join(' & ')} movies`;
@@ -90,10 +89,9 @@ export function MovieRecommendations({
           .from('movies')
           .select('*')
           .overlaps('genre', currentGenres)
-          .neq('id', currentMovieId || '')
-          .order('rating', { ascending: false })
-          .limit(limit);
-
+           .neq('id', currentMovieId || '00000000-0000-0000-0000-000000000000')
+           .order('rating', { ascending: false })
+           .limit(limit);
         if (movies && movies.length > 0) {
           recommendedMovies = movies as Movie[];
           recommendationReason = `Because you're viewing ${currentGenres[0]} movies`;
@@ -105,10 +103,9 @@ export function MovieRecommendations({
         const { data: movies } = await supabase
           .from('movies')
           .select('*')
-          .neq('id', currentMovieId || '')
-          .order('rating', { ascending: false })
-          .limit(limit);
-
+           .neq('id', currentMovieId || '00000000-0000-0000-0000-000000000000')
+           .order('rating', { ascending: false })
+           .limit(limit);
         if (movies && movies.length > 0) {
           recommendedMovies = movies as Movie[];
           recommendationReason = 'Top rated movies you might enjoy';
