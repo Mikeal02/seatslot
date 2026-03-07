@@ -72,10 +72,9 @@ export function MovieRecommendations({
               .from('movies')
               .select('*')
               .overlaps('genre', topGenres)
-              .neq('id', currentMovieId || '')
+              .neq('id', currentMovieId || '00000000-0000-0000-0000-000000000000')
               .order('rating', { ascending: false })
               .limit(limit);
-
             if (movies && movies.length > 0) {
               recommendedMovies = movies as Movie[];
               recommendationReason = `Based on your love for ${topGenres.slice(0, 2).join(' & ')} movies`;
