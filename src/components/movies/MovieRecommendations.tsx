@@ -103,10 +103,9 @@ export function MovieRecommendations({
         const { data: movies } = await supabase
           .from('movies')
           .select('*')
-          .neq('id', currentMovieId || '')
-          .order('rating', { ascending: false })
-          .limit(limit);
-
+           .neq('id', currentMovieId || '00000000-0000-0000-0000-000000000000')
+           .order('rating', { ascending: false })
+           .limit(limit);
         if (movies && movies.length > 0) {
           recommendedMovies = movies as Movie[];
           recommendationReason = 'Top rated movies you might enjoy';
