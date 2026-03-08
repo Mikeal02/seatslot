@@ -8,6 +8,7 @@ import { MovieGrid } from '@/components/movies/MovieGrid';
 import { QuickRebook } from '@/components/booking/QuickRebook';
 import { MovieRecommendations } from '@/components/movies/MovieRecommendations';
 import { StatsSection } from '@/components/home/StatsSection';
+import { TrendingCarousel } from '@/components/movies/TrendingCarousel';
 import { Movie } from '@/types/database';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -150,6 +151,9 @@ const Index = () => {
           <QuickRebook />
         </motion.div>
         
+        {/* Trending Carousel */}
+        {nowShowing.length > 0 && <TrendingCarousel movies={nowShowing} />}
+
         {nowShowing.length > 0 && (
           <MovieGrid
             movies={nowShowing}
