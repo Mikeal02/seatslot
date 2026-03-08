@@ -8,6 +8,7 @@ import { MovieGrid } from '@/components/movies/MovieGrid';
 import { QuickRebook } from '@/components/booking/QuickRebook';
 import { MovieRecommendations } from '@/components/movies/MovieRecommendations';
 import { StatsSection } from '@/components/home/StatsSection';
+import { TrendingCarousel } from '@/components/movies/TrendingCarousel';
 import { Movie } from '@/types/database';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
