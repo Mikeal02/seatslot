@@ -281,7 +281,7 @@ export default function Booking() {
             className="w-full cinema-gradient"
             size="lg"
           >
-            {booking ? 'Confirming...' : selectedSeats.length === 0 ? 'Select Seats' : `Confirm (${selectedSeats.length} seats)`}
+            {booking ? 'Processing...' : selectedSeats.length === 0 ? 'Select Seats' : `Pay & Confirm (${selectedSeats.length} seats)`}
           </Button>
         </div>
         <div className="lg:hidden h-20" />
