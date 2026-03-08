@@ -121,67 +121,41 @@ export default function Booking() {
     try {
       const totalAmount = selectedSeats.reduce((sum, seat) => sum + Number(seat.price), 0) + concessionTotal;
 
-      const { data: bookingData, error: bookingError } = await supabase
-        .from('bookings')
-        .insert({ user_id: user!.id, showtime_id: showtimeId, total_amount: totalAmount, booking_status: 'confirmed' })
-        .select()
-        .single();
+      const concessions = selectedConcessions.length > 0 ? {
+        total: concessionTotal,
+        items: selectedConcessions.map(s => ({
+          id: s.item.id,
+          name: s.item.name,
+          quantity: s.quantity,
+          price: s.item.price,
+        })),
+      } : undefined;
 
-      if (bookingError) throw bookingError;
+      const { data, error } = await supabase.functions.invoke('create-booking-payment', {
+        body: {
+          showtimeId,
+          selectedSeats: selectedSeats.map(s => ({
+            id: s.id,
+            row_label: s.row_label,
+            seat_number: s.seat_number,
+            seat_type: s.seat_type,
+            price: s.price,
+          })),
+          totalAmount,
+          movieTitle: movie?.title,
+          concessions,
+        },
+      });
 
-      const bookedSeatsData = selectedSeats.map((seat) => ({
-        booking_id: bookingData.id, seat_id: seat.id, showtime_id: showtimeId!,
-      }));
-
-      const { error: seatsError } = await supabase.from('booked_seats').insert(bookedSeatsData);
-
-      if (seatsError) {
-        await supabase.from('bookings').delete().eq('id', bookingData.id);
-        throw new Error('Some seats were already booked. Please try again.');
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('Failed to create payment session');
       }
-
-      // Save concession order if any
-      if (selectedConcessions.length > 0) {
-        const { data: concessionOrder } = await supabase
-          .from('concession_orders')
-          .insert({ booking_id: bookingData.id, user_id: user!.id, total_amount: concessionTotal })
-          .select()
-          .single();
-
-        if (concessionOrder) {
-          const orderItems = selectedConcessions.map(s => ({
-            order_id: concessionOrder.id,
-            item_id: s.item.id,
-            quantity: s.quantity,
-            price: s.item.price,
-          }));
-          await supabase.from('concession_order_items').insert(orderItems);
-        }
-      }
-
-      // Send ticket email
-      const screen = showtime?.screen;
-      const theatre = screen?.theatre;
-      if (user?.email && movie && showtime && screen && theatre) {
-        try {
-          await supabase.functions.invoke('send-ticket-email', {
-            body: {
-              email: user.email, bookingId: bookingData.id, movieTitle: movie.title,
-              showDate: showtime.show_date, showTime: showtime.show_time,
-              theatreName: theatre.name, screenName: screen.name,
-              seats: selectedSeats.map(s => `${s.row_label}${s.seat_number}`), totalAmount,
-            },
-          });
-        } catch (emailError) {
-          console.error('Failed to send ticket email:', emailError);
-        }
-      }
-
-      toast({ title: 'Booking confirmed!', description: 'Your tickets have been booked and sent to your email.' });
-      navigate(`/booking-confirmation/${bookingData.id}`);
     } catch (error: any) {
-      console.error('Error creating booking:', error);
-      toast({ variant: 'destructive', title: 'Booking failed', description: error.message || 'Failed to complete booking. Please try again.' });
+      console.error('Error creating payment:', error);
+      toast({ variant: 'destructive', title: 'Payment failed', description: error.message || 'Failed to initiate payment. Please try again.' });
     } finally {
       setBooking(false);
     }
