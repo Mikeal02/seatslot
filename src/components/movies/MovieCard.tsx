@@ -25,70 +25,87 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
   
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ 
-        duration: 0.4, 
-        delay: index * 0.04,
+        duration: 0.5, 
+        delay: index * 0.05,
         ease: [0.25, 0.1, 0.25, 1]
       }}
     >
-      <Card className="group overflow-hidden bg-card border-border/40 hover:border-primary/20 transition-all duration-500 glow-card h-full flex flex-col rounded-xl">
+      <Card className="group overflow-hidden bg-card border-border/30 hover:border-primary/30 transition-all duration-500 glow-card h-full flex flex-col rounded-2xl">
         <div className="relative w-full overflow-hidden" style={{ paddingBottom: '150%' }}>
           <img
             src={movie.poster_url || '/placeholder.svg'}
             alt={`${movie.title} movie poster`}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
           
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-80" />
-          
-          {/* Hover overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          {/* Gradient overlays */}
+          <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-70" />
+          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           
           {/* Rating badge */}
           {nowShowing && movie.rating && movie.rating > 0 && (
-            <div className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-card/90 backdrop-blur-md px-2 py-1 rounded-full shadow-lg border border-border/30">
-              <Star className="h-3 w-3 fill-accent text-accent" />
-              <span className="text-[11px] font-bold">{movie.rating}</span>
-            </div>
+            <motion.div 
+              className="absolute top-3 right-3 flex items-center gap-1.5 bg-card/90 backdrop-blur-xl px-2.5 py-1.5 rounded-full shadow-xl border border-border/20"
+              whileHover={{ scale: 1.05 }}
+            >
+              <Star className="h-3.5 w-3.5 fill-accent text-accent" />
+              <span className="text-xs font-bold tracking-tight">{movie.rating}</span>
+            </motion.div>
           )}
 
           {/* Coming Soon badge */}
           {!nowShowing && (
-            <div className="absolute top-2.5 left-2.5">
-              <Badge className="bg-accent text-accent-foreground text-[10px] font-semibold px-2.5 rounded-full">
+            <div className="absolute top-3 left-3">
+              <Badge className="cinema-gradient text-primary-foreground text-[10px] font-bold px-3 py-1 rounded-full shadow-lg shadow-primary/20 border-0 uppercase tracking-wider">
                 Coming Soon
               </Badge>
             </div>
           )}
 
-          {/* Hover action */}
+          {/* Genre tags on hover */}
+          {movie.genre && movie.genre.length > 0 && (
+            <div className="absolute top-3 left-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              {nowShowing && movie.genre.slice(0, 2).map((g) => (
+                <span key={g} className="text-[10px] font-medium bg-card/80 backdrop-blur-md px-2 py-0.5 rounded-full border border-border/20">
+                  {g}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Hover action button */}
           <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
             <Button 
               asChild 
-              className="w-full cinema-gradient btn-professional shadow-xl shadow-primary/30 h-9 rounded-full text-sm"
+              className="w-full cinema-gradient btn-professional shadow-2xl shadow-primary/40 h-10 rounded-full text-sm font-bold"
             >
-              <Link to={`/movie/${movie.id}`} className="flex items-center justify-center gap-1.5">
-                {nowShowing ? <Ticket className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 fill-current" />}
+              <Link to={`/movie/${movie.id}`} className="flex items-center justify-center gap-2">
+                {nowShowing ? <Ticket className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}
                 {nowShowing ? 'Book Now' : 'View Details'}
               </Link>
             </Button>
           </div>
         </div>
 
-        <CardContent className="p-3 sm:p-4 space-y-1.5 flex-1 flex flex-col bg-card">
+        <CardContent className="p-3.5 sm:p-4 space-y-2 flex-1 flex flex-col bg-card">
           <div className="flex-1">
-            <h3 className="font-semibold text-sm sm:text-[15px] line-clamp-2 group-hover:text-primary transition-colors duration-300 leading-snug">
+            <h3 className="font-bold text-sm sm:text-[15px] line-clamp-2 group-hover:text-primary transition-colors duration-300 leading-snug tracking-tight">
               {movie.title}
             </h3>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
-            <Clock className="h-3 w-3 shrink-0 text-primary/60" />
-            <span>{movie.duration_minutes} min</span>
+          <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+            <div className="flex items-center gap-1.5">
+              <Clock className="h-3 w-3 shrink-0 text-primary/60" />
+              <span className="font-medium">{movie.duration_minutes} min</span>
+            </div>
+            {nowShowing && (
+              <span className="text-[10px] font-bold text-primary uppercase tracking-wider">In Theatres</span>
+            )}
           </div>
         </CardContent>
       </Card>

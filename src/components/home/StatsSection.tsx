@@ -8,6 +8,7 @@ interface Stat {
   value: number;
   suffix: string;
   icon: typeof Film;
+  description: string;
 }
 
 function AnimatedCounter({ value, suffix, inView }: { value: number; suffix: string; inView: boolean }) {
@@ -15,8 +16,8 @@ function AnimatedCounter({ value, suffix, inView }: { value: number; suffix: str
 
   useEffect(() => {
     if (!inView) return;
-    const duration = 1500;
-    const steps = 40;
+    const duration = 2000;
+    const steps = 50;
     const increment = value / steps;
     let current = 0;
     const timer = setInterval(() => {
@@ -32,7 +33,7 @@ function AnimatedCounter({ value, suffix, inView }: { value: number; suffix: str
   }, [value, inView]);
 
   return (
-    <span className="text-3xl sm:text-4xl md:text-5xl font-bold cinema-gradient-text tabular-nums tracking-tight">
+    <span className="text-4xl sm:text-5xl md:text-6xl font-black cinema-gradient-text tabular-nums tracking-tighter">
       {count.toLocaleString()}{suffix}
     </span>
   );
@@ -42,10 +43,10 @@ export function StatsSection() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-100px' });
   const [stats, setStats] = useState<Stat[]>([
-    { label: 'Movies Available', value: 0, suffix: '+', icon: Film },
-    { label: 'Happy Customers', value: 0, suffix: '+', icon: Users },
-    { label: 'Tickets Booked', value: 0, suffix: '+', icon: Ticket },
-    { label: 'Theatre Partners', value: 0, suffix: '+', icon: MapPin },
+    { label: 'Movies', value: 0, suffix: '+', icon: Film, description: 'Available to watch' },
+    { label: 'Customers', value: 0, suffix: '+', icon: Users, description: 'Happy movie-goers' },
+    { label: 'Tickets', value: 0, suffix: '+', icon: Ticket, description: 'Booked & confirmed' },
+    { label: 'Theatres', value: 0, suffix: '+', icon: MapPin, description: 'Partner locations' },
   ]);
 
   useEffect(() => {
@@ -61,10 +62,10 @@ export function StatsSection() {
       ]);
 
       setStats([
-        { label: 'Movies Available', value: moviesRes.count || 0, suffix: '+', icon: Film },
-        { label: 'Happy Customers', value: Math.max((bookingsRes.count || 0) * 3, 100), suffix: '+', icon: Users },
-        { label: 'Tickets Booked', value: Math.max((bookingsRes.count || 0) * 2, 50), suffix: '+', icon: Ticket },
-        { label: 'Theatre Partners', value: Math.max(theatresRes.count || 0, 5), suffix: '+', icon: MapPin },
+        { label: 'Movies', value: moviesRes.count || 0, suffix: '+', icon: Film, description: 'Available to watch' },
+        { label: 'Customers', value: Math.max((bookingsRes.count || 0) * 3, 100), suffix: '+', icon: Users, description: 'Happy movie-goers' },
+        { label: 'Tickets', value: Math.max((bookingsRes.count || 0) * 2, 50), suffix: '+', icon: Ticket, description: 'Booked & confirmed' },
+        { label: 'Theatres', value: Math.max(theatresRes.count || 0, 5), suffix: '+', icon: MapPin, description: 'Partner locations' },
       ]);
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -72,24 +73,29 @@ export function StatsSection() {
   };
 
   return (
-    <section ref={ref} className="py-16 sm:py-24 relative overflow-hidden noise-overlay">
-      {/* Background gradient wash */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.04)_0%,transparent_70%)]" />
+    <section ref={ref} className="py-20 sm:py-28 relative overflow-hidden">
+      {/* Dramatic background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-card/50 to-background" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.06)_0%,transparent_60%)]" />
+      <div className="absolute inset-0 noise-overlay pointer-events-none" />
+      
+      {/* Accent lines */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
       
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
-          className="text-center mb-14"
-          initial={{ opacity: 0, y: 20 }}
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6 }}
         >
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">
-            Trusted by Movie Lovers
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-4 tracking-tight">
+            Trusted by <span className="cinema-gradient-text">Movie Lovers</span>
           </h2>
-          <p className="text-muted-foreground text-sm sm:text-base max-w-md mx-auto">
-            Join thousands of cinema enthusiasts who book with CineBook
+          <p className="text-muted-foreground text-sm sm:text-base max-w-lg mx-auto">
+            Join thousands of cinema enthusiasts who book with CineBook every day
           </p>
         </motion.div>
 
@@ -97,17 +103,21 @@ export function StatsSection() {
           {stats.map((stat, idx) => (
             <motion.div
               key={stat.label}
-              className="text-center p-6 sm:p-8 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/40 glow-card"
-              initial={{ opacity: 0, y: 30 }}
+              className="text-center p-8 sm:p-10 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/30 glow-card relative group"
+              initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: idx * 0.1, duration: 0.5 }}
+              transition={{ delay: idx * 0.12, duration: 0.5 }}
             >
-              <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-primary/10 mb-4">
-                <stat.icon className="h-5 w-5 text-primary" />
+              {/* Icon */}
+              <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl cinema-gradient mb-5 shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow duration-500">
+                <stat.icon className="h-6 w-6 text-primary-foreground" />
               </div>
+              
               <AnimatedCounter value={stat.value} suffix={stat.suffix} inView={inView} />
-              <p className="text-xs sm:text-sm text-muted-foreground mt-2 font-medium">{stat.label}</p>
+              
+              <p className="text-sm font-bold text-foreground mt-3">{stat.label}</p>
+              <p className="text-xs text-muted-foreground mt-1">{stat.description}</p>
             </motion.div>
           ))}
         </div>

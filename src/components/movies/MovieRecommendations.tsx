@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, ChevronRight, Star, Clock } from 'lucide-react';
+import { Sparkles, ChevronRight, Star, Clock, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Movie } from '@/types/database';
 
@@ -25,30 +25,23 @@ export function MovieRecommendations({
   const [loading, setLoading] = useState(true);
   const [reason, setReason] = useState<string>('');
 
-  useEffect(() => {
-    fetchRecommendations();
-  }, [user, currentMovieId, currentGenres]);
+  // Memoize genres to prevent infinite loop from array reference changes
+  const genresKey = useMemo(() => currentGenres.join(','), [currentGenres]);
 
-  const fetchRecommendations = async () => {
+  const fetchRecommendations = useCallback(async () => {
     setLoading(true);
     try {
       let recommendedMovies: Movie[] = [];
       let recommendationReason = '';
 
-      // Strategy 1: If user is logged in, recommend based on their booking history
       if (user) {
         const { data: bookings } = await supabase
           .from('bookings')
-          .select(`
-            showtime:showtimes(
-              movie:movies(genre)
-            )
-          `)
+          .select(`showtime:showtimes(movie:movies(genre))`)
           .eq('user_id', user.id)
           .limit(10);
 
         if (bookings && bookings.length > 0) {
-          // Extract genres from booked movies
           const bookedGenres: string[] = [];
           bookings.forEach((b: any) => {
             if (b.showtime?.movie?.genre) {
@@ -57,7 +50,6 @@ export function MovieRecommendations({
           });
 
           if (bookedGenres.length > 0) {
-            // Find most frequent genres
             const genreCounts = bookedGenres.reduce((acc, g) => {
               acc[g] = (acc[g] || 0) + 1;
               return acc;
@@ -83,29 +75,27 @@ export function MovieRecommendations({
         }
       }
 
-      // Strategy 2: Similar to current movie genres
       if (recommendedMovies.length === 0 && currentGenres.length > 0) {
         const { data: movies } = await supabase
           .from('movies')
           .select('*')
           .overlaps('genre', currentGenres)
-           .neq('id', currentMovieId || '00000000-0000-0000-0000-000000000000')
-           .order('rating', { ascending: false })
-           .limit(limit);
+          .neq('id', currentMovieId || '00000000-0000-0000-0000-000000000000')
+          .order('rating', { ascending: false })
+          .limit(limit);
         if (movies && movies.length > 0) {
           recommendedMovies = movies as Movie[];
           recommendationReason = `Because you're viewing ${currentGenres[0]} movies`;
         }
       }
 
-      // Strategy 3: Top rated movies
       if (recommendedMovies.length === 0) {
         const { data: movies } = await supabase
           .from('movies')
           .select('*')
-           .neq('id', currentMovieId || '00000000-0000-0000-0000-000000000000')
-           .order('rating', { ascending: false })
-           .limit(limit);
+          .neq('id', currentMovieId || '00000000-0000-0000-0000-000000000000')
+          .order('rating', { ascending: false })
+          .limit(limit);
         if (movies && movies.length > 0) {
           recommendedMovies = movies as Movie[];
           recommendationReason = 'Top rated movies you might enjoy';
@@ -119,7 +109,11 @@ export function MovieRecommendations({
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id, currentMovieId, genresKey, limit]);
+
+  useEffect(() => {
+    fetchRecommendations();
+  }, [fetchRecommendations]);
 
   const isNowShowing = (releaseDate: string | null) => {
     if (!releaseDate) return true;
@@ -132,14 +126,18 @@ export function MovieRecommendations({
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Skeleton className="h-6 w-6" />
-          <Skeleton className="h-6 w-48" />
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-8 w-8 rounded-xl" />
+          <Skeleton className="h-7 w-56" />
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {[...Array(limit)].map((_, i) => (
-            <Skeleton key={i} className="aspect-[2/3] rounded-lg" />
+            <div key={i} className="space-y-3">
+              <Skeleton className="aspect-[2/3] rounded-xl" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
           ))}
         </div>
       </div>
@@ -149,59 +147,81 @@ export function MovieRecommendations({
   if (recommendations.length === 0) return null;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-accent" />
-          <h3 className="text-xl font-semibold">Recommended for You</h3>
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl cinema-gradient flex items-center justify-center shadow-lg shadow-primary/20">
+            <Sparkles className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <div>
+            <h3 className="text-xl sm:text-2xl font-bold tracking-tight">Recommended for You</h3>
+            {reason && (
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">{reason}</p>
+            )}
+          </div>
         </div>
-        <Link to="/movies" className="text-sm text-primary hover:underline flex items-center gap-1">
-          View All <ChevronRight className="h-4 w-4" />
+        <Link 
+          to="/movies" 
+          className="text-sm text-primary hover:text-primary/80 flex items-center gap-1.5 font-medium group"
+        >
+          View All 
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
         </Link>
       </div>
-      
-      {reason && (
-        <p className="text-sm text-muted-foreground">{reason}</p>
-      )}
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {recommendations.map((movie) => {
+        {recommendations.map((movie, idx) => {
           const nowShowing = isNowShowing(movie.release_date);
           return (
-            <Link key={movie.id} to={`/movie/${movie.id}`}>
-              <Card className="overflow-hidden group hover:border-primary/50 transition-all duration-300">
-                <div className="relative aspect-[2/3] overflow-hidden">
-                  <img
-                    src={movie.poster_url || '/placeholder.svg'}
-                    alt={movie.title}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  
-                  {movie.rating && movie.rating > 0 && (
-                    <div className="absolute top-2 right-2 flex items-center gap-1 bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full">
-                      <Star className="h-3 w-3 fill-accent text-accent" />
-                      <span className="text-xs font-medium">{movie.rating.toFixed(1)}</span>
-                    </div>
-                  )}
+            <motion.div
+              key={movie.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.06, duration: 0.4 }}
+            >
+              <Link to={`/movie/${movie.id}`}>
+                <Card className="overflow-hidden group hover:border-primary/30 transition-all duration-500 glow-card rounded-xl border-border/40">
+                  <div className="relative aspect-[2/3] overflow-hidden">
+                    <img
+                      src={movie.poster_url || '/placeholder.svg'}
+                      alt={movie.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-60" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    
+                    {movie.rating && movie.rating > 0 && (
+                      <div className="absolute top-2 right-2 flex items-center gap-1 bg-card/90 backdrop-blur-md px-2 py-1 rounded-full border border-border/30">
+                        <Star className="h-3 w-3 fill-accent text-accent" />
+                        <span className="text-[11px] font-bold">{movie.rating.toFixed(1)}</span>
+                      </div>
+                    )}
 
-                  <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Badge variant={nowShowing ? 'default' : 'secondary'} className="text-xs">
-                      {nowShowing ? 'Book Now' : 'Coming Soon'}
-                    </Badge>
+                    <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <Badge 
+                        className={`text-[10px] font-semibold rounded-full ${
+                          nowShowing 
+                            ? 'cinema-gradient text-primary-foreground' 
+                            : 'bg-secondary text-secondary-foreground'
+                        }`}
+                      >
+                        {nowShowing ? 'Book Now' : 'Coming Soon'}
+                      </Badge>
+                    </div>
                   </div>
-                </div>
-                <CardContent className="p-3">
-                  <h4 className="font-medium text-sm line-clamp-1 group-hover:text-primary transition-colors">
-                    {movie.title}
-                  </h4>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                    <Clock className="h-3 w-3" />
-                    <span>{movie.duration_minutes}m</span>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+                  <CardContent className="p-3">
+                    <h4 className="font-semibold text-sm line-clamp-1 group-hover:text-primary transition-colors duration-300">
+                      {movie.title}
+                    </h4>
+                    <div className="flex items-center gap-2 mt-1.5 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3 text-primary/60" />
+                      <span>{movie.duration_minutes}m</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
           );
         })}
       </div>
