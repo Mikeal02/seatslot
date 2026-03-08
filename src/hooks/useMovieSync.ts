@@ -14,6 +14,10 @@ interface TMDBMovie {
   director?: string | null;
   cast_members?: string[];
   trailer_key?: string | null;
+  budget?: number;
+  revenue?: number;
+  original_language?: string;
+  popularity?: number;
 }
 
 const SYNC_CACHE_KEY = 'movie_sync_timestamp';
