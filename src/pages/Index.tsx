@@ -151,6 +151,9 @@ const Index = () => {
           <QuickRebook />
         </motion.div>
         
+        {/* Trending Carousel */}
+        {nowShowing.length > 0 && <TrendingCarousel movies={nowShowing} />}
+
         {nowShowing.length > 0 && (
           <MovieGrid
             movies={nowShowing}
