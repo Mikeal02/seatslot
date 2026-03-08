@@ -181,7 +181,7 @@ export default function BookingConfirmation() {
                         <div className="w-[140px] h-[140px] flex items-center justify-center" style={{ transform: 'rotateY(180deg)' }}>
                           <div className="text-center">
                             <Film className="h-8 w-8 mx-auto mb-2 text-primary" />
-                            <p className="text-xs font-bold text-gray-800">Tap to flip back</p>
+                            <p className="text-xs font-bold text-foreground">Tap to flip back</p>
                           </div>
                         </div>
                       )}
