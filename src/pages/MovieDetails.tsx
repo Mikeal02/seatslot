@@ -594,7 +594,3 @@ export default function MovieDetails() {
   );
 }
 
-// Small fallback icon component
-function BarChart3Icon({ className }: { className?: string }) {
-  return <BarChart3 className={className} />;
-}
