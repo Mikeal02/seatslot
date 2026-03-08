@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Film, User, LogOut, Ticket, Settings, Menu, X, Heart } from 'lucide-react';
+import { Film, User, LogOut, Ticket, Settings, Menu, X, Heart, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -37,28 +37,32 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 glass-effect safe-top">
+      {/* Top accent line */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] cinema-gradient opacity-80" />
+      
       <div className="container mx-auto px-4">
         <div className="flex h-16 sm:h-[4.5rem] items-center justify-between gap-2">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
             <motion.div
-              whileHover={{ rotate: 12 }}
-              transition={{ type: 'spring', stiffness: 300 }}
+              whileHover={{ rotate: 15, scale: 1.1 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+              className="h-9 w-9 rounded-xl cinema-gradient flex items-center justify-center shadow-lg shadow-primary/20"
             >
-              <Film className="h-7 w-7 sm:h-8 sm:w-8 text-primary" />
+              <Film className="h-5 w-5 text-primary-foreground" />
             </motion.div>
-            <span className="text-lg sm:text-xl font-bold cinema-gradient-text tracking-tight">
+            <span className="text-lg sm:text-xl font-black cinema-gradient-text tracking-tighter">
               CineBook
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-0.5">
+          <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-full hover:bg-muted/60 transition-all duration-200"
+                className="px-4 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground rounded-full hover:bg-muted/60 transition-all duration-200"
               >
                 {link.label}
               </Link>
@@ -67,7 +71,7 @@ export function Header() {
               <Link
                 key={link.href}
                 to={link.href}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-full hover:bg-muted/60 transition-all duration-200 flex items-center gap-1.5"
+                className="px-4 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground rounded-full hover:bg-muted/60 transition-all duration-200 flex items-center gap-1.5"
               >
                 {link.icon && <link.icon className="h-3.5 w-3.5" />}
                 {link.label}
@@ -145,7 +149,7 @@ export function Header() {
             ) : (
               <Button 
                 asChild 
-                className="cinema-gradient btn-professional shadow-md shadow-primary/20 h-9 px-5 text-sm font-medium rounded-full"
+                className="cinema-gradient btn-professional shadow-lg shadow-primary/25 h-9 px-6 text-sm font-bold rounded-full tracking-wide"
               >
                 <Link to="/auth">Sign In</Link>
               </Button>
@@ -166,14 +170,14 @@ export function Header() {
               <div className="py-4 space-y-1">
                 {navLinks.map((link, index) => (
                   <motion.div key={link.href} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }}>
-                    <Link to={link.href} onClick={closeMobileMenu} className="block px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-all duration-200">
+                    <Link to={link.href} onClick={closeMobileMenu} className="block px-4 py-3 text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-all duration-200">
                       {link.label}
                     </Link>
                   </motion.div>
                 ))}
                 {user && userLinks.map((link, index) => (
                   <motion.div key={link.href} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: (navLinks.length + index) * 0.05 }}>
-                    <Link to={link.href} onClick={closeMobileMenu} className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-all duration-200">
+                    <Link to={link.href} onClick={closeMobileMenu} className="flex items-center gap-2 px-4 py-3 text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-all duration-200">
                       {link.icon && <link.icon className="h-4 w-4" />}
                       {link.label}
                     </Link>

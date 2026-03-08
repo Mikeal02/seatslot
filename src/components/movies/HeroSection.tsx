@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Play, Clock, Star, Sparkles, TrendingUp } from 'lucide-react';
+import { Play, Clock, Star, Sparkles, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Movie } from '@/types/database';
@@ -11,109 +11,118 @@ interface HeroSectionProps {
 
 export function HeroSection({ movie }: HeroSectionProps) {
   return (
-    <section className="relative h-[80vh] min-h-[600px] overflow-hidden">
-      {/* Background Image */}
+    <section className="relative h-[85vh] min-h-[650px] overflow-hidden">
+      {/* Background Image with Ken Burns */}
       <motion.div 
         className="absolute inset-0"
-        initial={{ scale: 1.1 }}
+        initial={{ scale: 1.15 }}
         animate={{ scale: 1 }}
-        transition={{ duration: 1.5, ease: [0.25, 0.1, 0.25, 1] }}
+        transition={{ duration: 12, ease: 'linear' }}
       >
         <img
           src={movie.backdrop_url || movie.poster_url || '/placeholder.svg'}
           alt={movie.title}
           className="w-full h-full object-cover"
         />
-        {/* Multi-layer gradient overlays for depth */}
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-background to-transparent" />
-        
-        {/* Animated color wash */}
-        <motion.div 
-          className="absolute inset-0"
-          animate={{
-            background: [
-              'radial-gradient(ellipse at 0% 100%, hsl(var(--primary) / 0.2) 0%, transparent 60%)',
-              'radial-gradient(ellipse at 30% 80%, hsl(var(--accent) / 0.15) 0%, transparent 60%)',
-              'radial-gradient(ellipse at 0% 100%, hsl(var(--primary) / 0.2) 0%, transparent 60%)',
-            ],
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-        />
-
-        {/* Subtle vignette */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_50%,hsl(var(--background)/0.4)_100%)]" />
       </motion.div>
 
+      {/* Cinematic overlay layers */}
+      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/30" />
+      <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-background via-background/90 to-transparent" />
+      
+      {/* Animated cinematic light leak */}
+      <motion.div 
+        className="absolute inset-0 pointer-events-none"
+        animate={{
+          background: [
+            'radial-gradient(ellipse at 0% 100%, hsl(var(--primary) / 0.25) 0%, transparent 50%)',
+            'radial-gradient(ellipse at 20% 70%, hsl(var(--accent) / 0.2) 0%, transparent 50%)',
+            'radial-gradient(ellipse at 10% 90%, hsl(var(--primary) / 0.25) 0%, transparent 50%)',
+          ],
+        }}
+        transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+      />
+
+      {/* Film grain overlay */}
+      <div className="absolute inset-0 noise-overlay pointer-events-none" />
+
+      {/* Letterbox bars for cinematic feel */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/40 via-accent/30 to-primary/40" />
+
       {/* Content */}
-      <div className="relative container mx-auto px-4 h-full flex items-end pb-16 sm:pb-20">
-        <div className="max-w-2xl space-y-5">
+      <div className="relative container mx-auto px-4 h-full flex items-end pb-20 sm:pb-24">
+        <div className="max-w-2xl space-y-6">
           {/* Featured Badge */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <Badge className="cinema-gradient text-primary-foreground gap-1.5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-full">
-              <Sparkles className="h-3 w-3" />
+            <Badge className="cinema-gradient text-primary-foreground gap-2 px-5 py-2 text-xs font-bold uppercase tracking-[0.2em] rounded-full shadow-xl shadow-primary/30 border-0">
+              <Sparkles className="h-3.5 w-3.5" />
               Featured Today
             </Badge>
           </motion.div>
 
-          {/* Title */}
+          {/* Title with dramatic entrance */}
           <motion.h1 
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[0.95] tracking-tighter"
-            initial={{ opacity: 0, y: 40 }}
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[0.9] tracking-[-0.04em]"
+            initial={{ opacity: 0, y: 60 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.4 }}
+            transition={{ duration: 0.8, delay: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
           >
-            {movie.title}
+            <span className="block">{movie.title}</span>
           </motion.h1>
 
           {/* Description */}
           <motion.p 
-            className="text-sm sm:text-base text-muted-foreground line-clamp-2 max-w-lg leading-relaxed"
+            className="text-sm sm:text-base md:text-lg text-muted-foreground line-clamp-2 max-w-xl leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.55 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
           >
             {movie.description}
           </motion.p>
 
-          {/* Metadata chips */}
+          {/* Metadata pills */}
           <motion.div 
             className="flex flex-wrap items-center gap-3"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.65 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
           >
-            <div className="flex items-center gap-1.5 bg-card/60 backdrop-blur-sm px-3 py-1.5 rounded-full border border-border/30 text-sm">
-              <Clock className="h-3.5 w-3.5 text-primary" />
-              <span className="font-medium">{movie.duration_minutes} min</span>
+            <div className="flex items-center gap-2 bg-card/50 backdrop-blur-xl px-4 py-2 rounded-full border border-border/20 text-sm shadow-lg">
+              <Clock className="h-4 w-4 text-primary" />
+              <span className="font-semibold">{movie.duration_minutes} min</span>
             </div>
             {movie.rating && movie.rating > 0 && (
-              <div className="flex items-center gap-1.5 bg-card/60 backdrop-blur-sm px-3 py-1.5 rounded-full border border-border/30 text-sm">
-                <Star className="h-3.5 w-3.5 fill-accent text-accent" />
-                <span className="font-medium">{movie.rating}/10</span>
+              <div className="flex items-center gap-2 bg-card/50 backdrop-blur-xl px-4 py-2 rounded-full border border-border/20 text-sm shadow-lg">
+                <Star className="h-4 w-4 fill-accent text-accent" />
+                <span className="font-semibold">{movie.rating}/10</span>
+              </div>
+            )}
+            {movie.genre && movie.genre.length > 0 && (
+              <div className="flex items-center gap-2 bg-card/50 backdrop-blur-xl px-4 py-2 rounded-full border border-border/20 text-sm shadow-lg">
+                <span className="font-semibold">{movie.genre.slice(0, 2).join(' · ')}</span>
               </div>
             )}
           </motion.div>
 
           {/* CTA Buttons */}
           <motion.div 
-            className="flex flex-col sm:flex-row gap-3 pt-3"
-            initial={{ opacity: 0, y: 20 }}
+            className="flex flex-col sm:flex-row gap-3 pt-2"
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.75 }}
+            transition={{ duration: 0.6, delay: 0.85 }}
           >
             <Button 
               asChild 
               size="lg" 
-              className="cinema-gradient btn-professional shadow-lg shadow-primary/25 h-13 px-8 text-base rounded-full"
+              className="cinema-gradient btn-professional shadow-2xl shadow-primary/30 h-14 px-10 text-base font-bold rounded-full tracking-wide"
             >
               <Link to={`/movie/${movie.id}`}>
-                <Play className="h-5 w-5 mr-2 fill-current" />
+                <Ticket className="h-5 w-5 mr-2.5" />
                 Book Tickets
               </Link>
             </Button>
@@ -121,9 +130,12 @@ export function HeroSection({ movie }: HeroSectionProps) {
               asChild 
               size="lg" 
               variant="outline" 
-              className="h-13 px-8 text-base bg-card/30 backdrop-blur-sm border-border/40 hover:bg-card/60 rounded-full"
+              className="h-14 px-10 text-base font-semibold bg-card/20 backdrop-blur-xl border-border/30 hover:bg-card/50 rounded-full"
             >
-              <Link to={`/movie/${movie.id}`}>View Details</Link>
+              <Link to={`/movie/${movie.id}`}>
+                <Play className="h-5 w-5 mr-2 fill-current" />
+                Watch Trailer
+              </Link>
             </Button>
           </motion.div>
         </div>
