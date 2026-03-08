@@ -9,6 +9,7 @@ import { QuickRebook } from '@/components/booking/QuickRebook';
 import { MovieRecommendations } from '@/components/movies/MovieRecommendations';
 import { StatsSection } from '@/components/home/StatsSection';
 import { TrendingCarousel } from '@/components/movies/TrendingCarousel';
+import { FeaturedSpotlight } from '@/components/movies/FeaturedSpotlight';
 import { Movie } from '@/types/database';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -153,6 +154,12 @@ const Index = () => {
         
         {/* Trending Carousel */}
         {nowShowing.length > 0 && <TrendingCarousel movies={nowShowing} />}
+
+        {/* Editor's Picks / Featured Spotlight */}
+        {nowShowing.length >= 3 && <FeaturedSpotlight movies={nowShowing} />}
+
+        {/* Divider */}
+        <div className="section-divider mx-auto w-full max-w-4xl" />
 
         {nowShowing.length > 0 && (
           <MovieGrid

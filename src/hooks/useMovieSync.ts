@@ -14,6 +14,10 @@ interface TMDBMovie {
   director?: string | null;
   cast_members?: string[];
   trailer_key?: string | null;
+  budget?: number;
+  revenue?: number;
+  original_language?: string;
+  popularity?: number;
 }
 
 const SYNC_CACHE_KEY = 'movie_sync_timestamp';
@@ -83,6 +87,10 @@ export function useMovieSync() {
         genre: movie.genre || [],
         director: movie.director,
         cast_members: movie.cast_members || [],
+        budget: movie.budget || 0,
+        revenue: movie.revenue || 0,
+        original_language: movie.original_language || 'en',
+        popularity: movie.popularity || 0,
         status: determineMovieStatus(movie.release_date),
       };
 
