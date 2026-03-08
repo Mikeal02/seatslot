@@ -238,6 +238,7 @@ export type Database = {
       movies: {
         Row: {
           backdrop_url: string | null
+          budget: number | null
           cast_members: string[] | null
           created_at: string
           description: string | null
@@ -245,16 +246,23 @@ export type Database = {
           duration_minutes: number
           genre: string[] | null
           id: string
+          original_language: string | null
+          popularity: number | null
           poster_url: string | null
+          production_companies: string[] | null
           rating: number | null
           release_date: string | null
+          revenue: number | null
           status: string
+          tagline: string | null
           title: string
+          tmdb_id: number | null
           trailer_key: string | null
           updated_at: string
         }
         Insert: {
           backdrop_url?: string | null
+          budget?: number | null
           cast_members?: string[] | null
           created_at?: string
           description?: string | null
@@ -262,16 +270,23 @@ export type Database = {
           duration_minutes?: number
           genre?: string[] | null
           id?: string
+          original_language?: string | null
+          popularity?: number | null
           poster_url?: string | null
+          production_companies?: string[] | null
           rating?: number | null
           release_date?: string | null
+          revenue?: number | null
           status?: string
+          tagline?: string | null
           title: string
+          tmdb_id?: number | null
           trailer_key?: string | null
           updated_at?: string
         }
         Update: {
           backdrop_url?: string | null
+          budget?: number | null
           cast_members?: string[] | null
           created_at?: string
           description?: string | null
@@ -279,11 +294,17 @@ export type Database = {
           duration_minutes?: number
           genre?: string[] | null
           id?: string
+          original_language?: string | null
+          popularity?: number | null
           poster_url?: string | null
+          production_companies?: string[] | null
           rating?: number | null
           release_date?: string | null
+          revenue?: number | null
           status?: string
+          tagline?: string | null
           title?: string
+          tmdb_id?: number | null
           trailer_key?: string | null
           updated_at?: string
         }
