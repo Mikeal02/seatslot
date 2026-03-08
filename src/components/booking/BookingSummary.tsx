@@ -1,6 +1,8 @@
 import { format, parseISO } from 'date-fns';
-import { Calendar, Clock, MapPin, Armchair, Ticket } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { motion } from 'framer-motion';
+import { Calendar, Clock, MapPin, Armchair, Ticket, Film } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Movie, Showtime, Seat } from '@/types/database';
 
@@ -15,99 +17,85 @@ export function BookingSummary({ movie, showtime, selectedSeats, concessionTotal
   const seatTotal = selectedSeats.reduce((sum, seat) => sum + Number(seat.price), 0);
   const totalAmount = seatTotal + concessionTotal;
   const formattedTime = format(parseISO(`2000-01-01T${showtime.show_time}`), 'h:mm a');
-  const formattedDate = format(parseISO(showtime.show_date), 'EEEE, MMMM d, yyyy');
+  const formattedDate = format(parseISO(showtime.show_date), 'EEE, MMM d');
 
   const seatsByType = selectedSeats.reduce((acc, seat) => {
-    if (!acc[seat.seat_type]) {
-      acc[seat.seat_type] = [];
-    }
+    if (!acc[seat.seat_type]) acc[seat.seat_type] = [];
     acc[seat.seat_type].push(seat);
     return acc;
   }, {} as Record<string, Seat[]>);
 
   return (
-    <Card className="bg-card border-border max-h-[calc(100vh-8rem)] overflow-y-auto glow-card">
-      <CardHeader className="px-4 sm:px-6 py-4">
-        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-          <Ticket className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-          Booking Summary
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4 px-4 sm:px-6">
-        {/* Movie Info */}
-        <div className="flex gap-3">
-          <div className="w-12 sm:w-16 shrink-0">
+    <Card className="bg-card border-border/30 glow-card rounded-2xl overflow-hidden max-h-[calc(100vh-8rem)] overflow-y-auto">
+      {/* Header with movie mini poster */}
+      <div className="relative p-4 sm:p-5">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="h-9 w-9 rounded-xl cinema-gradient flex items-center justify-center shrink-0">
+            <Ticket className="h-4 w-4 text-primary-foreground" />
+          </div>
+          <h3 className="font-bold text-base">Booking Summary</h3>
+        </div>
+
+        {/* Movie */}
+        <div className="flex gap-3 p-3 rounded-xl bg-muted/30 border border-border/20">
+          <div className="w-10 sm:w-12 shrink-0">
             <div className="relative w-full" style={{ paddingBottom: '150%' }}>
-              <img
-                src={movie.poster_url || '/placeholder.svg'}
-                alt={movie.title}
-                className="absolute inset-0 w-full h-full object-cover rounded"
-              />
+              <img src={movie.poster_url || '/placeholder.svg'} alt={movie.title} className="absolute inset-0 w-full h-full object-cover rounded-lg" />
             </div>
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="font-semibold text-sm sm:text-base line-clamp-2">{movie.title}</h3>
-            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
-              {movie.duration_minutes} min • {movie.genre.slice(0, 2).join(', ')}
-            </p>
+            <h4 className="font-bold text-sm line-clamp-1">{movie.title}</h4>
+            <p className="text-[10px] text-muted-foreground">{movie.duration_minutes}m • {movie.genre.slice(0, 2).join(', ')}</p>
           </div>
         </div>
+      </div>
 
-        <Separator />
-
-        {/* Showtime Info */}
-        <div className="space-y-2 text-xs sm:text-sm">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground shrink-0" />
-            <span className="truncate">{formattedDate}</span>
+      <CardContent className="space-y-3 px-4 sm:px-5 pb-5">
+        {/* Showtime chips */}
+        <div className="flex flex-wrap gap-2 text-[10px] sm:text-xs">
+          <div className="flex items-center gap-1.5 bg-muted/30 rounded-full px-2.5 py-1 border border-border/20">
+            <Calendar className="h-3 w-3 text-primary/60" />
+            <span className="font-medium">{formattedDate}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground shrink-0" />
-            <span>{formattedTime}</span>
+          <div className="flex items-center gap-1.5 bg-muted/30 rounded-full px-2.5 py-1 border border-border/20">
+            <Clock className="h-3 w-3 text-primary/60" />
+            <span className="font-medium">{formattedTime}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground shrink-0" />
-            <span className="truncate">
-              {showtime.screen?.theatre?.name} - {showtime.screen?.name}
-            </span>
+          <div className="flex items-center gap-1.5 bg-muted/30 rounded-full px-2.5 py-1 border border-border/20">
+            <MapPin className="h-3 w-3 text-primary/60" />
+            <span className="font-medium truncate max-w-[120px]">{showtime.screen?.theatre?.name}</span>
           </div>
         </div>
 
         {selectedSeats.length > 0 && (
           <>
-            <Separator />
+            <Separator className="opacity-30" />
 
-            {/* Selected Seats */}
+            {/* Seat badges */}
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-xs sm:text-sm font-medium">
-                <Armchair className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-                <span>Selected Seats ({selectedSeats.length})</span>
+              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <Armchair className="h-3 w-3" />
+                Seats ({selectedSeats.length})
               </div>
-              
-              {Object.entries(seatsByType).map(([type, seats]) => (
-                <div key={type} className="flex justify-between text-xs sm:text-sm gap-2">
-                  <span className="capitalize text-muted-foreground shrink-0">
-                    {type} ({seats.length}x)
-                  </span>
-                  <span className="truncate text-right">
-                    {seats.map((s) => `${s.row_label}${s.seat_number}`).join(', ')}
-                  </span>
-                </div>
-              ))}
+              <div className="flex flex-wrap gap-1">
+                {selectedSeats.map(s => (
+                  <Badge key={s.id} variant="outline" className="text-[10px] font-bold border-primary/20 bg-primary/5 px-2 py-0.5">
+                    {s.row_label}{s.seat_number}
+                  </Badge>
+                ))}
+              </div>
             </div>
 
-            <Separator />
+            <Separator className="opacity-30" />
 
-            {/* Price Breakdown */}
-            <div className="space-y-2 text-xs sm:text-sm">
-              {Object.entries(seatsByType).map(([type, seats]) => {
-                const typeTotal = seats.reduce((sum, s) => sum + Number(s.price), 0);
+            {/* Price breakdown */}
+            <div className="space-y-1.5 text-xs">
+              {Object.entries(seatsByType).map(([type, typeSeats]) => {
+                const typeTotal = typeSeats.reduce((sum, s) => sum + Number(s.price), 0);
                 return (
                   <div key={type} className="flex justify-between">
-                    <span className="capitalize text-muted-foreground">
-                      {type} × {seats.length}
-                    </span>
-                    <span>₹{typeTotal.toFixed(2)}</span>
+                    <span className="capitalize text-muted-foreground">{type} × {typeSeats.length}</span>
+                    <span className="font-semibold">₹{typeTotal.toFixed(0)}</span>
                   </div>
                 );
               })}
@@ -115,28 +103,34 @@ export function BookingSummary({ movie, showtime, selectedSeats, concessionTotal
 
             {concessionTotal > 0 && (
               <>
-                <Separator />
-                <div className="flex justify-between text-xs sm:text-sm">
+                <Separator className="opacity-30" />
+                <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">🍿 Snacks & Drinks</span>
-                  <span>₹{concessionTotal.toFixed(2)}</span>
+                  <span className="font-semibold">₹{concessionTotal.toFixed(0)}</span>
                 </div>
               </>
             )}
 
-            <Separator />
+            <Separator className="opacity-30" />
 
             {/* Total */}
-            <div className="flex justify-between font-bold text-base sm:text-lg">
-              <span>Total</span>
-              <span className="cinema-gradient-text">₹{totalAmount.toFixed(2)}</span>
-            </div>
+            <motion.div 
+              className="flex justify-between items-center p-3 rounded-xl cinema-gradient text-primary-foreground"
+              layout
+            >
+              <span className="font-bold text-sm">Total</span>
+              <span className="text-xl font-black tracking-tight">₹{totalAmount.toFixed(0)}</span>
+            </motion.div>
           </>
         )}
 
         {selectedSeats.length === 0 && (
-          <p className="text-xs sm:text-sm text-muted-foreground text-center py-4">
-            Select seats to see the price
-          </p>
+          <div className="text-center py-6">
+            <div className="h-12 w-12 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-2">
+              <Armchair className="h-5 w-5 text-muted-foreground/40" />
+            </div>
+            <p className="text-xs text-muted-foreground">Select seats to see pricing</p>
+          </div>
         )}
       </CardContent>
     </Card>
