@@ -498,7 +498,7 @@ export default function MovieDetails() {
                   
                   {(!tmdbDetails.budget && !tmdbDetails.revenue) && (
                     <div className="text-center py-12 text-muted-foreground">
-                      <BarChart3Icon className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                      <BarChart3 className="h-12 w-12 mx-auto mb-3 opacity-30" />
                       <p className="font-medium">Box office data not available yet</p>
                       <p className="text-sm mt-1">Financial data will appear once the movie is released</p>
                     </div>
