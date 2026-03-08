@@ -83,6 +83,10 @@ export function useMovieSync() {
         genre: movie.genre || [],
         director: movie.director,
         cast_members: movie.cast_members || [],
+        budget: movie.budget || 0,
+        revenue: movie.revenue || 0,
+        original_language: movie.original_language || 'en',
+        popularity: movie.popularity || 0,
         status: determineMovieStatus(movie.release_date),
       };
 
