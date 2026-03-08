@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Film, User, LogOut, Ticket, Settings, Menu, X, Heart, ChevronDown } from 'lucide-react';
+import { Film, User, LogOut, Ticket, Settings, Menu, X, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -38,12 +38,12 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 glass-effect safe-top">
       <div className="container mx-auto px-4">
-        <div className="flex h-16 sm:h-18 items-center justify-between gap-2">
+        <div className="flex h-16 sm:h-[4.5rem] items-center justify-between gap-2">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
             <motion.div
-              whileHover={{ rotate: 360 }}
-              transition={{ duration: 0.5 }}
+              whileHover={{ rotate: 12 }}
+              transition={{ type: 'spring', stiffness: 300 }}
             >
               <Film className="h-7 w-7 sm:h-8 sm:w-8 text-primary" />
             </motion.div>
@@ -53,12 +53,12 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-0.5">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/50 transition-all duration-200"
+                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-full hover:bg-muted/60 transition-all duration-200"
               >
                 {link.label}
               </Link>
@@ -67,44 +67,31 @@ export function Header() {
               <Link
                 key={link.href}
                 to={link.href}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/50 transition-all duration-200 flex items-center gap-1.5"
+                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-full hover:bg-muted/60 transition-all duration-200 flex items-center gap-1.5"
               >
-                {link.icon && <link.icon className="h-4 w-4" />}
+                {link.icon && <link.icon className="h-3.5 w-3.5" />}
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Theme Toggle */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <ThemeToggle />
 
             {/* Mobile Menu Button */}
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden h-9 w-9"
+              className="md:hidden h-9 w-9 rounded-full"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <AnimatePresence mode="wait">
                 {mobileMenuOpen ? (
-                  <motion.div
-                    key="close"
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
+                  <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}>
                     <X className="h-5 w-5" />
                   </motion.div>
                 ) : (
-                  <motion.div
-                    key="menu"
-                    initial={{ rotate: 90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: -90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
+                  <motion.div key="menu" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.2 }}>
                     <Menu className="h-5 w-5" />
                   </motion.div>
                 )}
@@ -116,12 +103,12 @@ export function Header() {
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="ghost" 
-                    className="rounded-full h-10 w-10 p-0 bg-muted/50 hover:bg-muted border border-border/50"
+                    className="rounded-full h-10 w-10 p-0 bg-primary/10 hover:bg-primary/20 border border-primary/20"
                   >
-                    <User className="h-5 w-5" />
+                    <User className="h-4.5 w-4.5 text-primary" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuContent align="end" className="w-52 rounded-xl">
                   <DropdownMenuItem asChild>
                     <Link to="/profile" className="flex items-center gap-3 py-2">
                       <User className="h-4 w-4 text-muted-foreground" />
@@ -158,7 +145,7 @@ export function Header() {
             ) : (
               <Button 
                 asChild 
-                className="cinema-gradient btn-professional shadow-md shadow-primary/20 h-9 px-5 text-sm font-medium"
+                className="cinema-gradient btn-professional shadow-md shadow-primary/20 h-9 px-5 text-sm font-medium rounded-full"
               >
                 <Link to="/auth">Sign In</Link>
               </Button>
@@ -174,37 +161,19 @@ export function Header() {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-              className="md:hidden border-t border-border/50 overflow-hidden"
+              className="md:hidden border-t border-border/30 overflow-hidden"
             >
               <div className="py-4 space-y-1">
                 {navLinks.map((link, index) => (
-                  <motion.div
-                    key={link.href}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                  >
-                    <Link
-                      to={link.href}
-                      onClick={closeMobileMenu}
-                      className="block px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all duration-200"
-                    >
+                  <motion.div key={link.href} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }}>
+                    <Link to={link.href} onClick={closeMobileMenu} className="block px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-all duration-200">
                       {link.label}
                     </Link>
                   </motion.div>
                 ))}
                 {user && userLinks.map((link, index) => (
-                  <motion.div
-                    key={link.href}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: (navLinks.length + index) * 0.05 }}
-                  >
-                    <Link
-                      to={link.href}
-                      onClick={closeMobileMenu}
-                      className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all duration-200"
-                    >
+                  <motion.div key={link.href} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: (navLinks.length + index) * 0.05 }}>
+                    <Link to={link.href} onClick={closeMobileMenu} className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-all duration-200">
                       {link.icon && <link.icon className="h-4 w-4" />}
                       {link.label}
                     </Link>
