@@ -560,4 +560,23 @@
   .stagger-children > *:nth-child(10) { animation-delay: 0.5s; }
   .stagger-children > *:nth-child(11) { animation-delay: 0.55s; }
   .stagger-children > *:nth-child(12) { animation-delay: 0.6s; }
+
+  /* 3D perspective for movie cards */
+  .perspective-800 {
+    perspective: 800px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  /* Cinema pulse */
+  @keyframes cinemaPulse {
+    0%, 100% { box-shadow: 0 0 20px hsl(var(--primary) / 0.1); }
+    50% { box-shadow: 0 0 40px hsl(var(--primary) / 0.25), 0 0 60px hsl(var(--accent) / 0.1); }
+  }
+
+  .cinema-pulse {
+    animation: cinemaPulse 3s ease-in-out infinite;
+  }
 }
