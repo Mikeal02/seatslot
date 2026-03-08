@@ -1,13 +1,14 @@
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Clock, Star, Play, Ticket } from 'lucide-react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { Clock, Star, Play, Ticket, DollarSign } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Movie } from '@/types/database';
 
 interface MovieCardProps {
-  movie: Movie;
+  movie: Movie & { budget?: number; revenue?: number };
   index?: number;
 }
 
@@ -20,11 +21,45 @@ const isNowShowing = (releaseDate: string | null): boolean => {
   return release <= today;
 };
 
+const formatCompact = (n: number): string => {
+  if (n >= 1_000_000_000) return `$${(n / 1_000_000_000).toFixed(1)}B`;
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(0)}M`;
+  if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
+  return `$${n}`;
+};
+
 export function MovieCard({ movie, index = 0 }: MovieCardProps) {
   const nowShowing = isNowShowing(movie.release_date);
-  
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // 3D tilt
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [8, -8]), { stiffness: 300, damping: 30 });
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-8, 8]), { stiffness: 300, damping: 30 });
+  const glareX = useTransform(mouseX, [-0.5, 0.5], [0, 100]);
+  const glareY = useTransform(mouseY, [-0.5, 0.5], [0, 100]);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
+    mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
+  };
+
+  const handleMouseLeave = () => {
+    mouseX.set(0);
+    mouseY.set(0);
+    setIsHovered(false);
+  };
+
+  const extMovie = movie as any;
+  const hasRevenue = extMovie.revenue && extMovie.revenue > 0;
+
   return (
     <motion.div
+      ref={cardRef}
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ 
@@ -32,6 +67,15 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
         delay: index * 0.05,
         ease: [0.25, 0.1, 0.25, 1]
       }}
+      style={{
+        rotateX,
+        rotateY,
+        transformPerspective: 800,
+        transformStyle: 'preserve-3d',
+      }}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={handleMouseLeave}
     >
       <Card className="group overflow-hidden bg-card border-border/30 hover:border-primary/30 transition-all duration-500 glow-card h-full flex flex-col rounded-2xl">
         <div className="relative w-full overflow-hidden" style={{ paddingBottom: '150%' }}>
@@ -41,6 +85,19 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
             loading="lazy"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
+          
+          {/* Holographic glare on hover */}
+          {isHovered && (
+            <motion.div
+              className="absolute inset-0 pointer-events-none z-10"
+              style={{
+                background: useTransform(
+                  [glareX, glareY],
+                  ([x, y]) => `radial-gradient(circle at ${x}% ${y}%, hsl(var(--primary) / 0.15) 0%, transparent 60%)`
+                ),
+              }}
+            />
+          )}
           
           {/* Gradient overlays */}
           <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-70" />
@@ -63,6 +120,17 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
               <Badge className="cinema-gradient text-primary-foreground text-[10px] font-bold px-3 py-1 rounded-full shadow-lg shadow-primary/20 border-0 uppercase tracking-wider">
                 Coming Soon
               </Badge>
+            </div>
+          )}
+
+          {/* Revenue badge on hover */}
+          {hasRevenue && (
+            <div className="absolute bottom-14 left-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">
+              <div className="flex items-center gap-1.5 bg-card/90 backdrop-blur-xl px-2.5 py-1.5 rounded-lg border border-border/20 text-[10px]">
+                <DollarSign className="h-3 w-3 text-accent" />
+                <span className="font-semibold">{formatCompact(extMovie.revenue)}</span>
+                <span className="text-muted-foreground">box office</span>
+              </div>
             </div>
           )}
 
