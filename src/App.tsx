@@ -16,6 +16,7 @@ const Movies = lazy(() => import("./pages/Movies"));
 const MovieDetails = lazy(() => import("./pages/MovieDetails"));
 const Booking = lazy(() => import("./pages/Booking"));
 const BookingConfirmation = lazy(() => import("./pages/BookingConfirmation"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const MyBookings = lazy(() => import("./pages/MyBookings"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
@@ -56,6 +57,7 @@ function AnimatedRoutes() {
             <Route path="/movie/:id" element={<MovieDetails />} />
             <Route path="/booking/:showtimeId" element={<Booking />} />
             <Route path="/booking-confirmation/:bookingId" element={<BookingConfirmation />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/bookings" element={<MyBookings />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/wishlist" element={<Wishlist />} />
