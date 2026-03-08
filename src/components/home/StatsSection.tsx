@@ -32,7 +32,7 @@ function AnimatedCounter({ value, suffix, inView }: { value: number; suffix: str
   }, [value, inView]);
 
   return (
-    <span className="text-3xl sm:text-4xl md:text-5xl font-bold cinema-gradient-text tabular-nums">
+    <span className="text-3xl sm:text-4xl md:text-5xl font-bold cinema-gradient-text tabular-nums tracking-tight">
       {count.toLocaleString()}{suffix}
     </span>
   );
@@ -60,15 +60,11 @@ export function StatsSection() {
         supabase.from('theatres').select('id', { count: 'exact', head: true }),
       ]);
 
-      const movieCount = moviesRes.count || 0;
-      const bookingCount = bookingsRes.count || 0;
-      const theatreCount = theatresRes.count || 0;
-
       setStats([
-        { label: 'Movies Available', value: movieCount, suffix: '+', icon: Film },
-        { label: 'Happy Customers', value: Math.max(bookingCount * 3, 100), suffix: '+', icon: Users },
-        { label: 'Tickets Booked', value: Math.max(bookingCount * 2, 50), suffix: '+', icon: Ticket },
-        { label: 'Theatre Partners', value: Math.max(theatreCount, 5), suffix: '+', icon: MapPin },
+        { label: 'Movies Available', value: moviesRes.count || 0, suffix: '+', icon: Film },
+        { label: 'Happy Customers', value: Math.max((bookingsRes.count || 0) * 3, 100), suffix: '+', icon: Users },
+        { label: 'Tickets Booked', value: Math.max((bookingsRes.count || 0) * 2, 50), suffix: '+', icon: Ticket },
+        { label: 'Theatre Partners', value: Math.max(theatresRes.count || 0, 5), suffix: '+', icon: MapPin },
       ]);
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -76,13 +72,14 @@ export function StatsSection() {
   };
 
   return (
-    <section ref={ref} className="py-16 sm:py-20 relative overflow-hidden">
-      {/* Background decoration */}
+    <section ref={ref} className="py-16 sm:py-24 relative overflow-hidden noise-overlay">
+      {/* Background gradient wash */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.04)_0%,transparent_70%)]" />
       
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div
-          className="text-center mb-12"
+          className="text-center mb-14"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -96,17 +93,19 @@ export function StatsSection() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {stats.map((stat, idx) => (
             <motion.div
               key={stat.label}
-              className="text-center p-6 rounded-xl bg-card border border-border/50 glow-card"
+              className="text-center p-6 sm:p-8 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/40 glow-card"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1, duration: 0.5 }}
             >
-              <stat.icon className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-3 text-primary/60" />
+              <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-primary/10 mb-4">
+                <stat.icon className="h-5 w-5 text-primary" />
+              </div>
               <AnimatedCounter value={stat.value} suffix={stat.suffix} inView={inView} />
               <p className="text-xs sm:text-sm text-muted-foreground mt-2 font-medium">{stat.label}</p>
             </motion.div>
