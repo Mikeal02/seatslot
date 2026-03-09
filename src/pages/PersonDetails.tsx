@@ -458,7 +458,7 @@ export default function PersonDetails() {
             <TabsList className="bg-card border border-border/40 p-1 rounded-xl w-full sm:w-auto flex-wrap">
               <TabsTrigger value="known_for" className="rounded-lg text-xs sm:text-sm font-medium">Known For</TabsTrigger>
               <TabsTrigger value="filmography" className="rounded-lg text-xs sm:text-sm font-medium">
-                Filmography ({person.filmography_cast.length})
+                Filmography ({filmographyCast.length})
               </TabsTrigger>
               {person.filmography_crew.length > 0 && (
                 <TabsTrigger value="crew" className="rounded-lg text-xs sm:text-sm font-medium">
