@@ -237,6 +237,11 @@ export default function PersonDetails() {
 
   const genderLabel = person.gender === 1 ? 'Female' : person.gender === 2 ? 'Male' : 'Other';
   const careerStats = person.career_stats || { total_movies: 0, total_crew_credits: 0, average_rating: 0, highest_rated: null, decade_breakdown: {}, active_years: null };
+  const knownFor = person.known_for || [];
+  const filmographyCast = person.filmography_cast || [];
+  const filmographyCrew = person.filmography_crew || [];
+  const tvCredits = person.tv_credits || [];
+  const personPhotos = person.photos || [];
   const sortedDecades = Object.entries(careerStats.decade_breakdown || {}).sort((a, b) => a[0].localeCompare(b[0]));
   const maxDecadeCount = Math.max(...sortedDecades.map(([, c]) => c), 1);
 
