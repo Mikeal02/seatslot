@@ -27,19 +27,39 @@ import { format, parseISO } from 'date-fns';
 
 interface TMDBDetails {
   tagline?: string;
+  original_title?: string | null;
+  status?: string | null;
+  homepage?: string | null;
   budget?: number;
   revenue?: number;
   budget_formatted?: string;
   revenue_formatted?: string;
   profit_formatted?: string;
-  production_companies?: string[];
-  writers?: string[];
-  cast_details?: { name: string; character: string; photo: string | null }[];
+  roi?: number | null;
+  revenue_multiplier?: number | null;
+  is_profitable?: boolean;
+  production_companies?: { name: string; logo: string | null; country: string }[];
+  production_countries?: string[];
+  spoken_languages?: string[];
+  writers?: { name: string; job: string }[];
+  composers?: string[];
+  cinematographers?: string[];
+  editors?: string[];
+  director?: { name: string; photo: string | null } | null;
+  cast_details?: { id?: number; name: string; character: string; photo: string | null; popularity?: number; department?: string }[];
   similar_movies?: any[];
   recommended_movies?: any[];
   collection?: { id: number; name: string; poster_url: string | null; backdrop_url: string | null } | null;
   tmdb_id?: number;
   original_language?: string;
+  certification?: { certification: string; country: string } | null;
+  keywords?: string[];
+  backdrops?: string[];
+  logos?: string[];
+  streaming_providers?: { name: string; logo: string }[];
+  rent_buy_providers?: { name: string; logo: string; type: string }[];
+  external_ids?: { imdb_id: string | null; facebook_id: string | null; instagram_id: string | null; twitter_id: string | null };
+  all_videos?: { key: string; name: string; type: string; official: boolean }[];
 }
 
 export default function MovieDetails() {
