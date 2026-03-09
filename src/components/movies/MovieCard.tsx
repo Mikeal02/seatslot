@@ -94,12 +94,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
           {isHovered && (
             <motion.div
               className="absolute inset-0 pointer-events-none z-10"
-              style={{
-                background: useTransform(
-                  [glareX, glareY],
-                  ([x, y]) => `radial-gradient(circle at ${x}% ${y}%, hsl(var(--primary) / 0.15) 0%, transparent 60%)`
-                ),
-              }}
+              style={{ background: glareBackground }}
             />
           )}
           
