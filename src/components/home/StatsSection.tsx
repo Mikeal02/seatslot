@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Film, Users, Ticket, MapPin } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { StaggerReveal, StaggerRevealItem } from '@/components/animations/ScrollAnimations';
 
 interface Stat {
   label: string;
