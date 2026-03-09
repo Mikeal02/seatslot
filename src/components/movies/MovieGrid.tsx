@@ -17,23 +17,26 @@ export function MovieGrid({ movies, title, subtitle }: MovieGridProps) {
   const isNowShowing = title.toLowerCase().includes('now');
 
   return (
-    <section className="py-14 sm:py-20 relative">
+    <section className="py-16 sm:py-24 relative">
       <div className="container mx-auto px-4">
         <motion.div 
-          className="mb-10 sm:mb-12"
+          className="mb-12 sm:mb-14"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
           transition={{ duration: 0.5 }}
         >
-          <div className="flex items-center gap-4 mb-3">
-            <div className="h-12 w-12 rounded-xl cinema-gradient flex items-center justify-center shadow-lg shadow-primary/20">
-              {isNowShowing ? <Film className="h-5 w-5 text-primary-foreground" /> : <TrendingUp className="h-5 w-5 text-primary-foreground" />}
+          <p className="section-label mb-4">
+            {isNowShowing ? 'In theatres' : 'Coming up'}
+          </p>
+          <div className="flex items-center gap-4">
+            <div className="section-header-icon">
+              {isNowShowing ? <Film /> : <TrendingUp />}
             </div>
             <div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight">{title}</h2>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black">{title}</h2>
               {subtitle && (
-                <p className="text-muted-foreground text-sm sm:text-base mt-1">{subtitle}</p>
+                <p className="text-muted-foreground text-sm sm:text-base mt-1.5 leading-relaxed">{subtitle}</p>
               )}
             </div>
           </div>
