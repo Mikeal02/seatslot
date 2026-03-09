@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Clock, Star, Calendar, Users, TrendingUp, Eye, Film, Clapperboard, Globe, Quote, BarChart3, Shield, Tag, Tv, ExternalLink, Languages } from 'lucide-react';
+import { ArrowLeft, Clock, Star, Calendar, Users, TrendingUp, Eye, Film, Clapperboard, Globe, Quote, BarChart3, Shield, Tag, Tv, ExternalLink, Languages, Image as LucideImage } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -12,6 +12,8 @@ import { MovieRecommendations } from '@/components/movies/MovieRecommendations';
 import { MovieFinancials } from '@/components/movies/MovieFinancials';
 import { CastCarousel } from '@/components/movies/CastCarousel';
 import { SimilarMovies } from '@/components/movies/SimilarMovies';
+import { MediaGallery } from '@/components/movies/MediaGallery';
+import { StreamingProviders } from '@/components/movies/StreamingProviders';
 import { WishlistButton } from '@/components/movies/WishlistButton';
 import { SocialShare } from '@/components/movies/SocialShare';
 import { MetaTags } from '@/components/MetaTags';
@@ -401,9 +403,10 @@ export default function MovieDetails() {
           <div className="grid lg:grid-cols-3 gap-6 lg:gap-10">
             <div className="lg:col-span-2">
               <Tabs defaultValue="overview" className="space-y-6">
-                <TabsList className="bg-card border border-border/40 p-1 rounded-xl w-full sm:w-auto">
+                <TabsList className="bg-card border border-border/40 p-1 rounded-xl w-full sm:w-auto flex-wrap">
                   <TabsTrigger value="overview" className="rounded-lg text-xs sm:text-sm font-medium">Overview</TabsTrigger>
                   <TabsTrigger value="cast" className="rounded-lg text-xs sm:text-sm font-medium">Cast & Crew</TabsTrigger>
+                  <TabsTrigger value="media" className="rounded-lg text-xs sm:text-sm font-medium">Media</TabsTrigger>
                   <TabsTrigger value="boxoffice" className="rounded-lg text-xs sm:text-sm font-medium">Box Office</TabsTrigger>
                   <TabsTrigger value="reviews" className="rounded-lg text-xs sm:text-sm font-medium">Reviews</TabsTrigger>
                 </TabsList>
@@ -474,14 +477,22 @@ export default function MovieDetails() {
                   )}
 
                   {/* Quick Cast Preview */}
-                  {(tmdbDetails.cast_details || movie.cast_members) && (
+                   {(tmdbDetails.cast_details || movie.cast_members) && (
                     <CastCarousel 
                       cast={tmdbDetails.cast_details || movie.cast_members} 
                       director={tmdbDetails.director}
                       composers={tmdbDetails.composers}
                       cinematographers={tmdbDetails.cinematographers}
+                      editors={tmdbDetails.editors}
                     />
                   )}
+
+                  {/* Streaming Providers */}
+                  <StreamingProviders
+                    streaming={tmdbDetails.streaming_providers}
+                    rentBuy={tmdbDetails.rent_buy_providers}
+                    externalIds={tmdbDetails.external_ids}
+                  />
 
                   {/* Showtimes */}
                   <AnimatePresence>
@@ -511,6 +522,8 @@ export default function MovieDetails() {
                     director={tmdbDetails.director}
                     composers={tmdbDetails.composers}
                     cinematographers={tmdbDetails.cinematographers}
+                    editors={tmdbDetails.editors}
+                    writers={tmdbDetails.writers}
                   />
 
                   {tmdbDetails.writers && tmdbDetails.writers.length > 0 && (
@@ -550,6 +563,21 @@ export default function MovieDetails() {
                           <Badge key={l} variant="secondary" className="py-1.5 px-3">{l}</Badge>
                         ))}
                       </div>
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="media" className="space-y-8">
+                  <MediaGallery
+                    backdrops={tmdbDetails.backdrops}
+                    posters={undefined}
+                    logos={tmdbDetails.logos}
+                    videos={tmdbDetails.all_videos}
+                  />
+                  {(!tmdbDetails.backdrops?.length && !tmdbDetails.all_videos?.length) && (
+                    <div className="text-center py-12 text-muted-foreground">
+        <LucideImage className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                      <p className="font-medium">No media available</p>
                     </div>
                   )}
                 </TabsContent>
