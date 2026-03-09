@@ -88,20 +88,29 @@ function calculateAge(birthday: string, deathday?: string | null) {
   return Math.floor((end.getTime() - birth.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
 }
 
-function StatCard({ icon: Icon, label, value, sub }: { icon: any; label: string; value: string | number; sub?: string }) {
+function StatCard({ icon: Icon, label, value, sub, accent }: { icon: any; label: string; value: string | number; sub?: string; accent?: boolean }) {
   return (
     <motion.div
-      className="relative overflow-hidden rounded-xl bg-card border border-border/30 p-4 group hover:border-primary/30 transition-colors"
+      className="relative overflow-hidden rounded-2xl bg-card border border-border/20 p-5 group hover:border-primary/30 transition-all duration-300"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -2, scale: 1.01 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
     >
-      <div className="absolute top-0 left-0 right-0 h-0.5 cinema-gradient opacity-50" />
-      <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1.5">
-        <Icon className="h-3.5 w-3.5" />
-        <span className="uppercase tracking-wider font-medium">{label}</span>
+      {/* Top gradient line */}
+      <div className="absolute top-0 left-0 right-0 h-0.5 cinema-gradient opacity-60 group-hover:opacity-100 transition-opacity" />
+      {/* Background glow */}
+      <div className="absolute -bottom-8 -right-8 w-24 h-24 rounded-full bg-primary/5 blur-2xl group-hover:bg-primary/10 transition-colors" />
+      <div className="relative">
+        <div className="flex items-center gap-2 text-muted-foreground text-[10px] mb-2">
+          <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Icon className="h-3.5 w-3.5 text-primary" />
+          </div>
+          <span className="uppercase tracking-[0.15em] font-bold">{label}</span>
+        </div>
+        <p className={`text-3xl font-black tracking-tighter ${accent ? 'bg-clip-text text-transparent cinema-gradient' : ''}`}>{value}</p>
+        {sub && <p className="text-[11px] text-muted-foreground mt-1 font-medium">{sub}</p>}
       </div>
-      <p className="text-2xl font-black tracking-tight">{value}</p>
-      {sub && <p className="text-[11px] text-muted-foreground mt-0.5">{sub}</p>}
     </motion.div>
   );
 }
@@ -263,12 +272,20 @@ export default function PersonDetails() {
       <main id="main-content" className="flex-1">
         {/* Hero Section */}
         <section className="relative overflow-hidden">
-          {/* Background - use known_for backdrop */}
+          {/* Background - cinematic backdrop with parallax feel */}
           {knownFor[0]?.backdrop_url && (
             <div className="absolute inset-0">
-              <img src={knownFor[0].backdrop_url} alt="" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/90 to-background" />
-              <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-background/30" />
+              <motion.img 
+                src={knownFor[0].backdrop_url} 
+                alt="" 
+                className="w-full h-full object-cover"
+                initial={{ scale: 1.1 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 1.5, ease: 'easeOut' }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" />
+              <div className="absolute inset-0 bg-gradient-to-r from-background via-background/50 to-background/20" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,transparent_50%,hsl(var(--background))_100%)]" />
               <div className="absolute inset-0 noise-overlay pointer-events-none" />
             </div>
           )}
@@ -281,22 +298,27 @@ export default function PersonDetails() {
             <div className="flex flex-col md:flex-row gap-6 md:gap-10">
               {/* Photo */}
               <motion.div
-                className="shrink-0"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+                className="shrink-0 relative"
+                initial={{ opacity: 0, y: 30, rotateY: -8 }}
+                animate={{ opacity: 1, y: 0, rotateY: 0 }}
+                transition={{ delay: 0.2, duration: 0.7 }}
+                style={{ perspective: 800 }}
               >
+                {/* Glow behind photo */}
+                <div className="absolute -inset-3 cinema-gradient opacity-20 blur-2xl rounded-3xl" />
                 {person.photo ? (
                   <img
                     src={person.photo}
                     alt={person.name}
-                    className="w-40 md:w-56 rounded-2xl shadow-2xl border-2 border-border/10 object-cover aspect-[2/3]"
+                    className="relative w-40 md:w-56 rounded-2xl shadow-2xl border-2 border-border/10 object-cover aspect-[2/3]"
                   />
                 ) : (
-                  <div className="w-40 md:w-56 aspect-[2/3] rounded-2xl bg-muted flex items-center justify-center text-5xl font-black text-muted-foreground">
+                  <div className="relative w-40 md:w-56 aspect-[2/3] rounded-2xl bg-muted flex items-center justify-center text-5xl font-black text-muted-foreground border-2 border-border/10">
                     {person.name[0]}
                   </div>
                 )}
+                {/* Reflection */}
+                <div className="absolute -bottom-3 left-3 right-3 h-8 rounded-b-2xl bg-gradient-to-b from-foreground/5 to-transparent blur-sm" />
               </motion.div>
 
               {/* Info */}
@@ -307,7 +329,7 @@ export default function PersonDetails() {
                 transition={{ delay: 0.3 }}
               >
                 <div>
-                  <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">{person.name}</h1>
+                  <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[0.95]">{person.name}</h1>
                   <div className="flex flex-wrap items-center gap-2 mt-2">
                     <Badge className="cinema-gradient text-primary-foreground border-0 font-bold">{person.known_for_department}</Badge>
                     {careerStats.active_years && (
@@ -415,7 +437,7 @@ export default function PersonDetails() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <StatCard icon={Film} label="Total Films" value={careerStats.total_movies} sub={careerStats.total_crew_credits > 0 ? `+ ${careerStats.total_crew_credits} crew credits` : undefined} />
+            <StatCard icon={Film} label="Total Films" value={careerStats.total_movies} sub={careerStats.total_crew_credits > 0 ? `+ ${careerStats.total_crew_credits} crew credits` : undefined} accent />
             <StatCard icon={Star} label="Avg Rating" value={careerStats.average_rating} sub="across all films" />
             <StatCard icon={TrendingUp} label="Popularity" value={Math.round(person.popularity)} sub="TMDB score" />
             {careerStats.highest_rated && (
@@ -456,23 +478,23 @@ export default function PersonDetails() {
         {/* Content Tabs */}
         <section className="container mx-auto px-4 py-6">
           <Tabs defaultValue="known_for" className="space-y-6">
-            <TabsList className="bg-card border border-border/40 p-1 rounded-xl w-full sm:w-auto flex-wrap">
-              <TabsTrigger value="known_for" className="rounded-lg text-xs sm:text-sm font-medium">Known For</TabsTrigger>
-              <TabsTrigger value="filmography" className="rounded-lg text-xs sm:text-sm font-medium">
+             <TabsList className="bg-card/80 backdrop-blur-xl border border-border/30 p-1.5 rounded-2xl w-full sm:w-auto flex-wrap shadow-lg">
+              <TabsTrigger value="known_for" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Known For</TabsTrigger>
+              <TabsTrigger value="filmography" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
                 Filmography ({filmographyCast.length})
               </TabsTrigger>
               {filmographyCrew.length > 0 && (
-                <TabsTrigger value="crew" className="rounded-lg text-xs sm:text-sm font-medium">
+                <TabsTrigger value="crew" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
                   Behind Camera ({filmographyCrew.length})
                 </TabsTrigger>
               )}
               {tvCredits.length > 0 && (
-                <TabsTrigger value="tv" className="rounded-lg text-xs sm:text-sm font-medium">
+                <TabsTrigger value="tv" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
                   TV ({tvCredits.length})
                 </TabsTrigger>
               )}
               {personPhotos.length > 0 && (
-                <TabsTrigger value="photos" className="rounded-lg text-xs sm:text-sm font-medium">
+                <TabsTrigger value="photos" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
                   Photos ({personPhotos.length})
                 </TabsTrigger>
               )}

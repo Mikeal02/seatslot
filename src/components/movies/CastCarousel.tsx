@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Users } from 'lucide-react';
+import { Users, Clapperboard, Music, Camera, Scissors } from 'lucide-react';
 
 interface CastMember {
   id?: number;
@@ -24,6 +24,31 @@ function isCastDetailed(cast: CastMember[] | string[]): cast is CastMember[] {
   return cast.length > 0 && typeof cast[0] === 'object';
 }
 
+function CrewCard({ icon: Icon, label, name, photo, personId }: { icon: any; label: string; name: string; photo?: string | null; personId?: number }) {
+  const content = (
+    <motion.div
+      className="flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border/20 hover:border-primary/30 transition-all group/crew cursor-pointer"
+      whileHover={{ y: -2, scale: 1.01 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+    >
+      {photo ? (
+        <img src={photo} alt={name} className="w-11 h-11 rounded-full object-cover border-2 border-border/20 group-hover/crew:border-primary/40 transition-colors" />
+      ) : (
+        <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+          <Icon className="h-4 w-4 text-primary" />
+        </div>
+      )}
+      <div className="min-w-0">
+        <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-semibold">{label}</p>
+        <p className="font-bold text-sm truncate group-hover/crew:text-primary transition-colors">{name}</p>
+      </div>
+    </motion.div>
+  );
+
+  if (personId) return <Link to={`/person/${personId}`}>{content}</Link>;
+  return content;
+}
+
 export function CastCarousel({ cast, director, composers, cinematographers, editors }: CastCarouselProps) {
   if (!cast || cast.length === 0) return null;
   const detailed = isCastDetailed(cast);
@@ -31,65 +56,35 @@ export function CastCarousel({ cast, director, composers, cinematographers, edit
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-3">
-        <div className="h-9 w-9 rounded-lg cinema-gradient flex items-center justify-center">
+        <div className="h-9 w-9 rounded-lg cinema-gradient flex items-center justify-center shadow-lg shadow-primary/20">
           <Users className="h-4 w-4 text-primary-foreground" />
         </div>
         <div>
-          <h3 className="text-lg font-bold tracking-tight">Cast & Crew</h3>
-          <p className="text-xs text-muted-foreground">{cast.length} cast members</p>
+          <h3 className="text-lg font-black tracking-tight">Cast & Crew</h3>
+          <p className="text-[11px] text-muted-foreground font-medium">{cast.length} cast members</p>
         </div>
       </div>
 
       {/* Key Crew Row */}
       {(director || (composers && composers.length > 0) || (cinematographers && cinematographers.length > 0) || (editors && editors.length > 0)) && (
-        <div className="flex flex-wrap gap-3 mb-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {director && (
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border/30 min-w-[200px]">
-              {director.photo ? (
-                <img src={director.photo} alt={director.name} className="w-10 h-10 rounded-full object-cover border border-border/30" />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                  {director.name[0]}
-                </div>
-              )}
-              <div>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Director</p>
-                <p className="font-semibold text-sm">{director.name}</p>
-              </div>
-            </div>
+            <CrewCard icon={Clapperboard} label="Director" name={director.name} photo={director.photo} />
           )}
           {composers && composers.length > 0 && (
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border/30">
-              <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent text-lg">🎵</div>
-              <div>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Music</p>
-                <p className="font-semibold text-sm">{composers[0]}</p>
-              </div>
-            </div>
+            <CrewCard icon={Music} label="Composer" name={composers[0]} />
           )}
           {cinematographers && cinematographers.length > 0 && (
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border/30">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary text-lg">📷</div>
-              <div>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Cinematography</p>
-                <p className="font-semibold text-sm">{cinematographers[0]}</p>
-              </div>
-            </div>
+            <CrewCard icon={Camera} label="Cinematography" name={cinematographers[0]} />
           )}
           {editors && editors.length > 0 && (
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border/30">
-              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground text-lg">✂️</div>
-              <div>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Editor</p>
-                <p className="font-semibold text-sm">{editors[0]}</p>
-              </div>
-            </div>
+            <CrewCard icon={Scissors} label="Editor" name={editors[0]} />
           )}
         </div>
       )}
 
       {/* Cast scroll */}
-      <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-thin">
+      <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-thin -mx-1 px-1">
         {detailed
           ? (cast as CastMember[]).map((member, i) => {
               const inner = (
@@ -98,23 +93,29 @@ export function CastCarousel({ cast, director, composers, cinematographers, edit
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.025 }}
+                  whileHover={{ y: -3 }}
                 >
-                  <div className="w-[85px] h-[85px] mx-auto rounded-full overflow-hidden bg-muted border-2 border-border/30 group-hover:border-primary/50 group-hover:shadow-lg group-hover:shadow-primary/10 transition-all duration-300 mb-2 relative">
-                    {member.photo ? (
-                      <img src={member.photo} alt={member.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground text-lg font-bold">
-                        {member.name[0]}
-                      </div>
-                    )}
+                  <div className="relative w-[88px] h-[88px] mx-auto mb-2.5">
+                    {/* Glow ring on hover */}
+                    <div className="absolute -inset-1 rounded-full cinema-gradient opacity-0 group-hover:opacity-40 blur-sm transition-opacity duration-300" />
+                    <div className="relative w-full h-full rounded-full overflow-hidden bg-muted border-2 border-border/30 group-hover:border-primary/50 transition-all duration-300 shadow-md group-hover:shadow-xl group-hover:shadow-primary/10">
+                      {member.photo ? (
+                        <img src={member.photo} alt={member.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground text-lg font-black">
+                          {member.name[0]}
+                        </div>
+                      )}
+                    </div>
+                    {/* Popularity indicator */}
                     {member.popularity && member.popularity > 20 && (
                       <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2">
-                        <div className="h-1 w-6 rounded-full cinema-gradient" />
+                        <div className="h-1 w-8 rounded-full cinema-gradient shadow-sm shadow-primary/30" />
                       </div>
                     )}
                   </div>
-                  <p className="text-xs font-semibold line-clamp-1">{member.name}</p>
-                  <p className="text-[10px] text-muted-foreground line-clamp-1 italic">{member.character}</p>
+                  <p className="text-xs font-bold line-clamp-1 group-hover:text-primary transition-colors">{member.name}</p>
+                  <p className="text-[10px] text-muted-foreground line-clamp-1 italic mt-0.5">{member.character}</p>
                 </motion.div>
               );
 
@@ -132,10 +133,10 @@ export function CastCarousel({ cast, director, composers, cinematographers, edit
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.03 }}
               >
-                <div className="w-[80px] h-[80px] mx-auto rounded-full overflow-hidden bg-muted border-2 border-border/30 mb-2 flex items-center justify-center text-muted-foreground text-lg font-bold">
+                <div className="w-[80px] h-[80px] mx-auto rounded-full overflow-hidden bg-muted border-2 border-border/30 mb-2 flex items-center justify-center text-muted-foreground text-lg font-black">
                   {name[0]}
                 </div>
-                <p className="text-xs font-semibold line-clamp-1">{name}</p>
+                <p className="text-xs font-bold line-clamp-1">{name}</p>
               </motion.div>
             ))}
       </div>

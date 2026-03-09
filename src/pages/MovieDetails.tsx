@@ -14,6 +14,7 @@ import { CastCarousel } from '@/components/movies/CastCarousel';
 import { SimilarMovies } from '@/components/movies/SimilarMovies';
 import { MediaGallery } from '@/components/movies/MediaGallery';
 import { StreamingProviders } from '@/components/movies/StreamingProviders';
+import { CollectionBanner } from '@/components/movies/CollectionBanner';
 import { WishlistButton } from '@/components/movies/WishlistButton';
 import { SocialShare } from '@/components/movies/SocialShare';
 import { MetaTags } from '@/components/MetaTags';
@@ -272,7 +273,7 @@ export default function MovieDetails() {
 
       <main id="main-content" className="flex-1">
         {/* Cinematic Hero */}
-        <section className="relative h-[60vh] min-h-[480px] overflow-hidden">
+        <section className="relative h-[65vh] min-h-[520px] overflow-hidden">
           <motion.div 
             className="absolute inset-0"
             initial={{ scale: 1.15 }}
@@ -340,7 +341,7 @@ export default function MovieDetails() {
                   </motion.div>
                 )}
 
-                <h1 className="text-3xl md:text-5xl lg:text-6xl font-black drop-shadow-lg tracking-tight leading-none">{movie.title}</h1>
+                <h1 className="text-3xl md:text-5xl lg:text-6xl font-black drop-shadow-lg tracking-tighter leading-[0.95]">{movie.title}</h1>
                 
                 <div className="flex flex-wrap gap-2">
                   {movie.genre.map((g) => (
@@ -403,22 +404,41 @@ export default function MovieDetails() {
           <div className="grid lg:grid-cols-3 gap-6 lg:gap-10">
             <div className="lg:col-span-2">
               <Tabs defaultValue="overview" className="space-y-6">
-                <TabsList className="bg-card border border-border/40 p-1 rounded-xl w-full sm:w-auto flex-wrap">
-                  <TabsTrigger value="overview" className="rounded-lg text-xs sm:text-sm font-medium">Overview</TabsTrigger>
-                  <TabsTrigger value="cast" className="rounded-lg text-xs sm:text-sm font-medium">Cast & Crew</TabsTrigger>
-                  <TabsTrigger value="media" className="rounded-lg text-xs sm:text-sm font-medium">Media</TabsTrigger>
-                  <TabsTrigger value="boxoffice" className="rounded-lg text-xs sm:text-sm font-medium">Box Office</TabsTrigger>
-                  <TabsTrigger value="reviews" className="rounded-lg text-xs sm:text-sm font-medium">Reviews</TabsTrigger>
+                <TabsList className="bg-card/80 backdrop-blur-xl border border-border/30 p-1.5 rounded-2xl w-full sm:w-auto flex-wrap shadow-lg">
+                  <TabsTrigger value="overview" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Overview</TabsTrigger>
+                  <TabsTrigger value="cast" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Cast & Crew</TabsTrigger>
+                  <TabsTrigger value="media" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Media</TabsTrigger>
+                  <TabsTrigger value="boxoffice" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Box Office</TabsTrigger>
+                  <TabsTrigger value="reviews" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Reviews</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview" className="space-y-8">
                   {/* Synopsis */}
                   <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                    <h2 className="text-xl font-bold mb-3">Synopsis</h2>
-                    <p className="text-muted-foreground leading-relaxed text-[15px]">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="h-8 w-1 rounded-full cinema-gradient" />
+                      <h2 className="text-xl font-black tracking-tight">Synopsis</h2>
+                    </div>
+                    <p className="text-muted-foreground leading-[1.8] text-[15px] max-w-prose">
                       {movie.description || 'No description available.'}
                     </p>
                   </motion.div>
+
+                  {/* Keywords */}
+                  {tmdbDetails.keywords && tmdbDetails.keywords.length > 0 && (
+                    <motion.div
+                      className="flex flex-wrap gap-1.5"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.15 }}
+                    >
+                      {tmdbDetails.keywords.map(k => (
+                        <span key={k} className="text-[10px] px-2.5 py-1 rounded-full bg-muted/60 text-muted-foreground border border-border/20 font-medium hover:bg-muted hover:text-foreground transition-colors cursor-default">
+                          {k}
+                        </span>
+                      ))}
+                    </motion.div>
+                  )}
 
                   {/* Director & Writers */}
                   <motion.div 
@@ -453,27 +473,7 @@ export default function MovieDetails() {
 
                   {/* Collection */}
                   {tmdbDetails.collection && (
-                    <motion.div
-                      className="relative overflow-hidden rounded-2xl border border-border/30 glow-card"
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                    >
-                      <div className="relative h-32 overflow-hidden">
-                        <img
-                          src={tmdbDetails.collection.backdrop_url || tmdbDetails.collection.poster_url || '/placeholder.svg'}
-                          alt={tmdbDetails.collection.name}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-card via-card/60 to-transparent" />
-                      </div>
-                      <div className="relative p-4 -mt-8">
-                        <Badge className="cinema-gradient text-primary-foreground text-[10px] font-bold px-3 py-1 rounded-full border-0 uppercase tracking-wider mb-2">
-                          Part of Collection
-                        </Badge>
-                        <h3 className="font-bold text-lg">{tmdbDetails.collection.name}</h3>
-                      </div>
-                    </motion.div>
+                    <CollectionBanner collection={tmdbDetails.collection} />
                   )}
 
                   {/* Quick Cast Preview */}
