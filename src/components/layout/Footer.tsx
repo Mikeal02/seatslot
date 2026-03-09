@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Film, Facebook, Twitter, Instagram, Youtube, Mail, MapPin, Phone, ArrowUpRight } from 'lucide-react';
+import { Film, Facebook, Twitter, Instagram, Youtube, Mail, MapPin, Phone, ArrowUpRight, Sparkles } from 'lucide-react';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -33,13 +33,41 @@ export function Footer() {
 
   return (
     <footer className="bg-card/20 border-t border-border/15 mt-auto relative overflow-hidden">
-      {/* Gradient accent top */}
+      {/* Top accent line */}
       <div className="absolute top-0 left-0 right-0 h-[2px] cinema-gradient opacity-50" />
       
       {/* Background glow */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[radial-gradient(ellipse,hsl(var(--primary)/0.03)_0%,transparent_70%)]" />
 
-      <div className="container mx-auto px-4 py-20 sm:py-24 relative z-10">
+      {/* Newsletter CTA band */}
+      <div className="relative border-b border-border/15">
+        <div className="container mx-auto px-4 py-10 sm:py-14">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 max-w-4xl mx-auto">
+            <div className="text-center sm:text-left">
+              <div className="inline-flex items-center gap-2 glass-card px-3 py-1.5 rounded-full mb-3">
+                <Sparkles className="h-3 w-3 text-accent" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Stay updated</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black">
+                Never miss a <span className="cinema-gradient-text">premiere</span>
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1.5">Get notified about new releases and exclusive offers</p>
+            </div>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <input 
+                type="email" 
+                placeholder="your@email.com"
+                className="flex-1 sm:w-64 h-11 px-4 rounded-full bg-muted/30 border border-border/30 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all placeholder:text-muted-foreground/50"
+              />
+              <button className="h-11 px-6 rounded-full cinema-gradient btn-professional text-primary-foreground text-sm font-bold shadow-lg shadow-primary/20 shrink-0">
+                Subscribe
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-16 sm:py-20 relative z-10">
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-12 md:gap-14">
           {/* Brand Column */}
           <div className="col-span-2 sm:col-span-2 md:col-span-1">
@@ -125,7 +153,7 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-20 pt-8 border-t border-border/15">
+        <div className="mt-16 pt-8 border-t border-border/15">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs text-muted-foreground/50 font-medium tracking-wide">
               © {currentYear} CineBook. All rights reserved.

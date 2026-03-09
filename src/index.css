@@ -724,4 +724,22 @@
       filter: blur(0);
     }
   }
+
+  /* ────────────────────────────────
+     NEW RELEASE BADGE — Animated glow
+  ──────────────────────────────── */
+  @keyframes newReleasePulse {
+    0%, 100% { 
+      box-shadow: 0 0 8px hsl(var(--accent) / 0.4), 0 0 16px hsl(var(--accent) / 0.15);
+    }
+    50% { 
+      box-shadow: 0 0 16px hsl(var(--accent) / 0.6), 0 0 32px hsl(var(--accent) / 0.25);
+    }
+  }
+
+  .new-release-badge {
+    background: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(30 100% 50%) 100%);
+    color: hsl(30 60% 12%);
+    animation: newReleasePulse 2s ease-in-out infinite;
+  }
 }

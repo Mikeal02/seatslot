@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { Clock, Star, Play, Ticket, DollarSign } from 'lucide-react';
+import { Clock, Star, Play, Ticket, DollarSign, Flame, Zap } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,14 @@ const isNowShowing = (releaseDate: string | null): boolean => {
   return release <= today;
 };
 
+const isNewRelease = (releaseDate: string | null): boolean => {
+  if (!releaseDate) return false;
+  const today = new Date();
+  const release = new Date(releaseDate);
+  const diffDays = (today.getTime() - release.getTime()) / (1000 * 60 * 60 * 24);
+  return diffDays >= 0 && diffDays <= 30;
+};
+
 const formatCompact = (n: number): string => {
   if (n >= 1_000_000_000) return `$${(n / 1_000_000_000).toFixed(1)}B`;
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(0)}M`;
@@ -30,6 +38,7 @@ const formatCompact = (n: number): string => {
 
 export function MovieCard({ movie, index = 0 }: MovieCardProps) {
   const nowShowing = isNowShowing(movie.release_date);
+  const newRelease = isNewRelease(movie.release_date);
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -105,10 +114,26 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
           <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-80" />
           <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           
+          {/* NEW RELEASE badge — animated pulse glow */}
+          {nowShowing && newRelease && (
+            <div className="absolute top-3 left-3 z-20">
+              <motion.div
+                initial={{ scale: 0, rotate: -12 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 15, delay: index * 0.04 + 0.3 }}
+              >
+                <Badge className="new-release-badge text-[8px] font-black px-2.5 py-1.5 rounded-full border-0 uppercase tracking-[0.2em] shadow-lg gap-1">
+                  <Zap className="h-2.5 w-2.5 fill-current" />
+                  New
+                </Badge>
+              </motion.div>
+            </div>
+          )}
+
           {/* Rating badge */}
           {nowShowing && movie.rating && movie.rating > 0 && (
             <motion.div 
-              className="absolute top-3 right-3 flex items-center gap-1.5 glass-card px-2.5 py-1.5 rounded-full shadow-xl"
+              className="absolute top-3 right-3 flex items-center gap-1.5 glass-card px-2.5 py-1.5 rounded-full shadow-xl z-20"
               whileHover={{ scale: 1.05 }}
             >
               <Star className="h-3 w-3 fill-accent text-accent" />
@@ -118,7 +143,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
 
           {/* Coming Soon badge */}
           {!nowShowing && (
-            <div className="absolute top-3 left-3">
+            <div className="absolute top-3 left-3 z-20">
               <Badge className="cinema-gradient text-primary-foreground text-[9px] font-bold px-3 py-1.5 rounded-full shadow-lg shadow-primary/25 border-0 uppercase tracking-[0.15em]">
                 Coming Soon
               </Badge>
@@ -127,7 +152,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
 
           {/* Revenue badge on hover */}
           {hasRevenue && (
-            <div className="absolute bottom-14 left-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">
+            <div className="absolute bottom-14 left-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0 z-20">
               <div className="flex items-center gap-1.5 glass-card px-2.5 py-1.5 rounded-lg text-[10px]">
                 <DollarSign className="h-3 w-3 text-accent" />
                 <span className="font-semibold">{formatCompact(extMovie.revenue)}</span>
@@ -137,8 +162,8 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
           )}
 
           {/* Genre tags on hover */}
-          {movie.genre && movie.genre.length > 0 && (
-            <div className="absolute top-3 left-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          {movie.genre && movie.genre.length > 0 && !newRelease && (
+            <div className="absolute top-3 left-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
               {nowShowing && movie.genre.slice(0, 2).map((g) => (
                 <span key={g} className="text-[9px] font-semibold glass-card px-2 py-0.5 rounded-full uppercase tracking-wider">
                   {g}
@@ -148,7 +173,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
           )}
 
           {/* Hover action button */}
-          <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
+          <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-20">
             <Button 
               asChild 
               variant="cinema"
@@ -174,9 +199,14 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
               <Clock className="h-3 w-3 shrink-0 text-primary/60" />
               <span className="font-medium">{movie.duration_minutes} min</span>
             </div>
-            {nowShowing && (
+            {nowShowing && newRelease ? (
+              <span className="text-[9px] font-bold uppercase tracking-[0.15em] flex items-center gap-1">
+                <Flame className="h-3 w-3 text-accent" />
+                <span className="cinema-gradient-text">New Release</span>
+              </span>
+            ) : nowShowing ? (
               <span className="text-[9px] font-bold text-primary uppercase tracking-[0.15em]">In Theatres</span>
-            )}
+            ) : null}
           </div>
         </CardContent>
       </Card>
