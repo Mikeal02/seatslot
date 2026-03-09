@@ -10,6 +10,7 @@ import { MovieRecommendations } from '@/components/movies/MovieRecommendations';
 import { StatsSection } from '@/components/home/StatsSection';
 import { TrendingCarousel } from '@/components/movies/TrendingCarousel';
 import { FeaturedSpotlight } from '@/components/movies/FeaturedSpotlight';
+import { GenreChips } from '@/components/home/GenreChips';
 import { ScrollReveal, ScrollScale } from '@/components/animations/ScrollAnimations';
 import { Movie } from '@/types/database';
 import { Skeleton } from '@/components/ui/skeleton';
