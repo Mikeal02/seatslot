@@ -480,7 +480,7 @@ export default function PersonDetails() {
             {/* Known For */}
             <TabsContent value="known_for">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {person.known_for.map((film, i) => (
+                {knownFor.map((film, i) => (
                   <motion.div key={film.tmdb_id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
                     <FilmCard film={film} type="cast" />
                   </motion.div>
