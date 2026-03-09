@@ -686,4 +686,42 @@
     background: radial-gradient(ellipse at center, transparent 50%, hsl(var(--background)) 100%);
     pointer-events: none;
   }
+
+  /* Premium text shadow for hero typography */
+  .text-cinema-shadow {
+    text-shadow: 0 2px 20px hsl(0 0% 0% / 0.3), 0 0 40px hsl(var(--primary) / 0.1);
+  }
+
+  /* Luxury separator with diamond center */
+  .luxury-divider {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .luxury-divider::before,
+  .luxury-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, hsl(var(--border)), hsl(var(--primary) / 0.2), hsl(var(--border)), transparent);
+  }
+
+  /* Smooth page transitions */
+  .page-enter {
+    animation: pageEnter 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  }
+
+  @keyframes pageEnter {
+    from { 
+      opacity: 0; 
+      transform: translateY(12px); 
+      filter: blur(4px);
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+      filter: blur(0);
+    }
+  }
 }
