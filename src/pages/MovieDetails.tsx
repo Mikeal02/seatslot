@@ -403,9 +403,10 @@ export default function MovieDetails() {
           <div className="grid lg:grid-cols-3 gap-6 lg:gap-10">
             <div className="lg:col-span-2">
               <Tabs defaultValue="overview" className="space-y-6">
-                <TabsList className="bg-card border border-border/40 p-1 rounded-xl w-full sm:w-auto">
+                <TabsList className="bg-card border border-border/40 p-1 rounded-xl w-full sm:w-auto flex-wrap">
                   <TabsTrigger value="overview" className="rounded-lg text-xs sm:text-sm font-medium">Overview</TabsTrigger>
                   <TabsTrigger value="cast" className="rounded-lg text-xs sm:text-sm font-medium">Cast & Crew</TabsTrigger>
+                  <TabsTrigger value="media" className="rounded-lg text-xs sm:text-sm font-medium">Media</TabsTrigger>
                   <TabsTrigger value="boxoffice" className="rounded-lg text-xs sm:text-sm font-medium">Box Office</TabsTrigger>
                   <TabsTrigger value="reviews" className="rounded-lg text-xs sm:text-sm font-medium">Reviews</TabsTrigger>
                 </TabsList>
