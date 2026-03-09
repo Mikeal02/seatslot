@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Clock, Star, Calendar, Users, TrendingUp, Eye, Film, Clapperboard, Globe, Quote, BarChart3, Shield, Tag, Tv, ExternalLink, Languages, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Clock, Star, Calendar, Users, TrendingUp, Eye, Film, Clapperboard, Globe, Quote, BarChart3, Shield, Tag, Tv, ExternalLink, Languages, Image as ImageIcon, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -576,7 +576,7 @@ export default function MovieDetails() {
                   />
                   {(!tmdbDetails.backdrops?.length && !tmdbDetails.all_videos?.length) && (
                     <div className="text-center py-12 text-muted-foreground">
-                      <Image className="h-12 w-12 mx-auto mb-3 opacity-30" />
+        Icon              <Image className="h-12 w-12 mx-auto mb-3 opacity-30" />
                       <p className="font-medium">No media available</p>
                     </div>
                   )}
