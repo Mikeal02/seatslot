@@ -470,9 +470,9 @@ export default function PersonDetails() {
                   TV ({tvCredits.length})
                 </TabsTrigger>
               )}
-              {person.photos.length > 0 && (
+              {personPhotos.length > 0 && (
                 <TabsTrigger value="photos" className="rounded-lg text-xs sm:text-sm font-medium">
-                  Photos ({person.photos.length})
+                  Photos ({personPhotos.length})
                 </TabsTrigger>
               )}
             </TabsList>
