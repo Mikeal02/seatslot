@@ -478,23 +478,23 @@ export default function PersonDetails() {
         {/* Content Tabs */}
         <section className="container mx-auto px-4 py-6">
           <Tabs defaultValue="known_for" className="space-y-6">
-            <TabsList className="bg-card border border-border/40 p-1 rounded-xl w-full sm:w-auto flex-wrap">
-              <TabsTrigger value="known_for" className="rounded-lg text-xs sm:text-sm font-medium">Known For</TabsTrigger>
-              <TabsTrigger value="filmography" className="rounded-lg text-xs sm:text-sm font-medium">
+             <TabsList className="bg-card/80 backdrop-blur-xl border border-border/30 p-1.5 rounded-2xl w-full sm:w-auto flex-wrap shadow-lg">
+              <TabsTrigger value="known_for" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Known For</TabsTrigger>
+              <TabsTrigger value="filmography" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
                 Filmography ({filmographyCast.length})
               </TabsTrigger>
               {filmographyCrew.length > 0 && (
-                <TabsTrigger value="crew" className="rounded-lg text-xs sm:text-sm font-medium">
+                <TabsTrigger value="crew" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
                   Behind Camera ({filmographyCrew.length})
                 </TabsTrigger>
               )}
               {tvCredits.length > 0 && (
-                <TabsTrigger value="tv" className="rounded-lg text-xs sm:text-sm font-medium">
+                <TabsTrigger value="tv" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
                   TV ({tvCredits.length})
                 </TabsTrigger>
               )}
               {personPhotos.length > 0 && (
-                <TabsTrigger value="photos" className="rounded-lg text-xs sm:text-sm font-medium">
+                <TabsTrigger value="photos" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
                   Photos ({personPhotos.length})
                 </TabsTrigger>
               )}
