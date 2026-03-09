@@ -343,28 +343,28 @@ export default function PersonDetails() {
 
                 {/* External links */}
                 <div className="flex flex-wrap gap-2">
-                  {person.external_ids.imdb_id && (
-                    <a href={`https://www.imdb.com/name/${person.external_ids.imdb_id}`} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f5c518]/10 border border-[#f5c518]/30 text-xs font-bold hover:bg-[#f5c518]/20 transition-colors">
-                      <span className="text-[#f5c518] font-black">IMDb</span>
-                      <ExternalLink className="h-3 w-3 text-[#f5c518]" />
+                  {externalIds.imdb_id && (
+                    <a href={`https://www.imdb.com/name/${externalIds.imdb_id}`} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/30 text-xs font-bold hover:bg-accent/20 transition-colors">
+                      <span className="text-accent font-black">IMDb</span>
+                      <ExternalLink className="h-3 w-3 text-accent" />
                     </a>
                   )}
-                  {person.external_ids.instagram_id && (
-                    <a href={`https://instagram.com/${person.external_ids.instagram_id}`} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-pink-500/10 border border-pink-500/30 text-xs font-bold hover:bg-pink-500/20 transition-colors text-pink-400">
+                  {externalIds.instagram_id && (
+                    <a href={`https://instagram.com/${externalIds.instagram_id}`} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/30 text-xs font-bold hover:bg-primary/20 transition-colors text-primary">
                       Instagram
                     </a>
                   )}
-                  {person.external_ids.twitter_id && (
-                    <a href={`https://twitter.com/${person.external_ids.twitter_id}`} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-500/10 border border-sky-500/30 text-xs font-bold hover:bg-sky-500/20 transition-colors text-sky-400">
+                  {externalIds.twitter_id && (
+                    <a href={`https://twitter.com/${externalIds.twitter_id}`} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted border border-border/30 text-xs font-bold hover:bg-muted/80 transition-colors">
                       Twitter/X
                     </a>
                   )}
-                  {person.external_ids.tiktok_id && (
-                    <a href={`https://tiktok.com/@${person.external_ids.tiktok_id}`} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-foreground/5 border border-border/30 text-xs font-bold hover:bg-foreground/10 transition-colors">
+                  {externalIds.tiktok_id && (
+                    <a href={`https://tiktok.com/@${externalIds.tiktok_id}`} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted border border-border/30 text-xs font-bold hover:bg-muted/80 transition-colors">
                       TikTok
                     </a>
                   )}
