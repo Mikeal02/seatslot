@@ -81,6 +81,9 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className="hidden md:block">
+              <GlobalSearch />
+            </div>
             <ThemeToggle />
 
             {/* Mobile Menu Button */}
