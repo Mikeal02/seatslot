@@ -415,11 +415,30 @@ export default function MovieDetails() {
                 <TabsContent value="overview" className="space-y-8">
                   {/* Synopsis */}
                   <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                    <h2 className="text-xl font-bold mb-3">Synopsis</h2>
-                    <p className="text-muted-foreground leading-relaxed text-[15px]">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="h-8 w-1 rounded-full cinema-gradient" />
+                      <h2 className="text-xl font-black tracking-tight">Synopsis</h2>
+                    </div>
+                    <p className="text-muted-foreground leading-[1.8] text-[15px] max-w-prose">
                       {movie.description || 'No description available.'}
                     </p>
                   </motion.div>
+
+                  {/* Keywords */}
+                  {tmdbDetails.keywords && tmdbDetails.keywords.length > 0 && (
+                    <motion.div
+                      className="flex flex-wrap gap-1.5"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.15 }}
+                    >
+                      {tmdbDetails.keywords.map(k => (
+                        <span key={k} className="text-[10px] px-2.5 py-1 rounded-full bg-muted/60 text-muted-foreground border border-border/20 font-medium hover:bg-muted hover:text-foreground transition-colors cursor-default">
+                          {k}
+                        </span>
+                      ))}
+                    </motion.div>
+                  )}
 
                   {/* Director & Writers */}
                   <motion.div 
