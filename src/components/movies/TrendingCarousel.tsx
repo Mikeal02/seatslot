@@ -1,13 +1,21 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { TrendingUp, Star, Clock, Ticket } from 'lucide-react';
+import { TrendingUp, Star, Clock, Ticket, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Movie } from '@/types/database';
 
 interface TrendingCarouselProps {
   movies: Movie[];
 }
+
+const isNewRelease = (releaseDate: string | null): boolean => {
+  if (!releaseDate) return false;
+  const today = new Date();
+  const release = new Date(releaseDate);
+  const diffDays = (today.getTime() - release.getTime()) / (1000 * 60 * 60 * 24);
+  return diffDays >= 0 && diffDays <= 30;
+};
 
 export function TrendingCarousel({ movies }: TrendingCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -117,6 +125,8 @@ export function TrendingCarousel({ movies }: TrendingCarouselProps) {
 }
 
 function TrendingCard({ movie, index }: { movie: Movie; index: number }) {
+  const newRelease = isNewRelease(movie.release_date);
+
   return (
     <Link
       to={`/movie/${movie.id}`}
@@ -140,6 +150,16 @@ function TrendingCard({ movie, index }: { movie: Movie; index: number }) {
               {index + 1}
             </div>
           </div>
+
+          {/* New Release badge */}
+          {newRelease && (
+            <div className="absolute top-3 left-14">
+              <Badge className="new-release-badge text-[8px] font-black px-2 py-1 rounded-full border-0 uppercase tracking-[0.15em] shadow-lg gap-1">
+                <Zap className="h-2.5 w-2.5 fill-current" />
+                New
+              </Badge>
+            </div>
+          )}
 
           {/* Rating */}
           {movie.rating && movie.rating > 0 && (

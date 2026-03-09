@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Film, TrendingUp } from 'lucide-react';
+import { Film, TrendingUp, Sparkles } from 'lucide-react';
 import { MovieCard } from './MovieCard';
 import { Movie } from '@/types/database';
 
@@ -48,6 +48,20 @@ export function MovieGrid({ movies, title, subtitle }: MovieGridProps) {
           </div>
           {/* Section accent line */}
           <div className="mt-6 h-px w-24 cinema-gradient rounded-full opacity-60" />
+        </motion.div>
+
+        {/* Movie count pill */}
+        <motion.div 
+          className="flex items-center gap-2 mb-8"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+        >
+          <div className="flex items-center gap-1.5 glass-card px-3 py-1.5 rounded-full text-[11px] font-semibold text-muted-foreground">
+            <Sparkles className="h-3 w-3 text-primary" />
+            {movies.length} {isNowShowing ? 'movies showing' : 'upcoming titles'}
+          </div>
         </motion.div>
         
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-5">
