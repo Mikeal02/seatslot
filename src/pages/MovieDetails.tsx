@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Clock, Star, Calendar, Users, TrendingUp, Eye, Film, Clapperboard, Globe, Quote, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Clock, Star, Calendar, Users, TrendingUp, Eye, Film, Clapperboard, Globe, Quote, BarChart3, Shield, Tag, Tv, ExternalLink, Languages } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -27,19 +27,39 @@ import { format, parseISO } from 'date-fns';
 
 interface TMDBDetails {
   tagline?: string;
+  original_title?: string | null;
+  status?: string | null;
+  homepage?: string | null;
   budget?: number;
   revenue?: number;
   budget_formatted?: string;
   revenue_formatted?: string;
   profit_formatted?: string;
-  production_companies?: string[];
-  writers?: string[];
-  cast_details?: { name: string; character: string; photo: string | null }[];
+  roi?: number | null;
+  revenue_multiplier?: number | null;
+  is_profitable?: boolean;
+  production_companies?: { name: string; logo: string | null; country: string }[];
+  production_countries?: string[];
+  spoken_languages?: string[];
+  writers?: { name: string; job: string }[];
+  composers?: string[];
+  cinematographers?: string[];
+  editors?: string[];
+  director?: { name: string; photo: string | null } | null;
+  cast_details?: { id?: number; name: string; character: string; photo: string | null; popularity?: number; department?: string }[];
   similar_movies?: any[];
   recommended_movies?: any[];
   collection?: { id: number; name: string; poster_url: string | null; backdrop_url: string | null } | null;
   tmdb_id?: number;
   original_language?: string;
+  certification?: { certification: string; country: string } | null;
+  keywords?: string[];
+  backdrops?: string[];
+  logos?: string[];
+  streaming_providers?: { name: string; logo: string }[];
+  rent_buy_providers?: { name: string; logo: string; type: string }[];
+  external_ids?: { imdb_id: string | null; facebook_id: string | null; instagram_id: string | null; twitter_id: string | null };
+  all_videos?: { key: string; name: string; type: string; official: boolean }[];
 }
 
 export default function MovieDetails() {
@@ -138,19 +158,39 @@ export default function MovieDetails() {
 
       setTmdbDetails({
         tagline: details.tagline,
+        original_title: details.original_title,
+        status: details.status,
+        homepage: details.homepage,
         budget: details.budget,
         revenue: details.revenue,
         budget_formatted: details.budget_formatted,
         revenue_formatted: details.revenue_formatted,
         profit_formatted: details.profit_formatted,
+        roi: details.roi,
+        revenue_multiplier: details.revenue_multiplier,
+        is_profitable: details.is_profitable,
         production_companies: details.production_companies,
+        production_countries: details.production_countries,
+        spoken_languages: details.spoken_languages,
         writers: details.writers,
+        composers: details.composers,
+        cinematographers: details.cinematographers,
+        editors: details.editors,
+        director: details.director,
         cast_details: details.cast_details,
         similar_movies: details.similar_movies,
         recommended_movies: details.recommended_movies,
         collection: details.collection,
         tmdb_id: tmdbId,
         original_language: details.original_language,
+        certification: details.certification,
+        keywords: details.keywords,
+        backdrops: details.backdrops,
+        logos: details.logos,
+        streaming_providers: details.streaming_providers,
+        rent_buy_providers: details.rent_buy_providers,
+        external_ids: details.external_ids,
+        all_videos: details.all_videos,
       });
 
       if (!existingTrailerKey && details.trailer_key) {
@@ -308,6 +348,12 @@ export default function MovieDetails() {
 
                 {/* Quick Stats */}
                 <div className="flex flex-wrap items-center gap-3 text-sm">
+                  {tmdbDetails.certification && (
+                    <div className="flex items-center gap-1.5 bg-background/30 backdrop-blur-sm rounded-full px-3 py-1.5 border border-accent/30">
+                      <Shield className="h-4 w-4 text-accent" />
+                      <span className="font-bold text-accent">{tmdbDetails.certification.certification}</span>
+                    </div>
+                  )}
                   {movie.rating && movie.rating > 0 && (
                     <div className="flex items-center gap-1.5 bg-background/30 backdrop-blur-sm rounded-full px-3 py-1.5 border border-border/10">
                       <Star className="h-4 w-4 fill-accent text-accent" />
@@ -396,7 +442,7 @@ export default function MovieDetails() {
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Studio</p>
-                          <p className="font-semibold text-sm line-clamp-1">{tmdbDetails.production_companies[0]}</p>
+                          <p className="font-semibold text-sm line-clamp-1">{tmdbDetails.production_companies[0].name}</p>
                         </div>
                       </div>
                     )}
@@ -429,7 +475,12 @@ export default function MovieDetails() {
 
                   {/* Quick Cast Preview */}
                   {(tmdbDetails.cast_details || movie.cast_members) && (
-                    <CastCarousel cast={tmdbDetails.cast_details || movie.cast_members} />
+                    <CastCarousel 
+                      cast={tmdbDetails.cast_details || movie.cast_members} 
+                      director={tmdbDetails.director}
+                      composers={tmdbDetails.composers}
+                      cinematographers={tmdbDetails.cinematographers}
+                    />
                   )}
 
                   {/* Showtimes */}
@@ -455,21 +506,21 @@ export default function MovieDetails() {
                 </TabsContent>
 
                 <TabsContent value="cast" className="space-y-6">
-                  <CastCarousel cast={tmdbDetails.cast_details || movie.cast_members} />
-                  
-                  {movie.director && (
-                    <div>
-                      <h3 className="text-lg font-bold mb-3">Director</h3>
-                      <Badge variant="outline" className="py-2 px-4 text-sm">{movie.director}</Badge>
-                    </div>
-                  )}
+                  <CastCarousel 
+                    cast={tmdbDetails.cast_details || movie.cast_members} 
+                    director={tmdbDetails.director}
+                    composers={tmdbDetails.composers}
+                    cinematographers={tmdbDetails.cinematographers}
+                  />
 
                   {tmdbDetails.writers && tmdbDetails.writers.length > 0 && (
                     <div>
                       <h3 className="text-lg font-bold mb-3">Writers</h3>
                       <div className="flex flex-wrap gap-2">
-                        {tmdbDetails.writers.map(w => (
-                          <Badge key={w} variant="outline" className="py-1.5 px-3">{w}</Badge>
+                        {tmdbDetails.writers.map((w, i) => (
+                          <Badge key={w.name + i} variant="outline" className="py-1.5 px-3">
+                            {w.name} <span className="text-muted-foreground ml-1 text-[10px]">({w.job})</span>
+                          </Badge>
                         ))}
                       </div>
                     </div>
@@ -478,9 +529,25 @@ export default function MovieDetails() {
                   {tmdbDetails.production_companies && tmdbDetails.production_companies.length > 0 && (
                     <div>
                       <h3 className="text-lg font-bold mb-3">Production Companies</h3>
+                      <div className="flex flex-wrap gap-3">
+                        {tmdbDetails.production_companies.map((c, i) => (
+                          <div key={c.name + i} className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 border border-border/30">
+                            {c.logo ? (
+                              <img src={c.logo} alt={c.name} className="h-6 object-contain" />
+                            ) : null}
+                            <span className="text-xs font-medium">{c.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {tmdbDetails.spoken_languages && tmdbDetails.spoken_languages.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-bold mb-3">Languages</h3>
                       <div className="flex flex-wrap gap-2">
-                        {tmdbDetails.production_companies.map(c => (
-                          <Badge key={c} variant="secondary" className="py-1.5 px-3">{c}</Badge>
+                        {tmdbDetails.spoken_languages.map(l => (
+                          <Badge key={l} variant="secondary" className="py-1.5 px-3">{l}</Badge>
                         ))}
                       </div>
                     </div>
@@ -494,6 +561,9 @@ export default function MovieDetails() {
                     budgetFormatted={tmdbDetails.budget_formatted}
                     revenueFormatted={tmdbDetails.revenue_formatted}
                     profitFormatted={tmdbDetails.profit_formatted}
+                    roi={tmdbDetails.roi}
+                    revenueMultiplier={tmdbDetails.revenue_multiplier}
+                    isProfitable={tmdbDetails.is_profitable}
                   />
                   
                   {(!tmdbDetails.budget && !tmdbDetails.revenue) && (
@@ -510,9 +580,14 @@ export default function MovieDetails() {
                 </TabsContent>
               </Tabs>
 
-              {/* Similar Movies */}
+              {/* Similar & Recommended Movies */}
               <div className="mt-10">
-                <SimilarMovies movieTitle={movie.title} tmdbId={tmdbDetails.tmdb_id} />
+                <SimilarMovies 
+                  movieTitle={movie.title} 
+                  tmdbId={tmdbDetails.tmdb_id} 
+                  similarMovies={tmdbDetails.similar_movies}
+                  recommendedMovies={tmdbDetails.recommended_movies}
+                />
               </div>
 
               {/* Recommendations */}
