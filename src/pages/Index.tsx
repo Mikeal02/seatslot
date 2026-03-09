@@ -10,6 +10,7 @@ import { MovieRecommendations } from '@/components/movies/MovieRecommendations';
 import { StatsSection } from '@/components/home/StatsSection';
 import { TrendingCarousel } from '@/components/movies/TrendingCarousel';
 import { FeaturedSpotlight } from '@/components/movies/FeaturedSpotlight';
+import { ScrollReveal, ScrollScale } from '@/components/animations/ScrollAnimations';
 import { Movie } from '@/types/database';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -95,27 +96,28 @@ const Index = () => {
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
         <div className="flex-1">
-          <div className="relative h-[75vh] min-h-[550px] overflow-hidden">
+          <div className="relative h-[90vh] min-h-[700px] overflow-hidden">
             <Skeleton className="absolute inset-0" />
-            <div className="relative container mx-auto px-4 h-full flex items-center">
-              <div className="max-w-2xl space-y-6">
-                <Skeleton className="h-6 w-32" />
-                <Skeleton className="h-16 w-full max-w-lg" />
-                <Skeleton className="h-20 w-full max-w-md" />
+            <div className="relative container mx-auto px-4 h-full flex items-end pb-28">
+              <div className="max-w-2xl space-y-7">
+                <Skeleton className="h-7 w-36 rounded-full" />
+                <Skeleton className="h-20 w-full max-w-lg" />
+                <Skeleton className="h-16 w-full max-w-md" />
                 <div className="flex gap-4">
-                  <Skeleton className="h-12 w-40" />
-                  <Skeleton className="h-12 w-32" />
+                  <Skeleton className="h-14 w-44 rounded-full" />
+                  <Skeleton className="h-14 w-40 rounded-full" />
                 </div>
               </div>
             </div>
           </div>
-          <div className="container mx-auto px-4 py-12">
+          <div className="container mx-auto px-4 py-16">
+            <Skeleton className="h-3 w-24 mb-4" />
             <Skeleton className="h-10 w-48 mb-3" />
-            <Skeleton className="h-5 w-72 mb-8" />
+            <Skeleton className="h-5 w-72 mb-10" />
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="space-y-3">
-                  <Skeleton className="aspect-[2/3] rounded-lg" />
+                  <Skeleton className="aspect-[2/3] rounded-2xl" />
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-3 w-1/2" />
                 </div>
@@ -139,70 +141,78 @@ const Index = () => {
       <Header />
       
       <main id="main-content" className="flex-1">
+        {/* Hero — no scroll animation needed, it's above the fold */}
         {featuredMovie && <HeroSection movie={featuredMovie} />}
         
-        {/* Quick Rebook */}
-        <motion.div 
-          className="container mx-auto px-4 py-8"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <QuickRebook />
-        </motion.div>
+        {/* Quick Rebook — slide up reveal */}
+        <ScrollReveal direction="up" distance={30} duration={0.6}>
+          <div className="container mx-auto px-4 py-10">
+            <QuickRebook />
+          </div>
+        </ScrollReveal>
         
-        {/* Trending Carousel */}
-        {nowShowing.length > 0 && <TrendingCarousel movies={nowShowing} />}
-
-        {/* Editor's Picks / Featured Spotlight */}
-        {nowShowing.length >= 3 && <FeaturedSpotlight movies={nowShowing} />}
-
-        {/* Divider */}
-        <div className="section-divider mx-auto w-full max-w-4xl" />
-
+        {/* Trending Carousel — scale reveal */}
         {nowShowing.length > 0 && (
-          <MovieGrid
-            movies={nowShowing}
-            title="Now Showing"
-            subtitle="Book tickets for movies currently in theatres"
-          />
+          <ScrollScale scaleRange={[0.95, 1]}>
+            <TrendingCarousel movies={nowShowing} />
+          </ScrollScale>
         )}
 
-        {/* Stats Section */}
-        <StatsSection />
+        {/* Editor's Picks — reveal from left */}
+        {nowShowing.length >= 3 && (
+          <ScrollReveal direction="up" distance={50} duration={0.8}>
+            <FeaturedSpotlight movies={nowShowing} />
+          </ScrollReveal>
+        )}
+
+        {/* Divider */}
+        <ScrollReveal distance={0} duration={1}>
+          <div className="section-divider mx-auto w-full max-w-4xl" />
+        </ScrollReveal>
+
+        {/* Now Showing Grid */}
+        {nowShowing.length > 0 && (
+          <ScrollReveal direction="up" distance={40} duration={0.7}>
+            <MovieGrid
+              movies={nowShowing}
+              title="Now Showing"
+              subtitle="Book tickets for movies currently in theatres"
+            />
+          </ScrollReveal>
+        )}
+
+        {/* Stats Section — already has its own scroll animations, wrap with scale */}
+        <ScrollScale scaleRange={[0.94, 1]}>
+          <StatsSection />
+        </ScrollScale>
         
         {/* Personalized Recommendations */}
-        <motion.div 
-          className="container mx-auto px-4 py-8"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <MovieRecommendations limit={6} />
-        </motion.div>
+        <ScrollReveal direction="up" distance={35} duration={0.6}>
+          <div className="container mx-auto px-4 py-10">
+            <MovieRecommendations limit={6} />
+          </div>
+        </ScrollReveal>
         
+        {/* Coming Soon */}
         {comingSoon.length > 0 && (
-          <MovieGrid
-            movies={comingSoon}
-            title="Coming Soon"
-            subtitle="Get ready for upcoming blockbusters"
-          />
+          <ScrollReveal direction="up" distance={40} duration={0.7} delay={0.1}>
+            <MovieGrid
+              movies={comingSoon}
+              title="Coming Soon"
+              subtitle="Get ready for upcoming blockbusters"
+            />
+          </ScrollReveal>
         )}
         
         {nowShowing.length === 0 && comingSoon.length === 0 && (
-          <motion.div 
-            className="container mx-auto px-4 py-20 text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="text-2xl font-bold mb-4">No Movies Available</h2>
-            <p className="text-muted-foreground">
-              Movies will appear here once the TMDB API is configured.
-            </p>
-          </motion.div>
+          <ScrollReveal>
+            <div className="container mx-auto px-4 py-24 text-center">
+              <h2 className="text-2xl font-bold mb-4">No Movies Available</h2>
+              <p className="text-muted-foreground">
+                Movies will appear here once the TMDB API is configured.
+              </p>
+            </div>
+          </ScrollReveal>
         )}
       </main>
 
