@@ -437,7 +437,7 @@ export default function PersonDetails() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <StatCard icon={Film} label="Total Films" value={careerStats.total_movies} sub={careerStats.total_crew_credits > 0 ? `+ ${careerStats.total_crew_credits} crew credits` : undefined} />
+            <StatCard icon={Film} label="Total Films" value={careerStats.total_movies} sub={careerStats.total_crew_credits > 0 ? `+ ${careerStats.total_crew_credits} crew credits` : undefined} accent />
             <StatCard icon={Star} label="Avg Rating" value={careerStats.average_rating} sub="across all films" />
             <StatCard icon={TrendingUp} label="Popularity" value={Math.round(person.popularity)} sub="TMDB score" />
             {careerStats.highest_rated && (
