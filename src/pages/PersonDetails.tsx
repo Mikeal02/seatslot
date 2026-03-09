@@ -329,7 +329,7 @@ export default function PersonDetails() {
                 transition={{ delay: 0.3 }}
               >
                 <div>
-                  <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">{person.name}</h1>
+                  <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[0.95]">{person.name}</h1>
                   <div className="flex flex-wrap items-center gap-2 mt-2">
                     <Badge className="cinema-gradient text-primary-foreground border-0 font-bold">{person.known_for_department}</Badge>
                     {careerStats.active_years && (
