@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { GlobalSearch } from '@/components/search/GlobalSearch';
 
 export function Header() {
   const { user, isAdmin, signOut } = useAuth();
