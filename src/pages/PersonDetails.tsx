@@ -304,8 +304,8 @@ export default function PersonDetails() {
                   <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">{person.name}</h1>
                   <div className="flex flex-wrap items-center gap-2 mt-2">
                     <Badge className="cinema-gradient text-primary-foreground border-0 font-bold">{person.known_for_department}</Badge>
-                    {person.career_stats.active_years && (
-                      <Badge variant="outline" className="text-xs">{person.career_stats.active_years}</Badge>
+                    {careerStats.active_years && (
+                      <Badge variant="outline" className="text-xs">{careerStats.active_years}</Badge>
                     )}
                   </div>
                 </div>
