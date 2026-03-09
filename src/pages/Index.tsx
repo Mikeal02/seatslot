@@ -50,7 +50,8 @@ const Index = () => {
     const { data: movies, error } = await supabase
       .from('movies')
       .select('*')
-      .order('rating', { ascending: false });
+      .order('popularity', { ascending: false })
+      .order('release_date', { ascending: false });
 
     if (error) {
       toast({
