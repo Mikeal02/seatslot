@@ -477,14 +477,22 @@ export default function MovieDetails() {
                   )}
 
                   {/* Quick Cast Preview */}
-                  {(tmdbDetails.cast_details || movie.cast_members) && (
+                   {(tmdbDetails.cast_details || movie.cast_members) && (
                     <CastCarousel 
                       cast={tmdbDetails.cast_details || movie.cast_members} 
                       director={tmdbDetails.director}
                       composers={tmdbDetails.composers}
                       cinematographers={tmdbDetails.cinematographers}
+                      editors={tmdbDetails.editors}
                     />
                   )}
+
+                  {/* Streaming Providers */}
+                  <StreamingProviders
+                    streaming={tmdbDetails.streaming_providers}
+                    rentBuy={tmdbDetails.rent_buy_providers}
+                    externalIds={tmdbDetails.external_ids}
+                  />
 
                   {/* Showtimes */}
                   <AnimatePresence>
