@@ -239,6 +239,8 @@ const Index = () => {
       </main>
 
       <Footer />
+      {/* Bottom padding for mobile nav bar */}
+      <div className="h-16 lg:hidden" />
     </motion.div>
   );
 };

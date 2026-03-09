@@ -693,6 +693,19 @@ export default function MovieDetails() {
         </section>
       </main>
 
+      {/* Floating Book CTA - appears on scroll for mobile */}
+      <FloatingBookCTA 
+        movie={movie}
+        hasShowtimes={showtimes.length > 0}
+        onBookClick={() => {
+          if (selectedShowtime) {
+            handleProceedToSeats();
+          } else {
+            document.querySelector('#showtimes-section')?.scrollIntoView({ behavior: 'smooth' });
+          }
+        }}
+      />
+
       <Footer />
     </motion.div>
   );
