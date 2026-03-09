@@ -436,7 +436,7 @@ export default function MovieDetails() {
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Studio</p>
-                          <p className="font-semibold text-sm line-clamp-1">{tmdbDetails.production_companies[0]}</p>
+                          <p className="font-semibold text-sm line-clamp-1">{tmdbDetails.production_companies[0].name}</p>
                         </div>
                       </div>
                     )}
