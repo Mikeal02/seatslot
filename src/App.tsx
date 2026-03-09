@@ -56,6 +56,7 @@ function AnimatedRoutes() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/movies" element={<Movies />} />
             <Route path="/movie/:id" element={<MovieDetails />} />
+            <Route path="/person/:id" element={<PersonDetails />} />
             <Route path="/booking/:showtimeId" element={<Booking />} />
             <Route path="/booking-confirmation/:bookingId" element={<BookingConfirmation />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
