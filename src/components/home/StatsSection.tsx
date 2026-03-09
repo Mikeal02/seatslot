@@ -101,28 +101,23 @@ export function StatsSection() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
-          {stats.map((stat, idx) => (
-            <motion.div
-              key={stat.label}
-              className="text-center p-8 sm:p-10 rounded-3xl glass-card glow-card relative group"
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1, duration: 0.5 }}
-            >
-              {/* Icon */}
-              <div className="section-header-icon mx-auto mb-6 group-hover:shadow-primary/40 transition-shadow duration-500">
-                <stat.icon className="h-6 w-6 text-primary-foreground" />
+        <StaggerReveal className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
+          {stats.map((stat) => (
+            <StaggerRevealItem key={stat.label}>
+              <div className="text-center p-8 sm:p-10 rounded-3xl glass-card glow-card relative group">
+                {/* Icon */}
+                <div className="section-header-icon mx-auto mb-6 group-hover:shadow-primary/40 transition-shadow duration-500">
+                  <stat.icon className="h-6 w-6 text-primary-foreground" />
+                </div>
+                
+                <AnimatedCounter value={stat.value} suffix={stat.suffix} inView={inView} />
+                
+                <p className="text-sm font-bold text-foreground mt-4 tracking-tight">{stat.label}</p>
+                <p className="text-xs text-muted-foreground mt-1.5">{stat.description}</p>
               </div>
-              
-              <AnimatedCounter value={stat.value} suffix={stat.suffix} inView={inView} />
-              
-              <p className="text-sm font-bold text-foreground mt-4 tracking-tight">{stat.label}</p>
-              <p className="text-xs text-muted-foreground mt-1.5">{stat.description}</p>
-            </motion.div>
+            </StaggerRevealItem>
           ))}
-        </div>
+        </StaggerReveal>
       </div>
     </section>
   );
