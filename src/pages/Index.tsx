@@ -175,10 +175,11 @@ const Index = () => {
           </ScrollReveal>
         )}
 
-        {/* Divider */}
-        <ScrollReveal distance={0} duration={1}>
+        {/* Section Divider */}
+        <div className="relative py-2">
           <div className="section-divider mx-auto w-full max-w-4xl" />
-        </ScrollReveal>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full cinema-gradient opacity-60" />
+        </div>
 
         {/* Now Showing Grid */}
         {nowShowing.length > 0 && (
