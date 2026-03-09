@@ -500,10 +500,10 @@ export default function PersonDetails() {
             </TabsContent>
 
             {/* Crew Credits */}
-            {person.filmography_crew.length > 0 && (
+            {filmographyCrew.length > 0 && (
               <TabsContent value="crew">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                  {person.filmography_crew.map((film, i) => (
+                  {filmographyCrew.map((film, i) => (
                     <motion.div key={`crew-${film.tmdb_id}-${i}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i * 0.02, 0.5) }}>
                       <FilmCard film={film} type="crew" />
                     </motion.div>
