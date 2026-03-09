@@ -555,6 +555,9 @@ export default function MovieDetails() {
                     budgetFormatted={tmdbDetails.budget_formatted}
                     revenueFormatted={tmdbDetails.revenue_formatted}
                     profitFormatted={tmdbDetails.profit_formatted}
+                    roi={tmdbDetails.roi}
+                    revenueMultiplier={tmdbDetails.revenue_multiplier}
+                    isProfitable={tmdbDetails.is_profitable}
                   />
                   
                   {(!tmdbDetails.budget && !tmdbDetails.revenue) && (
