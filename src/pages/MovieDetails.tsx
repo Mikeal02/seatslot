@@ -404,12 +404,12 @@ export default function MovieDetails() {
           <div className="grid lg:grid-cols-3 gap-6 lg:gap-10">
             <div className="lg:col-span-2">
               <Tabs defaultValue="overview" className="space-y-6">
-                <TabsList className="bg-card border border-border/40 p-1 rounded-xl w-full sm:w-auto flex-wrap">
-                  <TabsTrigger value="overview" className="rounded-lg text-xs sm:text-sm font-medium">Overview</TabsTrigger>
-                  <TabsTrigger value="cast" className="rounded-lg text-xs sm:text-sm font-medium">Cast & Crew</TabsTrigger>
-                  <TabsTrigger value="media" className="rounded-lg text-xs sm:text-sm font-medium">Media</TabsTrigger>
-                  <TabsTrigger value="boxoffice" className="rounded-lg text-xs sm:text-sm font-medium">Box Office</TabsTrigger>
-                  <TabsTrigger value="reviews" className="rounded-lg text-xs sm:text-sm font-medium">Reviews</TabsTrigger>
+                <TabsList className="bg-card/80 backdrop-blur-xl border border-border/30 p-1.5 rounded-2xl w-full sm:w-auto flex-wrap shadow-lg">
+                  <TabsTrigger value="overview" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Overview</TabsTrigger>
+                  <TabsTrigger value="cast" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Cast & Crew</TabsTrigger>
+                  <TabsTrigger value="media" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Media</TabsTrigger>
+                  <TabsTrigger value="boxoffice" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Box Office</TabsTrigger>
+                  <TabsTrigger value="reviews" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Reviews</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview" className="space-y-8">
