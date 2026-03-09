@@ -582,6 +582,7 @@ export default function MovieDetails() {
                   )}
                 </TabsContent>
 
+                <TabsContent value="boxoffice" className="space-y-8">
                   <MovieFinancials
                     budget={tmdbDetails.budget}
                     revenue={tmdbDetails.revenue}
