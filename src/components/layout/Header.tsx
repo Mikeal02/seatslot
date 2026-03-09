@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { GlobalSearch } from '@/components/search/GlobalSearch';
 
 export function Header() {
   const { user, isAdmin, signOut } = useAuth();
@@ -80,6 +81,9 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className="hidden md:block">
+              <GlobalSearch />
+            </div>
             <ThemeToggle />
 
             {/* Mobile Menu Button */}

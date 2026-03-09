@@ -530,6 +530,38 @@ serve(async (req) => {
         };
         break;
       }
+      case 'multi_search': {
+        if (!query) throw new Error('query is required for multi_search');
+        const data = await fetchFromTMDB(`/search/multi?query=${encodeURIComponent(query)}&page=1`);
+        const movies = (data.results || [])
+          .filter((r: any) => r.media_type === 'movie')
+          .slice(0, 6)
+          .map((m: any) => ({
+            type: 'movie' as const,
+            tmdb_id: m.id,
+            title: m.title,
+            poster_url: m.poster_path ? `${TMDB_IMAGE_BASE}/w200${m.poster_path}` : null,
+            release_date: m.release_date || null,
+            rating: Math.round((m.vote_average || 0) * 10) / 10,
+            popularity: m.popularity || 0,
+            genre_ids: m.genre_ids || [],
+            overview: (m.overview || '').slice(0, 120),
+          }));
+        const people = (data.results || [])
+          .filter((r: any) => r.media_type === 'person')
+          .slice(0, 6)
+          .map((p: any) => ({
+            type: 'person' as const,
+            tmdb_id: p.id,
+            name: p.name,
+            photo: p.profile_path ? `${TMDB_IMAGE_BASE}/w200${p.profile_path}` : null,
+            known_for_department: p.known_for_department || 'Acting',
+            popularity: p.popularity || 0,
+            known_for: (p.known_for || []).slice(0, 3).map((k: any) => k.title || k.name).filter(Boolean),
+          }));
+        result = { movies, people };
+        break;
+      }
       default:
         throw new Error(`Unknown action: ${action}`);
     }
