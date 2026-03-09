@@ -298,22 +298,27 @@ export default function PersonDetails() {
             <div className="flex flex-col md:flex-row gap-6 md:gap-10">
               {/* Photo */}
               <motion.div
-                className="shrink-0"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+                className="shrink-0 relative"
+                initial={{ opacity: 0, y: 30, rotateY: -8 }}
+                animate={{ opacity: 1, y: 0, rotateY: 0 }}
+                transition={{ delay: 0.2, duration: 0.7 }}
+                style={{ perspective: 800 }}
               >
+                {/* Glow behind photo */}
+                <div className="absolute -inset-3 cinema-gradient opacity-20 blur-2xl rounded-3xl" />
                 {person.photo ? (
                   <img
                     src={person.photo}
                     alt={person.name}
-                    className="w-40 md:w-56 rounded-2xl shadow-2xl border-2 border-border/10 object-cover aspect-[2/3]"
+                    className="relative w-40 md:w-56 rounded-2xl shadow-2xl border-2 border-border/10 object-cover aspect-[2/3]"
                   />
                 ) : (
-                  <div className="w-40 md:w-56 aspect-[2/3] rounded-2xl bg-muted flex items-center justify-center text-5xl font-black text-muted-foreground">
+                  <div className="relative w-40 md:w-56 aspect-[2/3] rounded-2xl bg-muted flex items-center justify-center text-5xl font-black text-muted-foreground border-2 border-border/10">
                     {person.name[0]}
                   </div>
                 )}
+                {/* Reflection */}
+                <div className="absolute -bottom-3 left-3 right-3 h-8 rounded-b-2xl bg-gradient-to-b from-foreground/5 to-transparent blur-sm" />
               </motion.div>
 
               {/* Info */}
