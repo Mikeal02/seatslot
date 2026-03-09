@@ -10,6 +10,7 @@ import { MovieRecommendations } from '@/components/movies/MovieRecommendations';
 import { StatsSection } from '@/components/home/StatsSection';
 import { TrendingCarousel } from '@/components/movies/TrendingCarousel';
 import { FeaturedSpotlight } from '@/components/movies/FeaturedSpotlight';
+import { GenreChips } from '@/components/home/GenreChips';
 import { ScrollReveal, ScrollScale } from '@/components/animations/ScrollAnimations';
 import { Movie } from '@/types/database';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -167,6 +168,9 @@ const Index = () => {
             <QuickRebook />
           </div>
         </ScrollReveal>
+
+        {/* Genre Filter Chips */}
+        <GenreChips />
         
         {/* Trending Carousel — scale reveal */}
         {nowShowing.length > 0 && (
@@ -235,6 +239,8 @@ const Index = () => {
       </main>
 
       <Footer />
+      {/* Bottom padding for mobile nav bar */}
+      <div className="h-16 lg:hidden" />
     </motion.div>
   );
 };
