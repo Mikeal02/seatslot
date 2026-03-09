@@ -18,9 +18,15 @@ export function MovieGrid({ movies, title, subtitle }: MovieGridProps) {
 
   return (
     <section className="py-16 sm:py-24 relative">
-      <div className="container mx-auto px-4">
+      {/* Ambient background glow */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/[0.02] blur-[100px]" />
+        <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] rounded-full bg-accent/[0.02] blur-[80px]" />
+      </div>
+
+      <div className="container mx-auto px-4 relative">
         <motion.div 
-          className="mb-12 sm:mb-14"
+          className="mb-12 sm:mb-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
@@ -36,10 +42,12 @@ export function MovieGrid({ movies, title, subtitle }: MovieGridProps) {
             <div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-black">{title}</h2>
               {subtitle && (
-                <p className="text-muted-foreground text-sm sm:text-base mt-1.5 leading-relaxed">{subtitle}</p>
+                <p className="text-muted-foreground text-sm sm:text-base mt-1.5 leading-relaxed max-w-lg">{subtitle}</p>
               )}
             </div>
           </div>
+          {/* Section accent line */}
+          <div className="mt-6 h-px w-24 cinema-gradient rounded-full opacity-60" />
         </motion.div>
         
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-5">

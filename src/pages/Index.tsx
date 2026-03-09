@@ -96,30 +96,40 @@ const Index = () => {
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
         <div className="flex-1">
-          <div className="relative h-[90vh] min-h-[700px] overflow-hidden">
-            <Skeleton className="absolute inset-0" />
+          {/* Hero skeleton with cinematic feel */}
+          <div className="relative h-[90vh] min-h-[700px] overflow-hidden bg-muted/30">
+            <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
+            <div className="absolute bottom-0 left-0 right-0 h-80 bg-gradient-to-t from-background via-background/95 to-transparent" />
             <div className="relative container mx-auto px-4 h-full flex items-end pb-28">
               <div className="max-w-2xl space-y-7">
-                <Skeleton className="h-7 w-36 rounded-full" />
-                <Skeleton className="h-20 w-full max-w-lg" />
-                <Skeleton className="h-16 w-full max-w-md" />
-                <div className="flex gap-4">
+                <Skeleton className="h-8 w-40 rounded-full" />
+                <div className="space-y-3">
+                  <Skeleton className="h-16 w-full max-w-lg rounded-xl" />
+                  <Skeleton className="h-10 w-3/4 max-w-md rounded-xl" />
+                </div>
+                <Skeleton className="h-14 w-full max-w-md rounded-lg" />
+                <div className="flex gap-3">
+                  <Skeleton className="h-14 w-48 rounded-full" />
                   <Skeleton className="h-14 w-44 rounded-full" />
-                  <Skeleton className="h-14 w-40 rounded-full" />
                 </div>
               </div>
             </div>
           </div>
-          <div className="container mx-auto px-4 py-16">
-            <Skeleton className="h-3 w-24 mb-4" />
-            <Skeleton className="h-10 w-48 mb-3" />
-            <Skeleton className="h-5 w-72 mb-10" />
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+
+          {/* Content skeleton */}
+          <div className="container mx-auto px-4 py-20">
+            <div className="space-y-3 mb-12">
+              <Skeleton className="h-3 w-20 rounded-full" />
+              <Skeleton className="h-10 w-56 rounded-xl" />
+              <Skeleton className="h-5 w-80 rounded-lg" />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-5">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="space-y-3">
                   <Skeleton className="aspect-[2/3] rounded-2xl" />
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-3 w-1/2" />
+                  <Skeleton className="h-4 w-3/4 rounded-lg" />
+                  <Skeleton className="h-3 w-1/2 rounded-lg" />
                 </div>
               ))}
             </div>
@@ -165,10 +175,11 @@ const Index = () => {
           </ScrollReveal>
         )}
 
-        {/* Divider */}
-        <ScrollReveal distance={0} duration={1}>
+        {/* Section Divider */}
+        <div className="relative py-2">
           <div className="section-divider mx-auto w-full max-w-4xl" />
-        </ScrollReveal>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full cinema-gradient opacity-60" />
+        </div>
 
         {/* Now Showing Grid */}
         {nowShowing.length > 0 && (
