@@ -491,7 +491,7 @@ export default function PersonDetails() {
             {/* Full Filmography */}
             <TabsContent value="filmography">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                {person.filmography_cast.map((film, i) => (
+                {filmographyCast.map((film, i) => (
                   <motion.div key={`${film.tmdb_id}-${i}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i * 0.02, 0.5) }}>
                     <FilmCard film={film} type="cast" />
                   </motion.div>
