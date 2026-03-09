@@ -500,21 +500,21 @@ export default function MovieDetails() {
                 </TabsContent>
 
                 <TabsContent value="cast" className="space-y-6">
-                  <CastCarousel cast={tmdbDetails.cast_details || movie.cast_members} />
-                  
-                  {movie.director && (
-                    <div>
-                      <h3 className="text-lg font-bold mb-3">Director</h3>
-                      <Badge variant="outline" className="py-2 px-4 text-sm">{movie.director}</Badge>
-                    </div>
-                  )}
+                  <CastCarousel 
+                    cast={tmdbDetails.cast_details || movie.cast_members} 
+                    director={tmdbDetails.director}
+                    composers={tmdbDetails.composers}
+                    cinematographers={tmdbDetails.cinematographers}
+                  />
 
                   {tmdbDetails.writers && tmdbDetails.writers.length > 0 && (
                     <div>
                       <h3 className="text-lg font-bold mb-3">Writers</h3>
                       <div className="flex flex-wrap gap-2">
-                        {tmdbDetails.writers.map(w => (
-                          <Badge key={w} variant="outline" className="py-1.5 px-3">{w}</Badge>
+                        {tmdbDetails.writers.map((w, i) => (
+                          <Badge key={w.name + i} variant="outline" className="py-1.5 px-3">
+                            {w.name} <span className="text-muted-foreground ml-1 text-[10px]">({w.job})</span>
+                          </Badge>
                         ))}
                       </div>
                     </div>
@@ -523,9 +523,25 @@ export default function MovieDetails() {
                   {tmdbDetails.production_companies && tmdbDetails.production_companies.length > 0 && (
                     <div>
                       <h3 className="text-lg font-bold mb-3">Production Companies</h3>
+                      <div className="flex flex-wrap gap-3">
+                        {tmdbDetails.production_companies.map((c, i) => (
+                          <div key={c.name + i} className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 border border-border/30">
+                            {c.logo ? (
+                              <img src={c.logo} alt={c.name} className="h-6 object-contain" />
+                            ) : null}
+                            <span className="text-xs font-medium">{c.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {tmdbDetails.spoken_languages && tmdbDetails.spoken_languages.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-bold mb-3">Languages</h3>
                       <div className="flex flex-wrap gap-2">
-                        {tmdbDetails.production_companies.map(c => (
-                          <Badge key={c} variant="secondary" className="py-1.5 px-3">{c}</Badge>
+                        {tmdbDetails.spoken_languages.map(l => (
+                          <Badge key={l} variant="secondary" className="py-1.5 px-3">{l}</Badge>
                         ))}
                       </div>
                     </div>
