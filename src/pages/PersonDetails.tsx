@@ -88,20 +88,29 @@ function calculateAge(birthday: string, deathday?: string | null) {
   return Math.floor((end.getTime() - birth.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
 }
 
-function StatCard({ icon: Icon, label, value, sub }: { icon: any; label: string; value: string | number; sub?: string }) {
+function StatCard({ icon: Icon, label, value, sub, accent }: { icon: any; label: string; value: string | number; sub?: string; accent?: boolean }) {
   return (
     <motion.div
-      className="relative overflow-hidden rounded-xl bg-card border border-border/30 p-4 group hover:border-primary/30 transition-colors"
+      className="relative overflow-hidden rounded-2xl bg-card border border-border/20 p-5 group hover:border-primary/30 transition-all duration-300"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -2, scale: 1.01 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
     >
-      <div className="absolute top-0 left-0 right-0 h-0.5 cinema-gradient opacity-50" />
-      <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1.5">
-        <Icon className="h-3.5 w-3.5" />
-        <span className="uppercase tracking-wider font-medium">{label}</span>
+      {/* Top gradient line */}
+      <div className="absolute top-0 left-0 right-0 h-0.5 cinema-gradient opacity-60 group-hover:opacity-100 transition-opacity" />
+      {/* Background glow */}
+      <div className="absolute -bottom-8 -right-8 w-24 h-24 rounded-full bg-primary/5 blur-2xl group-hover:bg-primary/10 transition-colors" />
+      <div className="relative">
+        <div className="flex items-center gap-2 text-muted-foreground text-[10px] mb-2">
+          <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Icon className="h-3.5 w-3.5 text-primary" />
+          </div>
+          <span className="uppercase tracking-[0.15em] font-bold">{label}</span>
+        </div>
+        <p className={`text-3xl font-black tracking-tighter ${accent ? 'bg-clip-text text-transparent cinema-gradient' : ''}`}>{value}</p>
+        {sub && <p className="text-[11px] text-muted-foreground mt-1 font-medium">{sub}</p>}
       </div>
-      <p className="text-2xl font-black tracking-tight">{value}</p>
-      {sub && <p className="text-[11px] text-muted-foreground mt-0.5">{sub}</p>}
     </motion.div>
   );
 }
