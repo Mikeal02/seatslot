@@ -273,7 +273,7 @@ export default function MovieDetails() {
 
       <main id="main-content" className="flex-1">
         {/* Cinematic Hero */}
-        <section className="relative h-[60vh] min-h-[480px] overflow-hidden">
+        <section className="relative h-[65vh] min-h-[520px] overflow-hidden">
           <motion.div 
             className="absolute inset-0"
             initial={{ scale: 1.15 }}
