@@ -263,9 +263,9 @@ export default function PersonDetails() {
         {/* Hero Section */}
         <section className="relative overflow-hidden">
           {/* Background - use known_for backdrop */}
-          {person.known_for[0]?.backdrop_url && (
+          {knownFor[0]?.backdrop_url && (
             <div className="absolute inset-0">
-              <img src={person.known_for[0].backdrop_url} alt="" className="w-full h-full object-cover" />
+              <img src={knownFor[0].backdrop_url} alt="" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/90 to-background" />
               <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-background/30" />
               <div className="absolute inset-0 noise-overlay pointer-events-none" />
