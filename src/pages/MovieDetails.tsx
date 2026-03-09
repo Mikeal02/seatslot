@@ -567,7 +567,21 @@ export default function MovieDetails() {
                   )}
                 </TabsContent>
 
-                <TabsContent value="boxoffice" className="space-y-8">
+                <TabsContent value="media" className="space-y-8">
+                  <MediaGallery
+                    backdrops={tmdbDetails.backdrops}
+                    posters={undefined}
+                    logos={tmdbDetails.logos}
+                    videos={tmdbDetails.all_videos}
+                  />
+                  {(!tmdbDetails.backdrops?.length && !tmdbDetails.all_videos?.length) && (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <Image className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                      <p className="font-medium">No media available</p>
+                    </div>
+                  )}
+                </TabsContent>
+
                   <MovieFinancials
                     budget={tmdbDetails.budget}
                     revenue={tmdbDetails.revenue}
