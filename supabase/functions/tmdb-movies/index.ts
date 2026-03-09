@@ -6,7 +6,7 @@ const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 interface TMDBMovie {
@@ -17,38 +17,63 @@ interface TMDBMovie {
   backdrop_path: string | null;
   release_date: string;
   vote_average: number;
+  vote_count?: number;
   runtime?: number;
   budget?: number;
   revenue?: number;
   tagline?: string;
   original_language?: string;
+  original_title?: string;
   popularity?: number;
+  status?: string;
+  homepage?: string;
+  imdb_id?: string;
+  spoken_languages?: { english_name: string; iso_639_1: string; name: string }[];
+  production_countries?: { iso_3166_1: string; name: string }[];
   production_companies?: { id: number; name: string; logo_path: string | null; origin_country: string }[];
   genres?: { id: number; name: string }[];
   belongs_to_collection?: { id: number; name: string; poster_path: string | null; backdrop_path: string | null } | null;
   credits?: {
-    cast: { name: string; character: string; profile_path: string | null; order: number }[];
-    crew: { name: string; job: string; department: string; profile_path: string | null }[];
+    cast: { id: number; name: string; character: string; profile_path: string | null; order: number; known_for_department: string; popularity: number; gender: number }[];
+    crew: { id: number; name: string; job: string; department: string; profile_path: string | null; popularity: number }[];
   };
   videos?: {
-    results: { key: string; site: string; type: string; official: boolean }[];
+    results: { key: string; site: string; type: string; official: boolean; name: string; published_at: string }[];
   };
-  similar?: {
-    results: TMDBMovie[];
+  images?: {
+    backdrops: { file_path: string; width: number; height: number; vote_average: number }[];
+    posters: { file_path: string; width: number; height: number; vote_average: number }[];
+    logos: { file_path: string; width: number; height: number }[];
   };
-  recommendations?: {
-    results: TMDBMovie[];
+  keywords?: {
+    keywords: { id: number; name: string }[];
+  };
+  release_dates?: {
+    results: { iso_3166_1: string; release_dates: { certification: string; type: number; release_date: string; note: string }[] }[];
+  };
+  similar?: { results: TMDBMovie[] };
+  recommendations?: { results: TMDBMovie[] };
+  external_ids?: {
+    imdb_id: string | null;
+    facebook_id: string | null;
+    instagram_id: string | null;
+    twitter_id: string | null;
+    wikidata_id: string | null;
+  };
+  ["watch/providers"]?: {
+    results: Record<string, {
+      link: string;
+      flatrate?: { provider_id: number; provider_name: string; logo_path: string }[];
+      rent?: { provider_id: number; provider_name: string; logo_path: string }[];
+      buy?: { provider_id: number; provider_name: string; logo_path: string }[];
+    }>;
   };
 }
 
 async function fetchFromTMDB(endpoint: string): Promise<any> {
-  if (!TMDB_API_KEY) {
-    throw new Error('TMDB_API_KEY is not configured');
-  }
-  
+  if (!TMDB_API_KEY) throw new Error('TMDB_API_KEY is not configured');
   const url = `${TMDB_BASE_URL}${endpoint}${endpoint.includes('?') ? '&' : '?'}api_key=${TMDB_API_KEY}`;
   console.log(`Fetching from TMDB: ${endpoint}`);
-  
   const response = await fetch(url);
   if (!response.ok) {
     const errorText = await response.text();
@@ -60,26 +85,38 @@ async function fetchFromTMDB(endpoint: string): Promise<any> {
 
 function getTrailerKey(videos?: TMDBMovie['videos']): string | null {
   if (!videos?.results?.length) return null;
-  
-  const officialTrailer = videos.results.find(
-    v => v.site === 'YouTube' && v.type === 'Trailer' && v.official
-  );
+  const officialTrailer = videos.results.find(v => v.site === 'YouTube' && v.type === 'Trailer' && v.official);
   if (officialTrailer) return officialTrailer.key;
-  
-  const anyTrailer = videos.results.find(
-    v => v.site === 'YouTube' && v.type === 'Trailer'
-  );
+  const anyTrailer = videos.results.find(v => v.site === 'YouTube' && v.type === 'Trailer');
   if (anyTrailer) return anyTrailer.key;
-  
   const anyYouTube = videos.results.find(v => v.site === 'YouTube');
   return anyYouTube?.key || null;
 }
 
 function formatCurrency(amount: number): string {
-  if (amount >= 1_000_000_000) return `$${(amount / 1_000_000_000).toFixed(1)}B`;
+  if (amount >= 1_000_000_000) return `$${(amount / 1_000_000_000).toFixed(2)}B`;
   if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;
   if (amount >= 1_000) return `$${(amount / 1_000).toFixed(0)}K`;
   return `$${amount}`;
+}
+
+function getCertification(releaseDates?: TMDBMovie['release_dates']): { certification: string; country: string } | null {
+  if (!releaseDates?.results) return null;
+  // Prefer US, then GB, then first found
+  const preferred = ['US', 'GB', 'CA', 'AU'];
+  for (const country of preferred) {
+    const entry = releaseDates.results.find(r => r.iso_3166_1 === country);
+    if (entry) {
+      const cert = entry.release_dates.find(rd => rd.certification && rd.certification.length > 0);
+      if (cert) return { certification: cert.certification, country };
+    }
+  }
+  // Fallback to any certification
+  for (const entry of releaseDates.results) {
+    const cert = entry.release_dates.find(rd => rd.certification && rd.certification.length > 0);
+    if (cert) return { certification: cert.certification, country: entry.iso_3166_1 };
+  }
+  return null;
 }
 
 function transformMovie(movie: TMDBMovie, includeDetails = false) {
@@ -91,70 +128,185 @@ function transformMovie(movie: TMDBMovie, includeDetails = false) {
     backdrop_url: movie.backdrop_path ? `${TMDB_IMAGE_BASE}/original${movie.backdrop_path}` : null,
     release_date: movie.release_date,
     rating: Math.round(movie.vote_average * 10) / 10,
+    vote_count: movie.vote_count || 0,
     popularity: movie.popularity || 0,
     budget: movie.budget || 0,
     revenue: movie.revenue || 0,
     original_language: movie.original_language || 'en',
   };
 
-  if (includeDetails) {
-    const director = movie.credits?.crew.find(c => c.job === 'Director');
-    const writers = movie.credits?.crew
-      .filter(c => c.department === 'Writing')
-      .slice(0, 3)
-      .map(c => c.name) || [];
-    const cast = movie.credits?.cast
-      .sort((a, b) => a.order - b.order)
-      .slice(0, 15)
-      .map(c => c.name) || [];
-    const castWithPhotos = movie.credits?.cast
-      .sort((a, b) => a.order - b.order)
-      .slice(0, 15)
-      .map(c => ({
-        name: c.name,
-        character: c.character,
-        photo: c.profile_path ? `${TMDB_IMAGE_BASE}/w185${c.profile_path}` : null,
-      })) || [];
-    const genres = movie.genres?.map(g => g.name) || [];
-    const trailerKey = getTrailerKey(movie.videos);
-    const productionCompanies = movie.production_companies?.map(c => c.name) || [];
+  if (!includeDetails) return base;
 
-    // Similar movies
-    const similarMovies = movie.similar?.results?.slice(0, 8).map(m => transformMovie(m)) || [];
-    const recommendedMovies = movie.recommendations?.results?.slice(0, 8).map(m => transformMovie(m)) || [];
+  const director = movie.credits?.crew.find(c => c.job === 'Director');
+  const writers = movie.credits?.crew
+    .filter(c => c.department === 'Writing')
+    .sort((a, b) => b.popularity - a.popularity)
+    .slice(0, 5)
+    .map(c => ({ name: c.name, job: c.job })) || [];
+  const composers = movie.credits?.crew
+    .filter(c => c.job === 'Original Music Composer' || c.job === 'Music')
+    .slice(0, 3)
+    .map(c => c.name) || [];
+  const cinematographers = movie.credits?.crew
+    .filter(c => c.job === 'Director of Photography')
+    .slice(0, 2)
+    .map(c => c.name) || [];
+  const editors = movie.credits?.crew
+    .filter(c => c.job === 'Editor')
+    .slice(0, 3)
+    .map(c => c.name) || [];
+  const cast = movie.credits?.cast
+    .sort((a, b) => a.order - b.order)
+    .slice(0, 20)
+    .map(c => c.name) || [];
+  const castWithPhotos = movie.credits?.cast
+    .sort((a, b) => a.order - b.order)
+    .slice(0, 20)
+    .map(c => ({
+      id: c.id,
+      name: c.name,
+      character: c.character,
+      photo: c.profile_path ? `${TMDB_IMAGE_BASE}/w185${c.profile_path}` : null,
+      popularity: c.popularity,
+      department: c.known_for_department,
+    })) || [];
+  const genres = movie.genres?.map(g => g.name) || [];
+  const trailerKey = getTrailerKey(movie.videos);
+  const productionCompanies = movie.production_companies?.map(c => ({
+    name: c.name,
+    logo: c.logo_path ? `${TMDB_IMAGE_BASE}/w200${c.logo_path}` : null,
+    country: c.origin_country,
+  })) || [];
 
-    // Collection info
-    const collection = movie.belongs_to_collection ? {
-      id: movie.belongs_to_collection.id,
-      name: movie.belongs_to_collection.name,
-      poster_url: movie.belongs_to_collection.poster_path 
-        ? `${TMDB_IMAGE_BASE}/w500${movie.belongs_to_collection.poster_path}` : null,
-      backdrop_url: movie.belongs_to_collection.backdrop_path
-        ? `${TMDB_IMAGE_BASE}/original${movie.belongs_to_collection.backdrop_path}` : null,
-    } : null;
+  // Videos (all types)
+  const allVideos = movie.videos?.results
+    ?.filter(v => v.site === 'YouTube')
+    .sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime())
+    .slice(0, 8)
+    .map(v => ({
+      key: v.key,
+      name: v.name,
+      type: v.type,
+      official: v.official,
+    })) || [];
 
-    return {
-      ...base,
-      tagline: movie.tagline || null,
-      duration_minutes: movie.runtime || 120,
-      genre: genres,
-      director: director?.name || null,
-      writers,
-      cast_members: cast,
-      cast_details: castWithPhotos,
-      trailer_key: trailerKey,
-      production_companies: productionCompanies,
-      budget_formatted: movie.budget ? formatCurrency(movie.budget) : null,
-      revenue_formatted: movie.revenue ? formatCurrency(movie.revenue) : null,
-      profit: movie.revenue && movie.budget ? movie.revenue - movie.budget : null,
-      profit_formatted: movie.revenue && movie.budget ? formatCurrency(movie.revenue - movie.budget) : null,
-      collection,
-      similar_movies: similarMovies,
-      recommended_movies: recommendedMovies,
-    };
-  }
+  // Images
+  const backdrops = movie.images?.backdrops
+    ?.sort((a, b) => b.vote_average - a.vote_average)
+    .slice(0, 10)
+    .map(img => `${TMDB_IMAGE_BASE}/w1280${img.file_path}`) || [];
+  const posters = movie.images?.posters
+    ?.sort((a, b) => b.vote_average - a.vote_average)
+    .slice(0, 6)
+    .map(img => `${TMDB_IMAGE_BASE}/w500${img.file_path}`) || [];
+  const logos = movie.images?.logos
+    ?.slice(0, 3)
+    .map(img => `${TMDB_IMAGE_BASE}/w300${img.file_path}`) || [];
 
-  return base;
+  // Keywords
+  const keywords = movie.keywords?.keywords?.slice(0, 15).map(k => k.name) || [];
+
+  // Certification
+  const certification = getCertification(movie.release_dates);
+
+  // Spoken languages
+  const spokenLanguages = movie.spoken_languages?.map(l => l.english_name) || [];
+  const productionCountries = movie.production_countries?.map(c => c.name) || [];
+
+  // Watch providers (US focus)
+  const watchProviders = movie["watch/providers"]?.results;
+  const usProviders = watchProviders?.US || watchProviders?.GB || null;
+  const streaming = usProviders?.flatrate?.map(p => ({
+    name: p.provider_name,
+    logo: `${TMDB_IMAGE_BASE}/w92${p.logo_path}`,
+  })) || [];
+  const rentBuy = [
+    ...(usProviders?.rent?.map(p => ({
+      name: p.provider_name,
+      logo: `${TMDB_IMAGE_BASE}/w92${p.logo_path}`,
+      type: 'rent' as const,
+    })) || []),
+    ...(usProviders?.buy?.map(p => ({
+      name: p.provider_name,
+      logo: `${TMDB_IMAGE_BASE}/w92${p.logo_path}`,
+      type: 'buy' as const,
+    })) || []),
+  ];
+
+  // External IDs
+  const externalIds = {
+    imdb_id: movie.external_ids?.imdb_id || movie.imdb_id || null,
+    facebook_id: movie.external_ids?.facebook_id || null,
+    instagram_id: movie.external_ids?.instagram_id || null,
+    twitter_id: movie.external_ids?.twitter_id || null,
+  };
+
+  // Similar & recommended movies
+  const similarMovies = movie.similar?.results?.slice(0, 10).map(m => ({
+    ...transformMovie(m),
+    genre: m.genres?.map(g => g.name) || [],
+  })) || [];
+  const recommendedMovies = movie.recommendations?.results?.slice(0, 10).map(m => ({
+    ...transformMovie(m),
+    genre: m.genres?.map(g => g.name) || [],
+  })) || [];
+
+  // Collection
+  const collection = movie.belongs_to_collection ? {
+    id: movie.belongs_to_collection.id,
+    name: movie.belongs_to_collection.name,
+    poster_url: movie.belongs_to_collection.poster_path
+      ? `${TMDB_IMAGE_BASE}/w500${movie.belongs_to_collection.poster_path}` : null,
+    backdrop_url: movie.belongs_to_collection.backdrop_path
+      ? `${TMDB_IMAGE_BASE}/original${movie.belongs_to_collection.backdrop_path}` : null,
+  } : null;
+
+  // Financial analytics
+  const profit = (movie.revenue || 0) - (movie.budget || 0);
+  const roi = movie.budget && movie.budget > 0 ? ((profit / movie.budget) * 100) : null;
+  const revenueMultiplier = movie.budget && movie.budget > 0 ? ((movie.revenue || 0) / movie.budget) : null;
+
+  return {
+    ...base,
+    original_title: movie.original_title !== movie.title ? movie.original_title : null,
+    tagline: movie.tagline || null,
+    status: movie.status || null,
+    homepage: movie.homepage || null,
+    duration_minutes: movie.runtime || 120,
+    genre: genres,
+    director: director ? { name: director.name, photo: director.profile_path ? `${TMDB_IMAGE_BASE}/w185${director.profile_path}` : null } : null,
+    writers,
+    composers,
+    cinematographers,
+    editors,
+    cast_members: cast,
+    cast_details: castWithPhotos,
+    trailer_key: trailerKey,
+    all_videos: allVideos,
+    production_companies: productionCompanies,
+    production_countries: productionCountries,
+    spoken_languages: spokenLanguages,
+    certification,
+    keywords,
+    backdrops,
+    posters,
+    logos,
+    streaming_providers: streaming,
+    rent_buy_providers: rentBuy,
+    external_ids: externalIds,
+    // Financials
+    budget_formatted: movie.budget ? formatCurrency(movie.budget) : null,
+    revenue_formatted: movie.revenue ? formatCurrency(movie.revenue) : null,
+    profit: profit,
+    profit_formatted: (movie.revenue && movie.budget) ? formatCurrency(Math.abs(profit)) : null,
+    roi: roi !== null ? Math.round(roi) : null,
+    revenue_multiplier: revenueMultiplier !== null ? Math.round(revenueMultiplier * 10) / 10 : null,
+    is_profitable: profit > 0,
+    // Related
+    collection,
+    similar_movies: similarMovies,
+    recommended_movies: recommendedMovies,
+  };
 }
 
 serve(async (req) => {
@@ -164,12 +316,7 @@ serve(async (req) => {
 
   try {
     if (!TMDB_API_KEY) {
-      return new Response(JSON.stringify({ 
-        error: 'TMDB_API_KEY not configured',
-        movies: [],
-        total_pages: 0,
-        page: 1
-      }), {
+      return new Response(JSON.stringify({ error: 'TMDB_API_KEY not configured', movies: [], total_pages: 0, page: 1 }), {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -188,61 +335,47 @@ serve(async (req) => {
     switch (action) {
       case 'now_playing': {
         const data = await fetchFromTMDB(`/movie/now_playing?page=${page}&region=US`);
-        result = {
-          movies: data.results.map((m: TMDBMovie) => transformMovie(m)),
-          total_pages: data.total_pages,
-          page: data.page,
-        };
+        result = { movies: data.results.map((m: TMDBMovie) => transformMovie(m)), total_pages: data.total_pages, page: data.page };
         break;
       }
-      
       case 'upcoming': {
         const data = await fetchFromTMDB(`/movie/upcoming?page=${page}&region=US`);
-        result = {
-          movies: data.results.map((m: TMDBMovie) => transformMovie(m)),
-          total_pages: data.total_pages,
-          page: data.page,
-        };
+        result = { movies: data.results.map((m: TMDBMovie) => transformMovie(m)), total_pages: data.total_pages, page: data.page };
         break;
       }
-      
       case 'popular': {
         const data = await fetchFromTMDB(`/movie/popular?page=${page}`);
-        result = {
-          movies: data.results.map((m: TMDBMovie) => transformMovie(m)),
-          total_pages: data.total_pages,
-          page: data.page,
-        };
+        result = { movies: data.results.map((m: TMDBMovie) => transformMovie(m)), total_pages: data.total_pages, page: data.page };
         break;
       }
-      
+      case 'top_rated': {
+        const data = await fetchFromTMDB(`/movie/top_rated?page=${page}`);
+        result = { movies: data.results.map((m: TMDBMovie) => transformMovie(m)), total_pages: data.total_pages, page: data.page };
+        break;
+      }
+      case 'trending': {
+        const window = url.searchParams.get('window') || 'week';
+        const data = await fetchFromTMDB(`/trending/movie/${window}?page=${page}`);
+        result = { movies: data.results.map((m: TMDBMovie) => transformMovie(m)), total_pages: data.total_pages, page: data.page };
+        break;
+      }
       case 'details': {
-        if (!movieId) {
-          throw new Error('movie_id is required for details action');
-        }
-        const data = await fetchFromTMDB(`/movie/${movieId}?append_to_response=credits,videos,similar,recommendations`);
+        if (!movieId) throw new Error('movie_id is required for details action');
+        const data = await fetchFromTMDB(
+          `/movie/${movieId}?append_to_response=credits,videos,similar,recommendations,images,keywords,release_dates,external_ids,watch/providers`
+        );
         result = transformMovie(data, true);
         break;
       }
-      
       case 'search': {
-        if (!query) {
-          throw new Error('query is required for search action');
-        }
+        if (!query) throw new Error('query is required for search action');
         const data = await fetchFromTMDB(`/search/movie?query=${encodeURIComponent(query)}&page=${page}`);
-        result = {
-          movies: data.results.map((m: TMDBMovie) => transformMovie(m)),
-          total_pages: data.total_pages,
-          page: data.page,
-        };
+        result = { movies: data.results.map((m: TMDBMovie) => transformMovie(m)), total_pages: data.total_pages, page: data.page };
         break;
       }
-
       case 'collection': {
         const collectionId = url.searchParams.get('collection_id');
-        if (!collectionId) {
-          throw new Error('collection_id is required for collection action');
-        }
+        if (!collectionId) throw new Error('collection_id is required');
         const data = await fetchFromTMDB(`/collection/${collectionId}`);
         result = {
           name: data.name,
@@ -253,13 +386,42 @@ serve(async (req) => {
         };
         break;
       }
-      
+      case 'person': {
+        const personId = url.searchParams.get('person_id');
+        if (!personId) throw new Error('person_id is required');
+        const data = await fetchFromTMDB(`/person/${personId}?append_to_response=movie_credits,images`);
+        result = {
+          id: data.id,
+          name: data.name,
+          biography: data.biography,
+          birthday: data.birthday,
+          deathday: data.deathday,
+          place_of_birth: data.place_of_birth,
+          photo: data.profile_path ? `${TMDB_IMAGE_BASE}/w500${data.profile_path}` : null,
+          known_for_department: data.known_for_department,
+          popularity: data.popularity,
+          filmography: data.movie_credits?.cast
+            ?.sort((a: any, b: any) => b.popularity - a.popularity)
+            .slice(0, 20)
+            .map((m: any) => ({
+              tmdb_id: m.id,
+              title: m.title,
+              character: m.character,
+              poster_url: m.poster_path ? `${TMDB_IMAGE_BASE}/w200${m.poster_path}` : null,
+              release_date: m.release_date,
+              rating: Math.round((m.vote_average || 0) * 10) / 10,
+            })) || [],
+          photos: data.images?.profiles
+            ?.slice(0, 8)
+            .map((img: any) => `${TMDB_IMAGE_BASE}/w500${img.file_path}`) || [],
+        };
+        break;
+      }
       default:
         throw new Error(`Unknown action: ${action}`);
     }
 
     console.log(`TMDB response successful for action: ${action}`);
-    
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
