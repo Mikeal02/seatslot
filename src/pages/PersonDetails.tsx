@@ -394,10 +394,10 @@ export default function PersonDetails() {
                 )}
 
                 {/* Also known as */}
-                {person.also_known_as.length > 0 && (
+                {(person.also_known_as || []).length > 0 && (
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-xs text-muted-foreground">Also known as:</span>
-                    {person.also_known_as.map(name => (
+                    {(person.also_known_as || []).map(name => (
                       <Badge key={name} variant="outline" className="text-[10px]">{name}</Badge>
                     ))}
                   </div>
