@@ -389,31 +389,144 @@ serve(async (req) => {
       case 'person': {
         const personId = url.searchParams.get('person_id');
         if (!personId) throw new Error('person_id is required');
-        const data = await fetchFromTMDB(`/person/${personId}?append_to_response=movie_credits,images`);
+        const data = await fetchFromTMDB(`/person/${personId}?append_to_response=movie_credits,tv_credits,images,external_ids,tagged_images`);
+        
+        // Build full filmography from cast credits
+        const castFilmography = (data.movie_credits?.cast || [])
+          .filter((m: any) => m.release_date)
+          .sort((a: any, b: any) => new Date(b.release_date || '1900').getTime() - new Date(a.release_date || '1900').getTime())
+          .map((m: any) => ({
+            tmdb_id: m.id,
+            title: m.title,
+            character: m.character,
+            poster_url: m.poster_path ? `${TMDB_IMAGE_BASE}/w300${m.poster_path}` : null,
+            backdrop_url: m.backdrop_path ? `${TMDB_IMAGE_BASE}/w780${m.backdrop_path}` : null,
+            release_date: m.release_date,
+            rating: Math.round((m.vote_average || 0) * 10) / 10,
+            vote_count: m.vote_count || 0,
+            popularity: m.popularity || 0,
+            genre_ids: m.genre_ids || [],
+            overview: m.overview || '',
+            credit_type: 'cast' as const,
+          }));
+
+        // Crew credits (directed, produced, wrote)
+        const crewFilmography = (data.movie_credits?.crew || [])
+          .filter((m: any) => m.release_date && ['Director', 'Producer', 'Executive Producer', 'Writer', 'Screenplay', 'Story'].includes(m.job))
+          .sort((a: any, b: any) => new Date(b.release_date || '1900').getTime() - new Date(a.release_date || '1900').getTime())
+          .map((m: any) => ({
+            tmdb_id: m.id,
+            title: m.title,
+            job: m.job,
+            department: m.department,
+            poster_url: m.poster_path ? `${TMDB_IMAGE_BASE}/w300${m.poster_path}` : null,
+            backdrop_url: m.backdrop_path ? `${TMDB_IMAGE_BASE}/w780${m.backdrop_path}` : null,
+            release_date: m.release_date,
+            rating: Math.round((m.vote_average || 0) * 10) / 10,
+            vote_count: m.vote_count || 0,
+            popularity: m.popularity || 0,
+            credit_type: 'crew' as const,
+          }));
+
+        // Deduplicate crew entries (same movie, different jobs)
+        const crewDeduped: any[] = [];
+        const crewSeen = new Set<number>();
+        for (const c of crewFilmography) {
+          if (!crewSeen.has(c.tmdb_id)) {
+            crewSeen.add(c.tmdb_id);
+            const jobs = crewFilmography.filter((x: any) => x.tmdb_id === c.tmdb_id).map((x: any) => x.job);
+            crewDeduped.push({ ...c, job: jobs.join(', ') });
+          }
+        }
+
+        // TV credits (limited)
+        const tvCredits = (data.tv_credits?.cast || [])
+          .sort((a: any, b: any) => (b.popularity || 0) - (a.popularity || 0))
+          .slice(0, 10)
+          .map((t: any) => ({
+            tmdb_id: t.id,
+            name: t.name,
+            character: t.character,
+            poster_url: t.poster_path ? `${TMDB_IMAGE_BASE}/w300${t.poster_path}` : null,
+            first_air_date: t.first_air_date,
+            rating: Math.round((t.vote_average || 0) * 10) / 10,
+            episode_count: t.episode_count || 0,
+          }));
+
+        // Known-for: top movies by popularity
+        const knownFor = [...castFilmography]
+          .sort((a: any, b: any) => b.popularity - a.popularity)
+          .slice(0, 8);
+
+        // Career stats
+        const totalMovies = castFilmography.length;
+        const totalCrewCredits = crewDeduped.length;
+        const avgRating = castFilmography.length > 0
+          ? Math.round((castFilmography.reduce((s: number, m: any) => s + m.rating, 0) / castFilmography.length) * 10) / 10
+          : 0;
+        const highestRated = castFilmography.length > 0
+          ? castFilmography.reduce((best: any, m: any) => m.rating > best.rating ? m : best, castFilmography[0])
+          : null;
+        const decadeBreakdown: Record<string, number> = {};
+        for (const m of castFilmography) {
+          const decade = m.release_date ? `${Math.floor(parseInt(m.release_date.split('-')[0]) / 10) * 10}s` : 'Unknown';
+          decadeBreakdown[decade] = (decadeBreakdown[decade] || 0) + 1;
+        }
+
+        // External IDs
+        const externalIds = {
+          imdb_id: data.external_ids?.imdb_id || data.imdb_id || null,
+          facebook_id: data.external_ids?.facebook_id || null,
+          instagram_id: data.external_ids?.instagram_id || null,
+          twitter_id: data.external_ids?.twitter_id || null,
+          tiktok_id: data.external_ids?.tiktok_id || null,
+          youtube_id: data.external_ids?.youtube_id || null,
+          wikidata_id: data.external_ids?.wikidata_id || null,
+        };
+
+        // Also known as
+        const alsoKnownAs = data.also_known_as || [];
+
         result = {
           id: data.id,
           name: data.name,
-          biography: data.biography,
+          biography: data.biography || '',
           birthday: data.birthday,
           deathday: data.deathday,
           place_of_birth: data.place_of_birth,
-          photo: data.profile_path ? `${TMDB_IMAGE_BASE}/w500${data.profile_path}` : null,
+          photo: data.profile_path ? `${TMDB_IMAGE_BASE}/h632${data.profile_path}` : null,
           known_for_department: data.known_for_department,
           popularity: data.popularity,
-          filmography: data.movie_credits?.cast
-            ?.sort((a: any, b: any) => b.popularity - a.popularity)
-            .slice(0, 20)
-            .map((m: any) => ({
-              tmdb_id: m.id,
-              title: m.title,
-              character: m.character,
-              poster_url: m.poster_path ? `${TMDB_IMAGE_BASE}/w200${m.poster_path}` : null,
-              release_date: m.release_date,
-              rating: Math.round((m.vote_average || 0) * 10) / 10,
-            })) || [],
+          gender: data.gender,
+          homepage: data.homepage || null,
+          also_known_as: alsoKnownAs.slice(0, 5),
+          external_ids: externalIds,
+          // Career
+          known_for: knownFor,
+          filmography_cast: castFilmography,
+          filmography_crew: crewDeduped,
+          tv_credits: tvCredits,
+          // Stats
+          career_stats: {
+            total_movies: totalMovies,
+            total_crew_credits: totalCrewCredits,
+            average_rating: avgRating,
+            highest_rated: highestRated ? { title: highestRated.title, rating: highestRated.rating, tmdb_id: highestRated.tmdb_id } : null,
+            decade_breakdown: decadeBreakdown,
+            active_years: castFilmography.length > 0
+              ? `${castFilmography[castFilmography.length - 1]?.release_date?.split('-')[0] || '?'} – ${castFilmography[0]?.release_date?.split('-')[0] || 'Present'}`
+              : null,
+          },
+          // Photos
           photos: data.images?.profiles
-            ?.slice(0, 8)
-            .map((img: any) => `${TMDB_IMAGE_BASE}/w500${img.file_path}`) || [],
+            ?.slice(0, 20)
+            .map((img: any) => ({
+              url: `${TMDB_IMAGE_BASE}/w500${img.file_path}`,
+              width: img.width,
+              height: img.height,
+              aspect_ratio: img.aspect_ratio,
+              vote_average: img.vote_average,
+            })) || [],
         };
         break;
       }

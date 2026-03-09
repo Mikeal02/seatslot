@@ -25,6 +25,7 @@ const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const MoviesAdmin = lazy(() => import("./pages/admin/MoviesAdmin"));
 const ShowtimesAdmin = lazy(() => import("./pages/admin/ShowtimesAdmin"));
 const TheatresAdmin = lazy(() => import("./pages/admin/TheatresAdmin"));
+const PersonDetails = lazy(() => import("./pages/PersonDetails"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Improved QueryClient configuration with better caching
@@ -55,6 +56,7 @@ function AnimatedRoutes() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/movies" element={<Movies />} />
             <Route path="/movie/:id" element={<MovieDetails />} />
+            <Route path="/person/:id" element={<PersonDetails />} />
             <Route path="/booking/:showtimeId" element={<Booking />} />
             <Route path="/booking-confirmation/:bookingId" element={<BookingConfirmation />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
