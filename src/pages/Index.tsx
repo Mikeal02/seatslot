@@ -143,16 +143,22 @@ const Index = () => {
   return (
     <motion.div 
       className="min-h-screen flex flex-col bg-background"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+      initial={{ opacity: 0, filter: 'blur(4px)' }}
+      animate={{ opacity: 1, filter: 'blur(0px)' }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
     >
       <Header />
       
       <main id="main-content" className="flex-1">
-        {/* Hero — no scroll animation needed, it's above the fold */}
-        {featuredMovie && <HeroSection movie={featuredMovie} />}
+        {/* Hero — auto-rotating through top movies */}
+        {featuredMovie && (
+          <HeroSection 
+            movie={featuredMovie} 
+            movies={nowShowing.filter(m => m.backdrop_url).slice(0, 6)}
+            autoRotateInterval={3000}
+          />
+        )}
         
         {/* Quick Rebook — slide up reveal */}
         <ScrollReveal direction="up" distance={30} duration={0.6}>
