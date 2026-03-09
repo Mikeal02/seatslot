@@ -514,6 +514,8 @@ export default function MovieDetails() {
                     director={tmdbDetails.director}
                     composers={tmdbDetails.composers}
                     cinematographers={tmdbDetails.cinematographers}
+                    editors={tmdbDetails.editors}
+                    writers={tmdbDetails.writers}
                   />
 
                   {tmdbDetails.writers && tmdbDetails.writers.length > 0 && (
