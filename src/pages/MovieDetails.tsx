@@ -576,7 +576,7 @@ export default function MovieDetails() {
                   />
                   {(!tmdbDetails.backdrops?.length && !tmdbDetails.all_videos?.length) && (
                     <div className="text-center py-12 text-muted-foreground">
-        Icon              <Image className="h-12 w-12 mx-auto mb-3 opacity-30" />
+        <LucideImage className="h-12 w-12 mx-auto mb-3 opacity-30" />
                       <p className="font-medium">No media available</p>
                     </div>
                   )}
