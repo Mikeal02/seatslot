@@ -460,9 +460,9 @@ export default function PersonDetails() {
               <TabsTrigger value="filmography" className="rounded-lg text-xs sm:text-sm font-medium">
                 Filmography ({filmographyCast.length})
               </TabsTrigger>
-              {person.filmography_crew.length > 0 && (
+              {filmographyCrew.length > 0 && (
                 <TabsTrigger value="crew" className="rounded-lg text-xs sm:text-sm font-medium">
-                  Behind Camera ({person.filmography_crew.length})
+                  Behind Camera ({filmographyCrew.length})
                 </TabsTrigger>
               )}
               {person.tv_credits.length > 0 && (
