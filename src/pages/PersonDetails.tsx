@@ -513,10 +513,10 @@ export default function PersonDetails() {
             )}
 
             {/* TV Credits */}
-            {person.tv_credits.length > 0 && (
+            {tvCredits.length > 0 && (
               <TabsContent value="tv">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {person.tv_credits.map((show, i) => (
+                  {tvCredits.map((show, i) => (
                     <motion.div
                       key={show.tmdb_id}
                       className="rounded-xl overflow-hidden bg-card border border-border/30 hover:border-primary/20 transition-all glow-card"
