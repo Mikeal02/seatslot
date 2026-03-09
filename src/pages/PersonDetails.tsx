@@ -272,12 +272,20 @@ export default function PersonDetails() {
       <main id="main-content" className="flex-1">
         {/* Hero Section */}
         <section className="relative overflow-hidden">
-          {/* Background - use known_for backdrop */}
+          {/* Background - cinematic backdrop with parallax feel */}
           {knownFor[0]?.backdrop_url && (
             <div className="absolute inset-0">
-              <img src={knownFor[0].backdrop_url} alt="" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/90 to-background" />
-              <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-background/30" />
+              <motion.img 
+                src={knownFor[0].backdrop_url} 
+                alt="" 
+                className="w-full h-full object-cover"
+                initial={{ scale: 1.1 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 1.5, ease: 'easeOut' }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" />
+              <div className="absolute inset-0 bg-gradient-to-r from-background via-background/50 to-background/20" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,transparent_50%,hsl(var(--background))_100%)]" />
               <div className="absolute inset-0 noise-overlay pointer-events-none" />
             </div>
           )}
