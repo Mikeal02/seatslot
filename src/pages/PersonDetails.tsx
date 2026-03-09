@@ -242,7 +242,7 @@ export default function PersonDetails() {
   const filmographyCrew = person.filmography_crew || [];
   const tvCredits = person.tv_credits || [];
   const personPhotos = person.photos || [];
-  const externalIds = person.external_ids || {};
+  const externalIds = (person.external_ids || {}) as PersonData['external_ids'];
   const sortedDecades = Object.entries(careerStats.decade_breakdown || {}).sort((a, b) => a[0].localeCompare(b[0]));
   const maxDecadeCount = Math.max(...sortedDecades.map(([, c]) => c), 1);
 
