@@ -25,6 +25,7 @@ const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const MoviesAdmin = lazy(() => import("./pages/admin/MoviesAdmin"));
 const ShowtimesAdmin = lazy(() => import("./pages/admin/ShowtimesAdmin"));
 const TheatresAdmin = lazy(() => import("./pages/admin/TheatresAdmin"));
+const PersonDetails = lazy(() => import("./pages/PersonDetails"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Improved QueryClient configuration with better caching
