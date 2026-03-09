@@ -40,6 +40,10 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
   const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-8, 8]), { stiffness: 300, damping: 30 });
   const glareX = useTransform(mouseX, [-0.5, 0.5], [0, 100]);
   const glareY = useTransform(mouseY, [-0.5, 0.5], [0, 100]);
+  const glareBackground = useTransform(
+    [glareX, glareY],
+    ([x, y]) => `radial-gradient(circle at ${x}% ${y}%, hsl(var(--primary) / 0.15) 0%, transparent 60%)`
+  );
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!cardRef.current) return;
@@ -90,12 +94,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
           {isHovered && (
             <motion.div
               className="absolute inset-0 pointer-events-none z-10"
-              style={{
-                background: useTransform(
-                  [glareX, glareY],
-                  ([x, y]) => `radial-gradient(circle at ${x}% ${y}%, hsl(var(--primary) / 0.15) 0%, transparent 60%)`
-                ),
-              }}
+              style={{ background: glareBackground }}
             />
           )}
           
