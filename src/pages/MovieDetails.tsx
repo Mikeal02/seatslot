@@ -341,7 +341,7 @@ export default function MovieDetails() {
                   </motion.div>
                 )}
 
-                <h1 className="text-3xl md:text-5xl lg:text-6xl font-black drop-shadow-lg tracking-tight leading-none">{movie.title}</h1>
+                <h1 className="text-3xl md:text-5xl lg:text-6xl font-black drop-shadow-lg tracking-tighter leading-[0.95]">{movie.title}</h1>
                 
                 <div className="flex flex-wrap gap-2">
                   {movie.genre.map((g) => (
