@@ -12,6 +12,8 @@ import { MovieRecommendations } from '@/components/movies/MovieRecommendations';
 import { MovieFinancials } from '@/components/movies/MovieFinancials';
 import { CastCarousel } from '@/components/movies/CastCarousel';
 import { SimilarMovies } from '@/components/movies/SimilarMovies';
+import { MediaGallery } from '@/components/movies/MediaGallery';
+import { StreamingProviders } from '@/components/movies/StreamingProviders';
 import { WishlistButton } from '@/components/movies/WishlistButton';
 import { SocialShare } from '@/components/movies/SocialShare';
 import { MetaTags } from '@/components/MetaTags';
