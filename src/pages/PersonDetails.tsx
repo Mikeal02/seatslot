@@ -549,10 +549,10 @@ export default function PersonDetails() {
             )}
 
             {/* Photos */}
-            {person.photos.length > 0 && (
+            {personPhotos.length > 0 && (
               <TabsContent value="photos">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                  {person.photos.map((photo, i) => (
+                  {personPhotos.map((photo, i) => (
                     <motion.div
                       key={i}
                       className="relative aspect-[2/3] rounded-xl overflow-hidden cursor-pointer group border border-border/20"
