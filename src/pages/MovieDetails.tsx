@@ -454,27 +454,7 @@ export default function MovieDetails() {
 
                   {/* Collection */}
                   {tmdbDetails.collection && (
-                    <motion.div
-                      className="relative overflow-hidden rounded-2xl border border-border/30 glow-card"
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                    >
-                      <div className="relative h-32 overflow-hidden">
-                        <img
-                          src={tmdbDetails.collection.backdrop_url || tmdbDetails.collection.poster_url || '/placeholder.svg'}
-                          alt={tmdbDetails.collection.name}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-card via-card/60 to-transparent" />
-                      </div>
-                      <div className="relative p-4 -mt-8">
-                        <Badge className="cinema-gradient text-primary-foreground text-[10px] font-bold px-3 py-1 rounded-full border-0 uppercase tracking-wider mb-2">
-                          Part of Collection
-                        </Badge>
-                        <h3 className="font-bold text-lg">{tmdbDetails.collection.name}</h3>
-                      </div>
-                    </motion.div>
+                    <CollectionBanner collection={tmdbDetails.collection} />
                   )}
 
                   {/* Quick Cast Preview */}
