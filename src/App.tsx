@@ -9,6 +9,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PageLoader } from "@/components/ui/loading-spinner";
 import { SplashScreen } from "@/components/SplashScreen";
+import { MobileNavBar } from "@/components/layout/MobileNavBar";
 
 // Lazy load routes for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -77,6 +78,9 @@ function AnimatedRoutes() {
           </Routes>
         </Suspense>
       </AnimatePresence>
+      
+      {/* Mobile Bottom Navigation - always rendered, manages own visibility */}
+      <MobileNavBar />
     </ErrorBoundary>
   );
 }

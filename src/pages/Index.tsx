@@ -168,6 +168,9 @@ const Index = () => {
             <QuickRebook />
           </div>
         </ScrollReveal>
+
+        {/* Genre Filter Chips */}
+        <GenreChips />
         
         {/* Trending Carousel — scale reveal */}
         {nowShowing.length > 0 && (
