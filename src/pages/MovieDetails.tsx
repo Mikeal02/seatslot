@@ -574,9 +574,14 @@ export default function MovieDetails() {
                 </TabsContent>
               </Tabs>
 
-              {/* Similar Movies */}
+              {/* Similar & Recommended Movies */}
               <div className="mt-10">
-                <SimilarMovies movieTitle={movie.title} tmdbId={tmdbDetails.tmdb_id} />
+                <SimilarMovies 
+                  movieTitle={movie.title} 
+                  tmdbId={tmdbDetails.tmdb_id} 
+                  similarMovies={tmdbDetails.similar_movies}
+                  recommendedMovies={tmdbDetails.recommended_movies}
+                />
               </div>
 
               {/* Recommendations */}
