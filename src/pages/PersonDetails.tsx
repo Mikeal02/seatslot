@@ -465,9 +465,9 @@ export default function PersonDetails() {
                   Behind Camera ({filmographyCrew.length})
                 </TabsTrigger>
               )}
-              {person.tv_credits.length > 0 && (
+              {tvCredits.length > 0 && (
                 <TabsTrigger value="tv" className="rounded-lg text-xs sm:text-sm font-medium">
-                  TV ({person.tv_credits.length})
+                  TV ({tvCredits.length})
                 </TabsTrigger>
               )}
               {person.photos.length > 0 && (
