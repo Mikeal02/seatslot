@@ -236,7 +236,8 @@ export default function PersonDetails() {
   }
 
   const genderLabel = person.gender === 1 ? 'Female' : person.gender === 2 ? 'Male' : 'Other';
-  const sortedDecades = Object.entries(person.career_stats.decade_breakdown).sort((a, b) => a[0].localeCompare(b[0]));
+  const careerStats = person.career_stats || { total_movies: 0, total_crew_credits: 0, average_rating: 0, highest_rated: null, decade_breakdown: {}, active_years: null };
+  const sortedDecades = Object.entries(careerStats.decade_breakdown || {}).sort((a, b) => a[0].localeCompare(b[0]));
   const maxDecadeCount = Math.max(...sortedDecades.map(([, c]) => c), 1);
 
   return (
