@@ -348,6 +348,12 @@ export default function MovieDetails() {
 
                 {/* Quick Stats */}
                 <div className="flex flex-wrap items-center gap-3 text-sm">
+                  {tmdbDetails.certification && (
+                    <div className="flex items-center gap-1.5 bg-background/30 backdrop-blur-sm rounded-full px-3 py-1.5 border border-accent/30">
+                      <Shield className="h-4 w-4 text-accent" />
+                      <span className="font-bold text-accent">{tmdbDetails.certification.certification}</span>
+                    </div>
+                  )}
                   {movie.rating && movie.rating > 0 && (
                     <div className="flex items-center gap-1.5 bg-background/30 backdrop-blur-sm rounded-full px-3 py-1.5 border border-border/10">
                       <Star className="h-4 w-4 fill-accent text-accent" />
