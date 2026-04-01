@@ -49,8 +49,10 @@ serve(async (req) => {
       });
     }
 
-    // Verify user matches
-    if (session.metadata?.user_id !== user.id) {
+    // Verify user matches if authenticated, otherwise trust the Stripe session metadata
+    const userId = session.metadata?.user_id;
+    if (!userId) throw new Error("Invalid session metadata");
+    if (user && userId !== user.id) {
       throw new Error("Unauthorized");
     }
 
