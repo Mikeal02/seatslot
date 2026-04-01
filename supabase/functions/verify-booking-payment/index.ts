@@ -105,7 +105,7 @@ serve(async (req) => {
         .from("concession_orders")
         .insert({
           booking_id: bookingData.id,
-          user_id: user.id,
+          user_id: userId,
           total_amount: concessionTotal,
         })
         .select()

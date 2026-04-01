@@ -198,8 +198,8 @@ export function useMovieSync() {
       // Batch upsert all movies at once
       await batchUpsertMovies(allMovies);
       
-      // Auto-generate showtimes for movies that don't have future showtimes
-      await generateMissingShowtimes();
+      // Auto-generate showtimes server-side (bypasses RLS)
+      await supabase.rpc('generate_showtimes_for_movies');
       
       markSynced();
       return true;
