@@ -24,12 +24,14 @@ serve(async (req) => {
   );
 
   try {
-    // Auth check
-    const authHeader = req.headers.get("Authorization")!;
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData } = await supabaseClient.auth.getUser(token);
-    const user = userData.user;
-    if (!user) throw new Error("User not authenticated");
+    // Try auth but don't require it — session may expire during Stripe checkout
+    let user = null;
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader) {
+      const token = authHeader.replace("Bearer ", "");
+      const { data: userData } = await supabaseClient.auth.getUser(token);
+      user = userData.user;
+    }
 
     const { sessionId } = await req.json();
     if (!sessionId) throw new Error("Missing session ID");
