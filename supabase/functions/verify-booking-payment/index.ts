@@ -24,12 +24,14 @@ serve(async (req) => {
   );
 
   try {
-    // Auth check
-    const authHeader = req.headers.get("Authorization")!;
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData } = await supabaseClient.auth.getUser(token);
-    const user = userData.user;
-    if (!user) throw new Error("User not authenticated");
+    // Try auth but don't require it — session may expire during Stripe checkout
+    let user = null;
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader) {
+      const token = authHeader.replace("Bearer ", "");
+      const { data: userData } = await supabaseClient.auth.getUser(token);
+      user = userData.user;
+    }
 
     const { sessionId } = await req.json();
     if (!sessionId) throw new Error("Missing session ID");
@@ -47,8 +49,10 @@ serve(async (req) => {
       });
     }
 
-    // Verify user matches
-    if (session.metadata?.user_id !== user.id) {
+    // Verify user matches if authenticated, otherwise trust the Stripe session metadata
+    const userId = session.metadata?.user_id;
+    if (!userId) throw new Error("Invalid session metadata");
+    if (user && userId !== user.id) {
       throw new Error("Unauthorized");
     }
 
@@ -68,7 +72,7 @@ serve(async (req) => {
     const { data: bookingData, error: bookingError } = await supabaseAdmin
       .from("bookings")
       .insert({
-        user_id: user.id,
+        user_id: userId,
         showtime_id: showtimeId,
         total_amount: totalAmount,
         booking_status: "confirmed",
@@ -101,7 +105,7 @@ serve(async (req) => {
         .from("concession_orders")
         .insert({
           booking_id: bookingData.id,
-          user_id: user.id,
+          user_id: userId,
           total_amount: concessionTotal,
         })
         .select()

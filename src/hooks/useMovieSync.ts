@@ -198,8 +198,8 @@ export function useMovieSync() {
       // Batch upsert all movies at once
       await batchUpsertMovies(allMovies);
       
-      // Auto-generate showtimes for movies that don't have future showtimes
-      await generateMissingShowtimes();
+      // Auto-generate showtimes server-side (bypasses RLS)
+      await supabase.rpc('generate_showtimes_for_movies');
       
       markSynced();
       return true;
@@ -212,65 +212,6 @@ export function useMovieSync() {
     }
   }, [shouldSync, markSynced]);
 
-  const generateMissingShowtimes = async () => {
-    try {
-      // Get all movies
-      const { data: movies } = await supabase.from('movies').select('id');
-      if (!movies || movies.length === 0) return;
-
-      // Get screens
-      const { data: screens } = await supabase.from('screens').select('id').limit(3);
-      if (!screens || screens.length === 0) return;
-
-      // Check which movies already have future showtimes
-      const today = new Date().toISOString().split('T')[0];
-      const { data: existingShowtimes } = await supabase
-        .from('showtimes')
-        .select('movie_id')
-        .gte('show_date', today);
-
-      const moviesWithShowtimes = new Set(
-        (existingShowtimes || []).map(s => s.movie_id)
-      );
-
-      const moviesNeedingShowtimes = movies.filter(
-        m => !moviesWithShowtimes.has(m.id)
-      );
-
-      if (moviesNeedingShowtimes.length === 0) return;
-
-      const times = ['10:00', '13:30', '17:00', '20:30'];
-      const showtimes: any[] = [];
-
-      for (const movie of moviesNeedingShowtimes) {
-        for (let day = 0; day < 7; day++) {
-          const date = new Date();
-          date.setDate(date.getDate() + day);
-          const showDate = date.toISOString().split('T')[0];
-
-          for (const screen of screens) {
-            for (const time of times) {
-              showtimes.push({
-                movie_id: movie.id,
-                screen_id: screen.id,
-                show_date: showDate,
-                show_time: time,
-              });
-            }
-          }
-        }
-      }
-
-      if (showtimes.length > 0) {
-        // Insert in batches of 500
-        for (let i = 0; i < showtimes.length; i += 500) {
-          await supabase.from('showtimes').insert(showtimes.slice(i, i + 500));
-        }
-      }
-    } catch (error) {
-      console.error('Error generating showtimes:', error);
-    }
-  };
 
   const clearCache = useCallback(() => {
     localStorage.removeItem(SYNC_CACHE_KEY);
