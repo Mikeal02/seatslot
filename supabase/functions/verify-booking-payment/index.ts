@@ -72,7 +72,7 @@ serve(async (req) => {
     const { data: bookingData, error: bookingError } = await supabaseAdmin
       .from("bookings")
       .insert({
-        user_id: user.id,
+        user_id: userId,
         showtime_id: showtimeId,
         total_amount: totalAmount,
         booking_status: "confirmed",
