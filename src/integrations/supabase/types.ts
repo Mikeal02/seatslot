@@ -610,6 +610,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_showtimes_for_movies: { Args: never; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
