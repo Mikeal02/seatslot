@@ -172,8 +172,8 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
             </div>
           )}
 
-          {/* Hover action button */}
-          <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-20">
+          {/* Hover action button — stable element, no re-mount */}
+          <div className="absolute bottom-0 left-0 right-0 p-3 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-500 ease-out z-20">
             <Button 
               asChild 
               variant="cinema"
