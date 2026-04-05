@@ -86,6 +86,13 @@ export default function Profile() {
   const totalTickets = confirmedBookings.reduce((sum, b) => sum + (b.booked_seats?.length || 0), 0);
   const uniqueMovies = new Set(confirmedBookings.map(b => b.showtime?.movie?.title)).size;
 
+  // Favorite genre calculation
+  const genreCounts: Record<string, number> = {};
+  confirmedBookings.forEach(b => {
+    b.showtime?.movie?.genre?.forEach(g => { genreCounts[g] = (genreCounts[g] || 0) + 1; });
+  });
+  const favoriteGenre = Object.entries(genreCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
+
   // Determine member tier based on total spent
   const getTier = () => {
     if (totalSpent >= 10000) return { name: 'Platinum', color: 'from-purple-500 to-pink-500', icon: Crown, progress: 100 };
