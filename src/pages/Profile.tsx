@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Mail, Phone, Save, Ticket, Calendar, Clock, Film, MapPin, LogOut, Star, TrendingUp, Crown, ChevronRight, Award, Sparkles } from 'lucide-react';
+import { User, Mail, Phone, Save, Ticket, Calendar, Clock, Film, MapPin, LogOut, Star, TrendingUp, Crown, ChevronRight, Award, Sparkles, Heart, Clapperboard, Shield, Zap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
