@@ -204,6 +204,32 @@ export default function Profile() {
             </div>
           </motion.div>
 
+          {/* Quick Actions Row */}
+          <motion.div
+            className="grid grid-cols-4 gap-2 sm:gap-3 mb-6"
+            initial={{ y: 15, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.15 }}
+          >
+            {[
+              { label: 'My Bookings', icon: Ticket, href: '/bookings', color: 'bg-primary/10 text-primary' },
+              { label: 'Wishlist', icon: Heart, href: '/wishlist', color: 'bg-accent/10 text-accent' },
+              { label: 'Browse', icon: Clapperboard, href: '/movies', color: 'bg-primary/10 text-primary' },
+              { label: 'Rewards', icon: Zap, href: '#', color: 'bg-accent/10 text-accent' },
+            ].map((action) => (
+              <Link key={action.label} to={action.href}>
+                <Card className="border-border/20 hover:border-primary/30 transition-all duration-300 cursor-pointer group">
+                  <CardContent className="p-3 sm:p-4 text-center">
+                    <div className={`h-10 w-10 rounded-xl ${action.color} flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform`}>
+                      <action.icon className="h-5 w-5" />
+                    </div>
+                    <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">{action.label}</p>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </motion.div>
+
           {/* Stats Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
             {[
