@@ -301,7 +301,7 @@ export default function Profile() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.05 }}
                     >
-                      <Link to={`/booking/confirmation/${booking.id}`} className="block group">
+                      <Link to={`/booking-confirmation/${booking.id}`} className="block group">
                         <Card className="bg-card border-border/30 hover:border-primary/20 transition-all duration-300 glow-card overflow-hidden">
                           <CardContent className="p-0">
                             <div className="flex flex-col sm:flex-row">
@@ -375,48 +375,77 @@ export default function Profile() {
 
             {/* Profile Tab */}
             <TabsContent value="profile">
-              <Card className="bg-card border-border/30 glow-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <div className="h-9 w-9 rounded-lg cinema-gradient flex items-center justify-center">
-                      <User className="h-4 w-4 text-primary-foreground" />
+              <div className="grid gap-6 lg:grid-cols-2">
+                <Card className="bg-card border-border/30 glow-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <div className="h-9 w-9 rounded-lg cinema-gradient flex items-center justify-center">
+                        <User className="h-4 w-4 text-primary-foreground" />
+                      </div>
+                      Personal Information
+                    </CardTitle>
+                    <CardDescription>Update your personal details</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-5">
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input id="email" type="email" value={profile?.email || user?.email || ''} className="pl-10 bg-muted/30" disabled />
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">Email cannot be changed</p>
                     </div>
-                    Personal Information
-                  </CardTitle>
-                  <CardDescription>Update your personal details</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input id="email" type="email" value={profile?.email || user?.email || ''} className="pl-10 bg-muted/30" disabled />
-                    </div>
-                    <p className="text-[10px] text-muted-foreground">Email cannot be changed</p>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName" className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Full Name</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input id="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your full name" className="pl-10 input-professional" />
+                    <div className="space-y-2">
+                      <Label htmlFor="fullName" className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Full Name</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input id="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your full name" className="pl-10 input-professional" />
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Phone Number</Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 9999999999" className="pl-10 input-professional" />
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Phone Number</Label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 9999999999" className="pl-10 input-professional" />
+                      </div>
                     </div>
-                  </div>
 
-                  <Button onClick={handleSave} disabled={saving} className="cinema-gradient btn-professional rounded-xl px-6">
-                    <Save className="h-4 w-4 mr-2" />
-                    {saving ? 'Saving...' : 'Save Changes'}
-                  </Button>
-                </CardContent>
-              </Card>
+                    <Button onClick={handleSave} disabled={saving} className="cinema-gradient btn-professional rounded-xl px-6 w-full sm:w-auto">
+                      <Save className="h-4 w-4 mr-2" />
+                      {saving ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Account Info Card */}
+                <Card className="bg-card border-border/30 glow-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <div className="h-9 w-9 rounded-lg bg-accent/10 flex items-center justify-center">
+                        <Shield className="h-4 w-4 text-accent" />
+                      </div>
+                      Account Overview
+                    </CardTitle>
+                    <CardDescription>Your account at a glance</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {[
+                      { label: 'Member Since', value: profile ? format(parseISO(profile.created_at), 'MMMM d, yyyy') : 'N/A' },
+                      { label: 'Current Tier', value: tier.name + ' Member' },
+                      { label: 'Total Bookings', value: String(confirmedBookings.length) },
+                      { label: 'Favorite Genre', value: favoriteGenre },
+                      { label: 'Avg. Spend / Booking', value: confirmedBookings.length > 0 ? `₹${Math.round(totalSpent / confirmedBookings.length)}` : 'N/A' },
+                    ].map((item) => (
+                      <div key={item.label} className="flex items-center justify-between py-2 border-b border-border/20 last:border-0">
+                        <span className="text-xs text-muted-foreground">{item.label}</span>
+                        <span className="text-sm font-semibold">{item.value}</span>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
 
             {/* Rewards Tab */}
