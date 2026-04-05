@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle, Calendar, Clock, MapPin, Ticket, Share2, Star, Download, Film, Sparkles } from 'lucide-react';
+import { CheckCircle, Calendar, Clock, MapPin, Ticket, Share2, Star, Download, Film, Sparkles, Copy, Check, MessageCircle } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,13 +12,18 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ConfettiEffect } from '@/components/booking/ConfettiEffect';
+import { generateTicketPDF } from '@/components/booking/TicketPDF';
 import { Booking } from '@/types/database';
+import { useToast } from '@/hooks/use-toast';
 
 export default function BookingConfirmation() {
   const { bookingId } = useParams<{ bookingId: string }>();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (bookingId) fetchBookingDetails();
@@ -75,16 +80,35 @@ export default function BookingConfirmation() {
   const theatre = screen.theatre!;
   const seats = booking.booked_seats?.map((bs) => bs.seat!) || [];
 
+  const shareText = `🎬 I'm watching ${movie.title} on ${format(parseISO(booking.showtime!.show_date), 'MMM d')} at ${theatre.name}! Booked via CineBook ✨`;
+  const shareUrl = window.location.href;
+
   const handleShare = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: `Movie Ticket - ${movie.title}`,
-          text: `I'm watching ${movie.title} on ${format(parseISO(booking.showtime!.show_date), 'MMM d')} at ${theatre.name}!`,
-          url: window.location.href,
-        });
+        await navigator.share({ title: `Movie Ticket - ${movie.title}`, text: shareText, url: shareUrl });
       } catch {}
     }
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(shareUrl);
+    setCopied(true);
+    toast({ title: 'Link copied!', description: 'Ticket link copied to clipboard.' });
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleWhatsApp = () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + shareUrl)}`, '_blank');
+  };
+
+  const handleTwitter = () => {
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank');
+  };
+
+  const handleDownloadPDF = () => {
+    generateTicketPDF(booking);
+    toast({ title: 'Ticket downloaded!', description: 'Your PDF ticket has been saved.' });
   };
 
   return (
@@ -94,6 +118,7 @@ export default function BookingConfirmation() {
       animate={{ opacity: 1 }}
     >
       <Header />
+      <ConfettiEffect />
 
       <main className="flex-1 container mx-auto px-4 py-6 sm:py-10">
         <div className="max-w-2xl mx-auto">
@@ -104,7 +129,6 @@ export default function BookingConfirmation() {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: 'spring', stiffness: 200, damping: 15 }}
           >
-            {/* Animated success icon */}
             <motion.div 
               className="relative inline-flex items-center justify-center w-24 h-24 mb-5"
               initial={{ scale: 0 }}
@@ -135,7 +159,6 @@ export default function BookingConfirmation() {
                 <div className="absolute inset-0 bg-gradient-to-t from-card via-card/60 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-r from-card/70 to-transparent" />
                 
-                {/* Movie info overlay */}
                 <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
                   <div className="flex items-end gap-4">
                     <img src={movie.poster_url || '/placeholder.svg'} alt={movie.title} className="w-16 h-24 rounded-xl shadow-2xl object-cover border border-border/20 hidden sm:block" />
@@ -204,7 +227,7 @@ export default function BookingConfirmation() {
                   {[
                     { icon: Calendar, label: 'Date', value: format(parseISO(booking.showtime.show_date), 'EEEE, MMM d, yyyy') },
                     { icon: Clock, label: 'Time', value: format(parseISO(`2000-01-01T${booking.showtime.show_time}`), 'h:mm a') },
-                    { icon: MapPin, label: 'Venue', value: `${theatre.name}`, sub: `${screen.name} • ${theatre.location}` },
+                    { icon: MapPin, label: 'Venue', value: theatre.name, sub: `${screen.name} • ${theatre.location}` },
                     { icon: Star, label: 'Rating', value: movie.rating ? `${movie.rating}/10` : 'N/A' },
                   ].map((item, i) => (
                     <motion.div 
@@ -269,17 +292,61 @@ export default function BookingConfirmation() {
             </Card>
           </motion.div>
 
-          {/* Actions */}
-          <motion.div 
-            className="flex gap-3 mt-6"
+          {/* Download PDF Button */}
+          <motion.div
+            className="mt-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+          >
+            <Button 
+              onClick={handleDownloadPDF} 
+              className="w-full cinema-gradient btn-professional rounded-2xl h-14 text-base font-bold shadow-xl"
+            >
+              <Download className="h-5 w-5 mr-2" />
+              Download PDF Ticket
+            </Button>
+          </motion.div>
+
+          {/* Social Sharing Section */}
+          <motion.div
+            className="mt-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
           >
-            <Button variant="outline" size="sm" onClick={handleShare} className="rounded-xl shrink-0">
-              <Share2 className="h-4 w-4 mr-1.5" />
-              Share
-            </Button>
+            <Card className="border-border/30 rounded-2xl overflow-hidden">
+              <CardContent className="p-5">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-3">Share Your Experience</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <Button variant="outline" size="sm" onClick={handleShare} className="rounded-xl gap-2 h-10">
+                    <Share2 className="h-4 w-4" />
+                    <span className="text-xs">Share</span>
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleWhatsApp} className="rounded-xl gap-2 h-10 hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-500">
+                    <MessageCircle className="h-4 w-4" />
+                    <span className="text-xs">WhatsApp</span>
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleTwitter} className="rounded-xl gap-2 h-10 hover:bg-blue-500/10 hover:border-blue-500/30 hover:text-blue-500">
+                    <span className="text-xs font-bold">𝕏</span>
+                    <span className="text-xs">Twitter</span>
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleCopyLink} className="rounded-xl gap-2 h-10">
+                    {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                    <span className="text-xs">{copied ? 'Copied!' : 'Copy Link'}</span>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Navigation Actions */}
+          <motion.div 
+            className="flex gap-3 mt-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+          >
             <Button asChild variant="outline" className="flex-1 rounded-xl">
               <Link to="/bookings">All Bookings</Link>
             </Button>
