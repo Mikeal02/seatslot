@@ -209,7 +209,7 @@ export default function Profile() {
             {[
               { label: 'Total Tickets', value: totalTickets, icon: Ticket, color: 'text-primary', delay: 0.1 },
               { label: 'Movies Watched', value: uniqueMovies, icon: Film, color: 'text-accent', delay: 0.2 },
-              { label: 'Bookings', value: confirmedBookings.length, icon: Calendar, color: 'text-primary', delay: 0.3 },
+              { label: 'Fav Genre', value: favoriteGenre, icon: Star, color: 'text-primary', delay: 0.3 },
               { label: 'Total Spent', value: `₹${totalSpent.toLocaleString()}`, icon: TrendingUp, color: 'text-accent', delay: 0.4 },
             ].map((stat) => (
               <motion.div
