@@ -404,15 +404,6 @@ serve(async (req) => {
         result = { genres: data.genres };
         break;
       }
-        result = {
-          name: data.name,
-          overview: data.overview,
-          poster_url: data.poster_path ? `${TMDB_IMAGE_BASE}/w500${data.poster_path}` : null,
-          backdrop_url: data.backdrop_path ? `${TMDB_IMAGE_BASE}/original${data.backdrop_path}` : null,
-          movies: (data.parts || []).map((m: TMDBMovie) => transformMovie(m)),
-        };
-        break;
-      }
       case 'person': {
         const personId = url.searchParams.get('person_id');
         if (!personId) throw new Error('person_id is required');
