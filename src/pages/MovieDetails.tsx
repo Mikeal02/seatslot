@@ -447,34 +447,100 @@ export default function MovieDetails() {
                     </motion.div>
                   )}
 
-                  {/* Director & Writers */}
-                  <motion.div 
-                    className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                  {/* Movie Info Grid */}
+                  <motion.div
+                    className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
                   >
                     {movie.director && (
-                      <div className="flex items-center gap-3 p-4 rounded-xl bg-card border border-border/30">
-                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <div className="flex items-center gap-3 p-4 rounded-xl bg-card border border-border/30 hover:border-primary/20 transition-colors">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                           <Clapperboard className="h-4 w-4 text-primary" />
                         </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Director</p>
-                          <p className="font-semibold text-sm">{movie.director}</p>
+                        <div className="min-w-0">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Director</p>
+                          <p className="font-semibold text-sm truncate">{movie.director}</p>
                         </div>
                       </div>
                     )}
                     {tmdbDetails.production_companies && tmdbDetails.production_companies.length > 0 && (
-                      <div className="flex items-center gap-3 p-4 rounded-xl bg-card border border-border/30">
-                        <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center">
+                      <div className="flex items-center gap-3 p-4 rounded-xl bg-card border border-border/30 hover:border-primary/20 transition-colors">
+                        <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
                           <Film className="h-4 w-4 text-accent" />
                         </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Studio</p>
-                          <p className="font-semibold text-sm line-clamp-1">{tmdbDetails.production_companies[0].name}</p>
+                        <div className="min-w-0">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Studio</p>
+                          <p className="font-semibold text-sm truncate">{tmdbDetails.production_companies[0].name}</p>
                         </div>
                       </div>
+                    )}
+                    {tmdbDetails.production_countries && tmdbDetails.production_countries.length > 0 && (
+                      <div className="flex items-center gap-3 p-4 rounded-xl bg-card border border-border/30 hover:border-primary/20 transition-colors">
+                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0">
+                          <Globe className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Country</p>
+                          <p className="font-semibold text-sm truncate">{tmdbDetails.production_countries.join(', ')}</p>
+                        </div>
+                      </div>
+                    )}
+                    {tmdbDetails.spoken_languages && tmdbDetails.spoken_languages.length > 0 && (
+                      <div className="flex items-center gap-3 p-4 rounded-xl bg-card border border-border/30 hover:border-primary/20 transition-colors">
+                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0">
+                          <Languages className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Languages</p>
+                          <p className="font-semibold text-sm truncate">{tmdbDetails.spoken_languages.join(', ')}</p>
+                        </div>
+                      </div>
+                    )}
+                    {tmdbDetails.status && (
+                      <div className="flex items-center gap-3 p-4 rounded-xl bg-card border border-border/30 hover:border-primary/20 transition-colors">
+                        <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                          <Tag className="h-4 w-4 text-accent" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Status</p>
+                          <p className="font-semibold text-sm">{tmdbDetails.status}</p>
+                        </div>
+                      </div>
+                    )}
+                    {tmdbDetails.vote_count && tmdbDetails.vote_count > 0 && (
+                      <div className="flex items-center gap-3 p-4 rounded-xl bg-card border border-border/30 hover:border-primary/20 transition-colors">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          <Users className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">TMDB Votes</p>
+                          <p className="font-semibold text-sm">{tmdbDetails.vote_count.toLocaleString()}</p>
+                        </div>
+                      </div>
+                    )}
+                    {tmdbDetails.popularity && tmdbDetails.popularity > 0 && (
+                      <div className="flex items-center gap-3 p-4 rounded-xl bg-card border border-border/30 hover:border-primary/20 transition-colors">
+                        <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                          <TrendingUp className="h-4 w-4 text-accent" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Popularity</p>
+                          <p className="font-semibold text-sm">{Math.round(tmdbDetails.popularity)}</p>
+                        </div>
+                      </div>
+                    )}
+                    {tmdbDetails.homepage && (
+                      <a href={tmdbDetails.homepage} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 rounded-xl bg-card border border-border/30 hover:border-primary/30 transition-colors group">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          <ExternalLink className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Official Site</p>
+                          <p className="font-semibold text-sm text-primary group-hover:underline truncate">Visit →</p>
+                        </div>
+                      </a>
                     )}
                   </motion.div>
 
