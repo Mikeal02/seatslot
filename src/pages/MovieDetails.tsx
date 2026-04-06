@@ -59,11 +59,14 @@ interface TMDBDetails {
   certification?: { certification: string; country: string } | null;
   keywords?: string[];
   backdrops?: string[];
+  posters?: string[];
   logos?: string[];
   streaming_providers?: { name: string; logo: string }[];
   rent_buy_providers?: { name: string; logo: string; type: string }[];
   external_ids?: { imdb_id: string | null; facebook_id: string | null; instagram_id: string | null; twitter_id: string | null };
   all_videos?: { key: string; name: string; type: string; official: boolean }[];
+  vote_count?: number;
+  popularity?: number;
 }
 
 export default function MovieDetails() {
@@ -190,11 +193,14 @@ export default function MovieDetails() {
         certification: details.certification,
         keywords: details.keywords,
         backdrops: details.backdrops,
+        posters: details.posters,
         logos: details.logos,
         streaming_providers: details.streaming_providers,
         rent_buy_providers: details.rent_buy_providers,
         external_ids: details.external_ids,
         all_videos: details.all_videos,
+        vote_count: details.vote_count,
+        popularity: details.popularity,
       });
 
       if (!existingTrailerKey && details.trailer_key) {
@@ -569,9 +575,9 @@ export default function MovieDetails() {
                 </TabsContent>
 
                 <TabsContent value="media" className="space-y-8">
-                  <MediaGallery
+                   <MediaGallery
                     backdrops={tmdbDetails.backdrops}
-                    posters={undefined}
+                    posters={tmdbDetails.posters}
                     logos={tmdbDetails.logos}
                     videos={tmdbDetails.all_videos}
                   />
