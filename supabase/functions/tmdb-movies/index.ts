@@ -386,6 +386,24 @@ serve(async (req) => {
         };
         break;
       }
+      case 'discover': {
+        // Discover movies by genre, year, sort, etc.
+        const genreId = url.searchParams.get('genre_id') || '';
+        const year = url.searchParams.get('year') || '';
+        const sortBy = url.searchParams.get('sort_by') || 'popularity.desc';
+        const voteCountGte = url.searchParams.get('vote_count_gte') || '50';
+        let discoverUrl = `/discover/movie?page=${page}&sort_by=${sortBy}&vote_count.gte=${voteCountGte}`;
+        if (genreId) discoverUrl += `&with_genres=${genreId}`;
+        if (year) discoverUrl += `&primary_release_year=${year}`;
+        const data = await fetchFromTMDB(discoverUrl);
+        result = { movies: data.results.map((m: TMDBMovie) => transformMovie(m)), total_pages: data.total_pages, page: data.page };
+        break;
+      }
+      case 'genre_list': {
+        const data = await fetchFromTMDB('/genre/movie/list');
+        result = { genres: data.genres };
+        break;
+      }
       case 'person': {
         const personId = url.searchParams.get('person_id');
         if (!personId) throw new Error('person_id is required');

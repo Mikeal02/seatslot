@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Tv, ShoppingCart } from 'lucide-react';
+import { Tv, ExternalLink } from 'lucide-react';
 
 interface StreamingProvidersProps {
   streaming?: { name: string; logo: string }[];
@@ -8,7 +8,8 @@ interface StreamingProvidersProps {
 }
 
 export function StreamingProviders({ streaming = [], rentBuy = [], externalIds }: StreamingProvidersProps) {
-  if (streaming.length === 0 && rentBuy.length === 0 && !externalIds?.imdb_id) return null;
+  const hasSocial = externalIds?.imdb_id || externalIds?.facebook_id || externalIds?.instagram_id || externalIds?.twitter_id;
+  if (streaming.length === 0 && rentBuy.length === 0 && !hasSocial) return null;
 
   return (
     <div className="space-y-4">
@@ -60,16 +61,38 @@ export function StreamingProviders({ streaming = [], rentBuy = [], externalIds }
         </div>
       )}
 
-      {externalIds?.imdb_id && (
-        <div className="flex gap-2">
-          <a
-            href={`https://www.imdb.com/title/${externalIds.imdb_id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f5c518]/10 border border-[#f5c518]/30 text-xs font-bold hover:bg-[#f5c518]/20 transition-colors"
-          >
-            <span className="text-[#f5c518] font-black">IMDb</span>
-          </a>
+      {hasSocial && (
+        <div>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-2">External Links</p>
+          <div className="flex flex-wrap gap-2">
+            {externalIds?.imdb_id && (
+              <a href={`https://www.imdb.com/title/${externalIds.imdb_id}`} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f5c518]/10 border border-[#f5c518]/30 text-xs font-bold hover:bg-[#f5c518]/20 transition-colors">
+                <span className="text-[#f5c518] font-black">IMDb</span>
+              </a>
+            )}
+            {externalIds?.facebook_id && (
+              <a href={`https://facebook.com/${externalIds.facebook_id}`} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1877F2]/10 border border-[#1877F2]/30 text-xs font-bold hover:bg-[#1877F2]/20 transition-colors">
+                <span className="text-[#1877F2]">Facebook</span>
+                <ExternalLink className="h-3 w-3 text-[#1877F2]/60" />
+              </a>
+            )}
+            {externalIds?.instagram_id && (
+              <a href={`https://instagram.com/${externalIds.instagram_id}`} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#E4405F]/10 border border-[#E4405F]/30 text-xs font-bold hover:bg-[#E4405F]/20 transition-colors">
+                <span className="text-[#E4405F]">Instagram</span>
+                <ExternalLink className="h-3 w-3 text-[#E4405F]/60" />
+              </a>
+            )}
+            {externalIds?.twitter_id && (
+              <a href={`https://twitter.com/${externalIds.twitter_id}`} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-foreground/5 border border-foreground/10 text-xs font-bold hover:bg-foreground/10 transition-colors">
+                <span className="text-foreground">𝕏</span>
+                <ExternalLink className="h-3 w-3 text-foreground/60" />
+              </a>
+            )}
+          </div>
         </div>
       )}
     </div>
