@@ -25,7 +25,7 @@ serve(async (req) => {
     const user = data.user;
     if (!user?.email) throw new Error("User not authenticated");
 
-    const { showtimeId, selectedSeats, totalAmount, movieTitle, concessions } = await req.json();
+    const { showtimeId, selectedSeats, totalAmount, movieTitle, concessions, origin: clientOrigin } = await req.json();
 
     if (!showtimeId || !selectedSeats?.length || !totalAmount) {
       throw new Error("Missing required booking data");
@@ -72,7 +72,7 @@ serve(async (req) => {
       });
     }
 
-    const origin = req.headers.get("origin") || "http://localhost:5173";
+    const origin = clientOrigin || req.headers.get("origin") || "http://localhost:5173";
 
     // Store pending booking info in metadata
     const session = await stripe.checkout.sessions.create({
