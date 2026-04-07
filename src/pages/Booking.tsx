@@ -129,6 +129,7 @@ export default function Booking() {
           totalAmount: grandTotal,
           movieTitle: movie?.title,
           concessions,
+          origin: window.location.origin,
         },
       });
       if (error) throw error;
