@@ -414,12 +414,17 @@ export default function Booking() {
             </AnimatePresence>
 
             {/* Step navigation */}
-            <div className="flex items-center justify-between mt-4 gap-3">
+            <motion.div 
+              className="flex items-center justify-between mt-5 gap-3"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
               <Button
                 variant="outline"
                 onClick={handlePrevStep}
                 disabled={currentStep === 'seats'}
-                className="rounded-xl"
+                className="rounded-xl h-11 px-5 border-border/40"
               >
                 <ArrowLeft className="h-4 w-4 mr-1.5" />
                 Back
@@ -429,22 +434,33 @@ export default function Booking() {
                 <Button
                   onClick={handleConfirmBooking}
                   disabled={booking || selectedSeats.length === 0}
-                  className="cinema-gradient btn-professional rounded-xl px-8 h-11 font-bold flex-1 max-w-xs"
+                  className="cinema-gradient btn-professional rounded-xl px-8 h-12 font-bold flex-1 max-w-xs text-base shadow-xl shadow-primary/25"
                   size="lg"
                 >
-                  {booking ? 'Processing...' : `Pay ₹${grandTotal.toFixed(0)}`}
+                  {booking ? (
+                    <motion.span className="flex items-center gap-2" animate={{ opacity: [1, 0.6, 1] }} transition={{ repeat: Infinity, duration: 1 }}>
+                      <CreditCard className="h-4 w-4" />
+                      Processing...
+                    </motion.span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <CreditCard className="h-4 w-4" />
+                      Pay ₹{grandTotal.toFixed(0)}
+                    </span>
+                  )}
                 </Button>
               ) : (
                 <Button
                   onClick={handleNextStep}
                   disabled={currentStep === 'seats' && selectedSeats.length === 0}
-                  className="cinema-gradient btn-professional rounded-xl px-8 h-11 font-bold"
+                  className="cinema-gradient btn-professional rounded-xl px-8 h-11 font-bold shadow-lg shadow-primary/20"
                   size="lg"
                 >
                   Continue
+                  <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
               )}
-            </div>
+            </motion.div>
           </div>
 
           {/* Desktop Summary */}
