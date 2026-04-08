@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Timer, Film, MapPin, Calendar, Clock, Sparkles, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Timer, Film, MapPin, Calendar, Clock, Sparkles, ShieldCheck, ChevronRight, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
@@ -21,9 +21,9 @@ import { format, parseISO } from 'date-fns';
 
 // Booking steps
 const STEPS = [
-  { id: 'seats', label: 'Select Seats', icon: Sparkles },
-  { id: 'extras', label: 'Add Extras', icon: Film },
-  { id: 'confirm', label: 'Confirm', icon: ShieldCheck },
+  { id: 'seats', label: 'Select Seats', icon: Sparkles, desc: 'Choose your perfect spot' },
+  { id: 'extras', label: 'Add Extras', icon: Film, desc: 'Snacks & beverages' },
+  { id: 'confirm', label: 'Confirm', icon: ShieldCheck, desc: 'Review & pay' },
 ] as const;
 
 type StepId = typeof STEPS[number]['id'];
