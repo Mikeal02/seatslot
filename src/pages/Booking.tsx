@@ -240,40 +240,56 @@ export default function Booking() {
           </div>
         </motion.div>
 
-        {/* Step Progress */}
+        {/* Step Progress - Enhanced */}
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-3 max-w-lg mx-auto">
+          <div className="flex items-center justify-between mb-3 max-w-xl mx-auto">
             {STEPS.map((step, i) => {
               const StepIcon = step.icon;
               const isActive = step.id === currentStep;
               const isDone = i < stepIndex;
               return (
-                <button
-                  key={step.id}
-                  onClick={() => {
-                    if (isDone || (step.id === 'extras' && selectedSeats.length > 0) || (step.id === 'seats')) {
-                      setCurrentStep(step.id);
-                    }
-                  }}
-                  className={cn(
-                    "flex items-center gap-2 text-xs sm:text-sm font-medium transition-all duration-300",
-                    isActive ? "text-primary" : isDone ? "text-foreground" : "text-muted-foreground"
+                <div key={step.id} className="flex items-center gap-2 flex-1">
+                  <button
+                    onClick={() => {
+                      if (isDone || (step.id === 'extras' && selectedSeats.length > 0) || (step.id === 'seats')) {
+                        setCurrentStep(step.id);
+                      }
+                    }}
+                    className={cn(
+                      "flex items-center gap-2 text-xs sm:text-sm font-medium transition-all duration-300 group",
+                      isActive ? "text-primary" : isDone ? "text-foreground" : "text-muted-foreground"
+                    )}
+                  >
+                    <motion.div 
+                      className={cn(
+                        "h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center border-2 transition-all duration-300",
+                        isActive ? "cinema-gradient border-transparent text-primary-foreground shadow-lg shadow-primary/25" :
+                        isDone ? "bg-primary/10 border-primary/40 text-primary" :
+                        "bg-muted/50 border-border/50 text-muted-foreground group-hover:border-border"
+                      )}
+                      animate={isActive ? { scale: [1, 1.05, 1] } : {}}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      <StepIcon className="h-4 w-4" />
+                    </motion.div>
+                    <div className="hidden sm:block text-left">
+                      <p className="text-xs font-bold leading-tight">{step.label}</p>
+                      <p className="text-[10px] text-muted-foreground font-normal">{step.desc}</p>
+                    </div>
+                  </button>
+                  {i < STEPS.length - 1 && (
+                    <div className="flex-1 flex items-center justify-center px-1">
+                      <div className={cn(
+                        "h-[2px] w-full rounded-full transition-colors duration-500",
+                        i < stepIndex ? "bg-primary/50" : "bg-border/30"
+                      )} />
+                    </div>
                   )}
-                >
-                  <div className={cn(
-                    "h-8 w-8 sm:h-9 sm:w-9 rounded-full flex items-center justify-center border-2 transition-all duration-300",
-                    isActive ? "cinema-gradient border-transparent text-primary-foreground shadow-lg shadow-primary/20" :
-                    isDone ? "bg-primary/10 border-primary/30 text-primary" :
-                    "bg-muted border-border text-muted-foreground"
-                  )}>
-                    <StepIcon className="h-4 w-4" />
-                  </div>
-                  <span className="hidden sm:inline">{step.label}</span>
-                </button>
+                </div>
               );
             })}
           </div>
-          <Progress value={progressPercent} className="h-1 max-w-lg mx-auto" />
+          <Progress value={progressPercent} className="h-1 max-w-xl mx-auto rounded-full" />
         </div>
 
         <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
