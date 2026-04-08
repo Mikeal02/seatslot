@@ -470,22 +470,27 @@ export default function Booking() {
         </div>
 
         {/* Mobile fixed bottom */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 p-3 bg-background/95 backdrop-blur-md border-t border-border safe-bottom z-40">
+        {/* Mobile fixed bottom - Enhanced */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 p-3 bg-background/95 backdrop-blur-xl border-t border-border/30 safe-bottom z-40">
           <div className="flex items-center gap-3">
             {grandTotal > 0 && (
               <div className="text-sm">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total</p>
-                <p className="font-black cinema-gradient-text">₹{grandTotal.toFixed(0)}</p>
+                <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-medium">Total</p>
+                <p className="font-black text-base cinema-gradient-text">₹{grandTotal.toFixed(0)}</p>
               </div>
             )}
             <div className="flex-1">
               {currentStep === 'confirm' ? (
-                <Button onClick={handleConfirmBooking} disabled={booking || selectedSeats.length === 0} className="w-full cinema-gradient btn-professional h-11 font-bold rounded-xl" size="lg">
-                  {booking ? 'Processing...' : `Pay ₹${grandTotal.toFixed(0)}`}
+                <Button onClick={handleConfirmBooking} disabled={booking || selectedSeats.length === 0} className="w-full cinema-gradient btn-professional h-12 font-bold rounded-xl shadow-lg shadow-primary/20" size="lg">
+                  {booking ? (
+                    <motion.span animate={{ opacity: [1, 0.6, 1] }} transition={{ repeat: Infinity, duration: 1 }}>Processing...</motion.span>
+                  ) : (
+                    <span className="flex items-center gap-2"><CreditCard className="h-4 w-4" />Pay ₹{grandTotal.toFixed(0)}</span>
+                  )}
                 </Button>
               ) : (
-                <Button onClick={handleNextStep} disabled={currentStep === 'seats' && selectedSeats.length === 0} className="w-full cinema-gradient btn-professional h-11 font-bold rounded-xl" size="lg">
-                  Continue
+                <Button onClick={handleNextStep} disabled={currentStep === 'seats' && selectedSeats.length === 0} className="w-full cinema-gradient btn-professional h-12 font-bold rounded-xl shadow-lg shadow-primary/20" size="lg">
+                  Continue <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
               )}
             </div>
