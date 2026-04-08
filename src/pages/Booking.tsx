@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Timer, Film, MapPin, Calendar, Clock, Sparkles, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Timer, Film, MapPin, Calendar, Clock, Sparkles, ShieldCheck, ChevronRight, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
@@ -21,9 +21,9 @@ import { format, parseISO } from 'date-fns';
 
 // Booking steps
 const STEPS = [
-  { id: 'seats', label: 'Select Seats', icon: Sparkles },
-  { id: 'extras', label: 'Add Extras', icon: Film },
-  { id: 'confirm', label: 'Confirm', icon: ShieldCheck },
+  { id: 'seats', label: 'Select Seats', icon: Sparkles, desc: 'Choose your perfect spot' },
+  { id: 'extras', label: 'Add Extras', icon: Film, desc: 'Snacks & beverages' },
+  { id: 'confirm', label: 'Confirm', icon: ShieldCheck, desc: 'Review & pay' },
 ] as const;
 
 type StepId = typeof STEPS[number]['id'];
@@ -240,40 +240,56 @@ export default function Booking() {
           </div>
         </motion.div>
 
-        {/* Step Progress */}
+        {/* Step Progress - Enhanced */}
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-3 max-w-lg mx-auto">
+          <div className="flex items-center justify-between mb-3 max-w-xl mx-auto">
             {STEPS.map((step, i) => {
               const StepIcon = step.icon;
               const isActive = step.id === currentStep;
               const isDone = i < stepIndex;
               return (
-                <button
-                  key={step.id}
-                  onClick={() => {
-                    if (isDone || (step.id === 'extras' && selectedSeats.length > 0) || (step.id === 'seats')) {
-                      setCurrentStep(step.id);
-                    }
-                  }}
-                  className={cn(
-                    "flex items-center gap-2 text-xs sm:text-sm font-medium transition-all duration-300",
-                    isActive ? "text-primary" : isDone ? "text-foreground" : "text-muted-foreground"
+                <div key={step.id} className="flex items-center gap-2 flex-1">
+                  <button
+                    onClick={() => {
+                      if (isDone || (step.id === 'extras' && selectedSeats.length > 0) || (step.id === 'seats')) {
+                        setCurrentStep(step.id);
+                      }
+                    }}
+                    className={cn(
+                      "flex items-center gap-2 text-xs sm:text-sm font-medium transition-all duration-300 group",
+                      isActive ? "text-primary" : isDone ? "text-foreground" : "text-muted-foreground"
+                    )}
+                  >
+                    <motion.div 
+                      className={cn(
+                        "h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center border-2 transition-all duration-300",
+                        isActive ? "cinema-gradient border-transparent text-primary-foreground shadow-lg shadow-primary/25" :
+                        isDone ? "bg-primary/10 border-primary/40 text-primary" :
+                        "bg-muted/50 border-border/50 text-muted-foreground group-hover:border-border"
+                      )}
+                      animate={isActive ? { scale: [1, 1.05, 1] } : {}}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      <StepIcon className="h-4 w-4" />
+                    </motion.div>
+                    <div className="hidden sm:block text-left">
+                      <p className="text-xs font-bold leading-tight">{step.label}</p>
+                      <p className="text-[10px] text-muted-foreground font-normal">{step.desc}</p>
+                    </div>
+                  </button>
+                  {i < STEPS.length - 1 && (
+                    <div className="flex-1 flex items-center justify-center px-1">
+                      <div className={cn(
+                        "h-[2px] w-full rounded-full transition-colors duration-500",
+                        i < stepIndex ? "bg-primary/50" : "bg-border/30"
+                      )} />
+                    </div>
                   )}
-                >
-                  <div className={cn(
-                    "h-8 w-8 sm:h-9 sm:w-9 rounded-full flex items-center justify-center border-2 transition-all duration-300",
-                    isActive ? "cinema-gradient border-transparent text-primary-foreground shadow-lg shadow-primary/20" :
-                    isDone ? "bg-primary/10 border-primary/30 text-primary" :
-                    "bg-muted border-border text-muted-foreground"
-                  )}>
-                    <StepIcon className="h-4 w-4" />
-                  </div>
-                  <span className="hidden sm:inline">{step.label}</span>
-                </button>
+                </div>
               );
             })}
           </div>
-          <Progress value={progressPercent} className="h-1 max-w-lg mx-auto" />
+          <Progress value={progressPercent} className="h-1 max-w-xl mx-auto rounded-full" />
         </div>
 
         <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
@@ -313,68 +329,102 @@ export default function Booking() {
               {currentStep === 'confirm' && (
                 <motion.div 
                   key="confirm"
-                  className="bg-card rounded-2xl p-5 sm:p-8 border border-border/30 glow-card space-y-6"
+                  className="bg-card rounded-2xl p-5 sm:p-8 border border-border/20 glow-card space-y-6 overflow-hidden relative"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <div className="text-center">
-                    <div className="h-16 w-16 rounded-2xl cinema-gradient flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/30">
+                  {/* Decorative gradient */}
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-[radial-gradient(circle,hsl(var(--primary)/0.08),transparent_70%)] pointer-events-none" />
+                  
+                  <div className="text-center relative">
+                    <motion.div 
+                      className="h-16 w-16 rounded-2xl cinema-gradient flex items-center justify-center mx-auto mb-4 shadow-xl shadow-primary/30"
+                      animate={{ y: [0, -4, 0] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
                       <ShieldCheck className="h-8 w-8 text-primary-foreground" />
-                    </div>
+                    </motion.div>
                     <h2 className="text-2xl font-black tracking-tight">Review & Pay</h2>
-                    <p className="text-muted-foreground text-sm mt-1">Please review your booking before payment</p>
+                    <p className="text-muted-foreground text-sm mt-1">Confirm your details before secure payment</p>
                   </div>
 
                   {/* Order review */}
-                  <div className="space-y-4">
-                    <div className="p-4 rounded-xl bg-muted/30 border border-border/30">
+                  <div className="space-y-4 relative">
+                    <div className="p-4 rounded-xl bg-muted/20 border border-border/20 hover:border-border/30 transition-colors">
                       <div className="flex items-center gap-3 mb-3">
-                        <img src={movie.poster_url || '/placeholder.svg'} alt="" className="w-12 h-16 rounded-lg object-cover" />
+                        <img src={movie.poster_url || '/placeholder.svg'} alt="" className="w-12 h-18 rounded-lg object-cover shadow-md" />
                         <div>
                           <h3 className="font-bold text-sm">{movie.title}</h3>
                           <p className="text-xs text-muted-foreground">{format(parseISO(showtime.show_date), 'EEE, MMM d')} • {format(parseISO(`2000-01-01T${showtime.show_time}`), 'h:mm a')}</p>
-                          <p className="text-xs text-muted-foreground">{showtime.screen?.theatre?.name}</p>
+                          <p className="text-xs text-muted-foreground">{showtime.screen?.theatre?.name} • {showtime.screen?.name}</p>
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
-                        {selectedSeats.map(s => (
-                          <Badge key={s.id} variant="secondary" className="text-[10px] font-semibold">
-                            {s.row_label}{s.seat_number} <span className="text-muted-foreground ml-1 capitalize">({s.seat_type})</span>
-                          </Badge>
+                        {selectedSeats.map((s, i) => (
+                          <motion.div
+                            key={s.id}
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: i * 0.05 }}
+                          >
+                            <Badge variant="secondary" className="text-[10px] font-semibold">
+                              {s.row_label}{s.seat_number} <span className="text-muted-foreground ml-1 capitalize">({s.seat_type})</span>
+                            </Badge>
+                          </motion.div>
                         ))}
                       </div>
                     </div>
 
                     {selectedConcessions.length > 0 && (
-                      <div className="p-4 rounded-xl bg-muted/30 border border-border/30">
-                        <h4 className="text-sm font-semibold mb-2">🍿 Add-ons</h4>
-                        {selectedConcessions.map(c => (
-                          <div key={c.item.id} className="flex justify-between text-xs text-muted-foreground">
-                            <span>{c.item.name} × {c.quantity}</span>
-                            <span>₹{(c.item.price * c.quantity).toFixed(0)}</span>
-                          </div>
-                        ))}
+                      <div className="p-4 rounded-xl bg-muted/20 border border-border/20">
+                        <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">🍿 Add-ons</h4>
+                        <div className="space-y-1.5">
+                          {selectedConcessions.map(c => (
+                            <div key={c.item.id} className="flex justify-between text-xs text-muted-foreground">
+                              <span>{c.item.name} × {c.quantity}</span>
+                              <span className="font-semibold text-foreground">₹{(c.item.price * c.quantity).toFixed(0)}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
 
-                    <div className="flex justify-between items-center p-4 rounded-xl cinema-gradient text-primary-foreground">
-                      <span className="font-bold">Total Amount</span>
-                      <span className="text-2xl font-black">₹{grandTotal.toFixed(0)}</span>
-                    </div>
+                    <motion.div 
+                      className="relative overflow-hidden rounded-xl cinema-gradient text-primary-foreground p-5"
+                      initial={{ scale: 0.95 }}
+                      animate={{ scale: 1 }}
+                    >
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.12),transparent_60%)]" />
+                      <div className="relative flex justify-between items-center">
+                        <div>
+                          <p className="text-[10px] uppercase tracking-widest opacity-80 font-medium mb-0.5">Total Amount</p>
+                          <p className="text-3xl font-black tracking-tight">₹{grandTotal.toFixed(0)}</p>
+                        </div>
+                        <div className="flex flex-col items-center gap-1">
+                          <CreditCard className="h-6 w-6 opacity-80" />
+                          <span className="text-[9px] opacity-70">Secure</span>
+                        </div>
+                      </div>
+                    </motion.div>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
             {/* Step navigation */}
-            <div className="flex items-center justify-between mt-4 gap-3">
+            <motion.div 
+              className="flex items-center justify-between mt-5 gap-3"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
               <Button
                 variant="outline"
                 onClick={handlePrevStep}
                 disabled={currentStep === 'seats'}
-                className="rounded-xl"
+                className="rounded-xl h-11 px-5 border-border/40"
               >
                 <ArrowLeft className="h-4 w-4 mr-1.5" />
                 Back
@@ -384,22 +434,33 @@ export default function Booking() {
                 <Button
                   onClick={handleConfirmBooking}
                   disabled={booking || selectedSeats.length === 0}
-                  className="cinema-gradient btn-professional rounded-xl px-8 h-11 font-bold flex-1 max-w-xs"
+                  className="cinema-gradient btn-professional rounded-xl px-8 h-12 font-bold flex-1 max-w-xs text-base shadow-xl shadow-primary/25"
                   size="lg"
                 >
-                  {booking ? 'Processing...' : `Pay ₹${grandTotal.toFixed(0)}`}
+                  {booking ? (
+                    <motion.span className="flex items-center gap-2" animate={{ opacity: [1, 0.6, 1] }} transition={{ repeat: Infinity, duration: 1 }}>
+                      <CreditCard className="h-4 w-4" />
+                      Processing...
+                    </motion.span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <CreditCard className="h-4 w-4" />
+                      Pay ₹{grandTotal.toFixed(0)}
+                    </span>
+                  )}
                 </Button>
               ) : (
                 <Button
                   onClick={handleNextStep}
                   disabled={currentStep === 'seats' && selectedSeats.length === 0}
-                  className="cinema-gradient btn-professional rounded-xl px-8 h-11 font-bold"
+                  className="cinema-gradient btn-professional rounded-xl px-8 h-11 font-bold shadow-lg shadow-primary/20"
                   size="lg"
                 >
                   Continue
+                  <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
               )}
-            </div>
+            </motion.div>
           </div>
 
           {/* Desktop Summary */}
@@ -409,22 +470,27 @@ export default function Booking() {
         </div>
 
         {/* Mobile fixed bottom */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 p-3 bg-background/95 backdrop-blur-md border-t border-border safe-bottom z-40">
+        {/* Mobile fixed bottom - Enhanced */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 p-3 bg-background/95 backdrop-blur-xl border-t border-border/30 safe-bottom z-40">
           <div className="flex items-center gap-3">
             {grandTotal > 0 && (
               <div className="text-sm">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total</p>
-                <p className="font-black cinema-gradient-text">₹{grandTotal.toFixed(0)}</p>
+                <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-medium">Total</p>
+                <p className="font-black text-base cinema-gradient-text">₹{grandTotal.toFixed(0)}</p>
               </div>
             )}
             <div className="flex-1">
               {currentStep === 'confirm' ? (
-                <Button onClick={handleConfirmBooking} disabled={booking || selectedSeats.length === 0} className="w-full cinema-gradient btn-professional h-11 font-bold rounded-xl" size="lg">
-                  {booking ? 'Processing...' : `Pay ₹${grandTotal.toFixed(0)}`}
+                <Button onClick={handleConfirmBooking} disabled={booking || selectedSeats.length === 0} className="w-full cinema-gradient btn-professional h-12 font-bold rounded-xl shadow-lg shadow-primary/20" size="lg">
+                  {booking ? (
+                    <motion.span animate={{ opacity: [1, 0.6, 1] }} transition={{ repeat: Infinity, duration: 1 }}>Processing...</motion.span>
+                  ) : (
+                    <span className="flex items-center gap-2"><CreditCard className="h-4 w-4" />Pay ₹{grandTotal.toFixed(0)}</span>
+                  )}
                 </Button>
               ) : (
-                <Button onClick={handleNextStep} disabled={currentStep === 'seats' && selectedSeats.length === 0} className="w-full cinema-gradient btn-professional h-11 font-bold rounded-xl" size="lg">
-                  Continue
+                <Button onClick={handleNextStep} disabled={currentStep === 'seats' && selectedSeats.length === 0} className="w-full cinema-gradient btn-professional h-12 font-bold rounded-xl shadow-lg shadow-primary/20" size="lg">
+                  Continue <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
               )}
             </div>

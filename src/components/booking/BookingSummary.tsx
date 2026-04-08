@@ -1,10 +1,11 @@
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, MapPin, Armchair, Ticket, Film } from 'lucide-react';
+import { Calendar, Clock, MapPin, Armchair, Ticket, Crown, Star, Shield } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Movie, Showtime, Seat } from '@/types/database';
+import { cn } from '@/lib/utils';
 
 interface BookingSummaryProps {
   movie: Movie;
@@ -12,6 +13,13 @@ interface BookingSummaryProps {
   selectedSeats: Seat[];
   concessionTotal?: number;
 }
+
+const typeIcons: Record<string, React.ElementType> = { vip: Crown, premium: Star, regular: Armchair };
+const typeColors: Record<string, string> = {
+  vip: 'border-purple-500/40 bg-purple-500/10 text-purple-300',
+  premium: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
+  regular: 'border-primary/20 bg-primary/5',
+};
 
 export function BookingSummary({ movie, showtime, selectedSeats, concessionTotal = 0 }: BookingSummaryProps) {
   const seatTotal = selectedSeats.reduce((sum, seat) => sum + Number(seat.price), 0);
@@ -26,76 +34,101 @@ export function BookingSummary({ movie, showtime, selectedSeats, concessionTotal
   }, {} as Record<string, Seat[]>);
 
   return (
-    <Card className="bg-card border-border/30 glow-card rounded-2xl overflow-hidden max-h-[calc(100vh-8rem)] overflow-y-auto">
-      {/* Header with movie mini poster */}
+    <Card className="bg-card border-border/20 glow-card rounded-2xl overflow-hidden max-h-[calc(100vh-8rem)] overflow-y-auto">
+      {/* Header */}
       <div className="relative p-4 sm:p-5">
         <div className="flex items-center gap-3 mb-4">
-          <div className="h-9 w-9 rounded-xl cinema-gradient flex items-center justify-center shrink-0">
-            <Ticket className="h-4 w-4 text-primary-foreground" />
+          <div className="h-10 w-10 rounded-xl cinema-gradient flex items-center justify-center shrink-0 shadow-lg shadow-primary/20">
+            <Ticket className="h-5 w-5 text-primary-foreground" />
           </div>
-          <h3 className="font-bold text-base">Booking Summary</h3>
+          <div>
+            <h3 className="font-bold text-sm sm:text-base">Booking Summary</h3>
+            <p className="text-[10px] text-muted-foreground">Review your selection</p>
+          </div>
         </div>
 
-        {/* Movie */}
-        <div className="flex gap-3 p-3 rounded-xl bg-muted/30 border border-border/20">
-          <div className="w-10 sm:w-12 shrink-0">
+        {/* Movie Card */}
+        <motion.div 
+          className="flex gap-3 p-3 rounded-xl bg-muted/20 border border-border/15 hover:border-border/30 transition-colors"
+          whileHover={{ scale: 1.01 }}
+        >
+          <div className="w-11 sm:w-14 shrink-0">
             <div className="relative w-full" style={{ paddingBottom: '150%' }}>
-              <img src={movie.poster_url || '/placeholder.svg'} alt={movie.title} className="absolute inset-0 w-full h-full object-cover rounded-lg" />
+              <img src={movie.poster_url || '/placeholder.svg'} alt={movie.title} className="absolute inset-0 w-full h-full object-cover rounded-lg shadow-md" />
             </div>
           </div>
           <div className="min-w-0 flex-1">
             <h4 className="font-bold text-sm line-clamp-1">{movie.title}</h4>
-            <p className="text-[10px] text-muted-foreground">{movie.duration_minutes}m • {movie.genre.slice(0, 2).join(', ')}</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">{movie.duration_minutes}m • {movie.genre?.slice(0, 2).join(', ')}</p>
+            {movie.rating && (
+              <div className="flex items-center gap-1 mt-1">
+                <span className="text-[10px] font-bold text-amber-400">★ {Number(movie.rating).toFixed(1)}</span>
+              </div>
+            )}
           </div>
-        </div>
+        </motion.div>
       </div>
 
       <CardContent className="space-y-3 px-4 sm:px-5 pb-5">
         {/* Showtime chips */}
-        <div className="flex flex-wrap gap-2 text-[10px] sm:text-xs">
-          <div className="flex items-center gap-1.5 bg-muted/30 rounded-full px-2.5 py-1 border border-border/20">
-            <Calendar className="h-3 w-3 text-primary/60" />
+        <div className="grid grid-cols-1 gap-1.5 text-[10px] sm:text-xs">
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/15 border border-border/10">
+            <Calendar className="h-3 w-3 text-primary/50 shrink-0" />
             <span className="font-medium">{formattedDate}</span>
-          </div>
-          <div className="flex items-center gap-1.5 bg-muted/30 rounded-full px-2.5 py-1 border border-border/20">
-            <Clock className="h-3 w-3 text-primary/60" />
+            <span className="text-muted-foreground mx-1">•</span>
+            <Clock className="h-3 w-3 text-primary/50 shrink-0" />
             <span className="font-medium">{formattedTime}</span>
           </div>
-          <div className="flex items-center gap-1.5 bg-muted/30 rounded-full px-2.5 py-1 border border-border/20">
-            <MapPin className="h-3 w-3 text-primary/60" />
-            <span className="font-medium truncate max-w-[120px]">{showtime.screen?.theatre?.name}</span>
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/15 border border-border/10">
+            <MapPin className="h-3 w-3 text-primary/50 shrink-0" />
+            <span className="font-medium truncate">{showtime.screen?.theatre?.name} • {showtime.screen?.name}</span>
           </div>
         </div>
 
         {selectedSeats.length > 0 && (
           <>
-            <Separator className="opacity-30" />
+            <Separator className="opacity-20" />
 
-            {/* Seat badges */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            {/* Seat badges by type */}
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 <Armchair className="h-3 w-3" />
                 Seats ({selectedSeats.length})
               </div>
-              <div className="flex flex-wrap gap-1">
-                {selectedSeats.map(s => (
-                  <Badge key={s.id} variant="outline" className="text-[10px] font-bold border-primary/20 bg-primary/5 px-2 py-0.5">
-                    {s.row_label}{s.seat_number}
-                  </Badge>
-                ))}
-              </div>
+              {Object.entries(seatsByType).map(([type, typeSeats]) => {
+                const Icon = typeIcons[type] || Armchair;
+                return (
+                  <div key={type} className="space-y-1">
+                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground capitalize">
+                      <Icon className="h-2.5 w-2.5" />
+                      {type}
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {typeSeats.map(s => (
+                        <Badge key={s.id} variant="outline" className={cn("text-[10px] font-bold px-2 py-0.5", typeColors[type])}>
+                          {s.row_label}{s.seat_number}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            <Separator className="opacity-30" />
+            <Separator className="opacity-20" />
 
             {/* Price breakdown */}
-            <div className="space-y-1.5 text-xs">
+            <div className="space-y-2 text-xs">
               {Object.entries(seatsByType).map(([type, typeSeats]) => {
                 const typeTotal = typeSeats.reduce((sum, s) => sum + Number(s.price), 0);
+                const Icon = typeIcons[type] || Armchair;
                 return (
-                  <div key={type} className="flex justify-between">
-                    <span className="capitalize text-muted-foreground">{type} × {typeSeats.length}</span>
-                    <span className="font-semibold">₹{typeTotal.toFixed(0)}</span>
+                  <div key={type} className="flex justify-between items-center">
+                    <span className="flex items-center gap-1.5 capitalize text-muted-foreground">
+                      <Icon className="h-3 w-3" />
+                      {type} × {typeSeats.length}
+                    </span>
+                    <span className="font-bold">₹{typeTotal.toFixed(0)}</span>
                   </div>
                 );
               })}
@@ -103,33 +136,50 @@ export function BookingSummary({ movie, showtime, selectedSeats, concessionTotal
 
             {concessionTotal > 0 && (
               <>
-                <Separator className="opacity-30" />
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">🍿 Snacks & Drinks</span>
-                  <span className="font-semibold">₹{concessionTotal.toFixed(0)}</span>
+                <Separator className="opacity-20" />
+                <div className="flex justify-between text-xs items-center">
+                  <span className="text-muted-foreground flex items-center gap-1.5">🍿 Snacks & Drinks</span>
+                  <span className="font-bold">₹{concessionTotal.toFixed(0)}</span>
                 </div>
               </>
             )}
 
-            <Separator className="opacity-30" />
+            <Separator className="opacity-20" />
 
             {/* Total */}
             <motion.div 
-              className="flex justify-between items-center p-3 rounded-xl cinema-gradient text-primary-foreground"
+              className="relative overflow-hidden rounded-xl cinema-gradient text-primary-foreground p-4"
               layout
             >
-              <span className="font-bold text-sm">Total</span>
-              <span className="text-xl font-black tracking-tight">₹{totalAmount.toFixed(0)}</span>
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.15),transparent_60%)]" />
+              <div className="relative flex justify-between items-center">
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider opacity-80 font-medium">Total</p>
+                  <p className="text-2xl font-black tracking-tight">₹{totalAmount.toFixed(0)}</p>
+                </div>
+                <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center">
+                  <Shield className="h-5 w-5" />
+                </div>
+              </div>
             </motion.div>
+
+            <p className="text-[9px] text-center text-muted-foreground">
+              🔒 Secure payment powered by Stripe
+            </p>
           </>
         )}
 
         {selectedSeats.length === 0 && (
-          <div className="text-center py-6">
-            <div className="h-12 w-12 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-2">
-              <Armchair className="h-5 w-5 text-muted-foreground/40" />
-            </div>
-            <p className="text-xs text-muted-foreground">Select seats to see pricing</p>
+          <div className="text-center py-8">
+            <motion.div 
+              className="h-14 w-14 rounded-2xl bg-muted/30 flex items-center justify-center mx-auto mb-3"
+              animate={{ y: [0, -5, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <Armchair className="h-6 w-6 text-muted-foreground/30" />
+            </motion.div>
+            <p className="text-xs text-muted-foreground font-medium">Select seats to see pricing</p>
+            <p className="text-[10px] text-muted-foreground/60 mt-0.5">Tap on available seats in the layout</p>
           </div>
         )}
       </CardContent>
