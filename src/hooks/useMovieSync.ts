@@ -20,7 +20,7 @@ interface TMDBMovie {
   popularity?: number;
 }
 
-const SYNC_CACHE_KEY = 'movie_sync_timestamp';
+const SYNC_CACHE_KEY = 'movie_sync_timestamp_v2';
 const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours
 
 // Rotate which TMDB pages we pull daily so the catalogue refreshes naturally
