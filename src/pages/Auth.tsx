@@ -77,7 +77,7 @@ export default function Auth() {
     }
   };
 
-  const PasswordInput = ({ id, value, onChange, placeholder }: { id: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder: string }) => (
+  const renderPasswordInput = (id: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, placeholder: string) => (
     <div className="relative">
       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       <Input
