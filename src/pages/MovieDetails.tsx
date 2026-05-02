@@ -103,7 +103,7 @@ export default function MovieDetails() {
       }
 
       // Fetch TMDB rich details in background
-      fetchTMDBRichDetails(movieData.title, movieData.trailer_key);
+      fetchTMDBRichDetails(movieData.title, movieData.trailer_key, (movieData as any).tmdb_id ?? null);
 
       // Fetch showtimes
       const { data: showtimeData, error: showtimeError } = await supabase
@@ -142,18 +142,21 @@ export default function MovieDetails() {
     }
   };
 
-  const fetchTMDBRichDetails = useCallback(async (title: string, existingTrailerKey: string | null) => {
+  const fetchTMDBRichDetails = useCallback(async (title: string, existingTrailerKey: string | null, knownTmdbId: number | null = null) => {
     try {
-      // Search for the movie to get TMDB ID
-      const searchRes = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tmdb-movies?action=search&query=${encodeURIComponent(title)}`,
-        { headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY } }
-      );
-      if (!searchRes.ok) return;
-      const searchData = await searchRes.json();
-      if (!searchData.movies?.[0]?.tmdb_id) return;
+      let tmdbId = knownTmdbId;
 
-      const tmdbId = searchData.movies[0].tmdb_id;
+      // Only fall back to title search when we don't already have the canonical TMDB id
+      if (!tmdbId) {
+        const searchRes = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tmdb-movies?action=search&query=${encodeURIComponent(title)}`,
+          { headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY } }
+        );
+        if (!searchRes.ok) return;
+        const searchData = await searchRes.json();
+        if (!searchData.movies?.[0]?.tmdb_id) return;
+        tmdbId = searchData.movies[0].tmdb_id;
+      }
 
       // Fetch full details
       const detailsRes = await fetch(
