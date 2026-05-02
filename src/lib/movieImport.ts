@@ -56,6 +56,8 @@ export async function resolveTMDBMovieId(input: {
   tmdbId?: number | null;
   title: string;
   releaseDate?: string | null;
+  posterUrl?: string | null;
+  backdropUrl?: string | null;
 }): Promise<number | null> {
   if (input.tmdbId) return input.tmdbId;
 
@@ -73,11 +75,13 @@ export async function resolveTMDBMovieId(input: {
   const wantedDate = input.releaseDate || null;
   const wantedYear = wantedDate?.slice(0, 4) || null;
 
+  const exactPoster = movies.find((m) => m.poster_url && input.posterUrl && m.poster_url === input.posterUrl);
+  const exactBackdrop = movies.find((m) => m.backdrop_url && input.backdropUrl && m.backdrop_url === input.backdropUrl);
   const exactDate = movies.find((m) => normalizeTitle(m.title) === wantedTitle && m.release_date === wantedDate);
   const exactYear = movies.find((m) => normalizeTitle(m.title) === wantedTitle && m.release_date?.slice(0, 4) === wantedYear);
   const exactTitle = movies.find((m) => normalizeTitle(m.title) === wantedTitle);
 
-  return (exactDate || exactYear || exactTitle || movies[0]).tmdb_id;
+  return (exactPoster || exactBackdrop || exactDate || exactYear || exactTitle || movies[0]).tmdb_id;
 }
 
 export async function ensureMovieImported(
