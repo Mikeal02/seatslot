@@ -15,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Movie } from '@/types/database';
 import { useTMDB } from '@/hooks/useTMDB';
 import { useToast } from '@/hooks/use-toast';
+import { ensureMovieImported } from '@/lib/movieImport';
 
 const GENRE_LIST = [
   'Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary',
@@ -26,7 +27,7 @@ export default function Movies() {
   const navigate = useNavigate();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(() => new URLSearchParams(window.location.search).get('search') || '');
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [tmdbResults, setTmdbResults] = useState<any[]>([]);
@@ -89,54 +90,7 @@ export default function Movies() {
   const importAndBookMovie = async (tmdbMovie: any) => {
     setImportingMovie(tmdbMovie.tmdb_id);
     try {
-      // Use secure RPC function to import movie
-      const { data: movieId, error: importError } = await supabase.rpc('import_movie_from_tmdb', {
-        p_title: tmdbMovie.title,
-        p_description: tmdbMovie.description || null,
-        p_poster_url: tmdbMovie.poster_url || null,
-        p_backdrop_url: tmdbMovie.backdrop_url || null,
-        p_release_date: tmdbMovie.release_date || null,
-        p_duration_minutes: tmdbMovie.duration_minutes || 120,
-        p_rating: tmdbMovie.rating || null,
-        p_genre: tmdbMovie.genre || [],
-        p_director: tmdbMovie.director || null,
-        p_cast_members: tmdbMovie.cast_members || [],
-        p_trailer_key: null,
-        p_status: 'now_showing',
-      });
-
-      if (importError) throw importError;
-
-      // Get a random screen for showtimes
-      const { data: screens } = await supabase
-        .from('screens')
-        .select('id')
-        .limit(3);
-
-      if (screens && screens.length > 0) {
-        // Create showtimes for next 7 days
-        const showtimes = [];
-        const times = ['10:00', '14:00', '18:00', '21:00'];
-        
-        for (let day = 0; day < 7; day++) {
-          const date = new Date();
-          date.setDate(date.getDate() + day);
-          const showDate = date.toISOString().split('T')[0];
-          
-          for (const screen of screens) {
-            for (const time of times) {
-              showtimes.push({
-                movie_id: movieId,
-                screen_id: screen.id,
-                show_date: showDate,
-                show_time: time,
-              });
-            }
-          }
-        }
-
-        await supabase.from('showtimes').insert(showtimes);
-      }
+      const movieId = await ensureMovieImported(tmdbMovie, { status: 'now_showing' });
 
       toast({
         title: 'Movie imported!',
