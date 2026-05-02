@@ -167,7 +167,7 @@ export default function Auth() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signin-password" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Password</Label>
-                    <PasswordInput id="signin-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+                    {renderPasswordInput("signin-password", password, (e) => setPassword(e.target.value), "••••••••")}
                   </div>
                   <Button 
                     type="submit" 
@@ -245,7 +245,7 @@ export default function Auth() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-password" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Password</Label>
-                    <PasswordInput id="signup-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+                    {renderPasswordInput("signup-password", password, (e) => setPassword(e.target.value), "••••••••")}
                   </div>
                   <Button 
                     type="submit" 
