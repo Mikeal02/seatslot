@@ -174,7 +174,7 @@ export function GlobalSearch({ variant = 'desktop', onNavigate }: GlobalSearchPr
     if (localId) {
       navigate(`/movie/${localId}`);
     } else {
-      navigate(`/movies?search=${encodeURIComponent(m.title)}`);
+      navigate(`/movie/${m.tmdb_id}`);
     }
     onNavigate?.();
   };
