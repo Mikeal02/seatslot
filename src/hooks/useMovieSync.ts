@@ -70,10 +70,13 @@ export function useMovieSync() {
     // Match by exact TMDB id first, then legacy title/date rows without TMDB ids
     const tmdbIds = movies.map(m => m.tmdb_id).filter(Boolean);
     const titles = movies.map(m => m.title);
-    const { data: existingMovies } = await supabase
-      .from('movies')
-      .select('id, title, tmdb_id, release_date')
-      .or(`tmdb_id.in.(${tmdbIds.join(',')}),title.in.(${titles.map(t => `"${t.replace(/"/g, '\\"')}"`).join(',')})`);
+    const [existingByTmdb, existingByTitle] = await Promise.all([
+      tmdbIds.length
+        ? supabase.from('movies').select('id, title, tmdb_id, release_date').in('tmdb_id', tmdbIds)
+        : Promise.resolve({ data: [] }),
+      supabase.from('movies').select('id, title, tmdb_id, release_date').in('title', titles),
+    ]);
+    const existingMovies = [...(existingByTmdb.data || []), ...(existingByTitle.data || [])];
 
     const existingTitleMap = new Map(
       (existingMovies || [])
