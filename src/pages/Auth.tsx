@@ -77,7 +77,7 @@ export default function Auth() {
     }
   };
 
-  const PasswordInput = ({ id, value, onChange, placeholder }: { id: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder: string }) => (
+  const renderPasswordInput = (id: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, placeholder: string) => (
     <div className="relative">
       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       <Input
@@ -167,7 +167,7 @@ export default function Auth() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signin-password" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Password</Label>
-                    <PasswordInput id="signin-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+                    {renderPasswordInput("signin-password", password, (e) => setPassword(e.target.value), "••••••••")}
                   </div>
                   <Button 
                     type="submit" 
@@ -245,7 +245,7 @@ export default function Auth() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-password" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Password</Label>
-                    <PasswordInput id="signup-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+                    {renderPasswordInput("signup-password", password, (e) => setPassword(e.target.value), "••••••••")}
                   </div>
                   <Button 
                     type="submit" 
