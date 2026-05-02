@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getDirectorName } from '@/lib/movieImport';
 
 interface TMDBMovie {
   tmdb_id: number;
@@ -66,22 +67,33 @@ export function useMovieSync() {
   const batchUpsertMovies = async (movies: TMDBMovie[]) => {
     if (movies.length === 0) return;
 
-    // Get existing movies by title to check for updates
+    // Match by exact TMDB id first, then legacy title/date rows without TMDB ids
+    const tmdbIds = movies.map(m => m.tmdb_id).filter(Boolean);
     const titles = movies.map(m => m.title);
-    const { data: existingMovies } = await supabase
-      .from('movies')
-      .select('id, title')
-      .in('title', titles);
+    const [existingByTmdb, existingByTitle] = await Promise.all([
+      tmdbIds.length
+        ? supabase.from('movies').select('id, title, tmdb_id, release_date').in('tmdb_id', tmdbIds)
+        : Promise.resolve({ data: [] }),
+      supabase.from('movies').select('id, title, tmdb_id, release_date').in('title', titles),
+    ]);
+    const existingMovies = [...(existingByTmdb.data || []), ...(existingByTitle.data || [])];
 
     const existingTitleMap = new Map(
-      (existingMovies || []).map(m => [m.title.toLowerCase(), m.id])
+      (existingMovies || [])
+        .filter(m => !m.tmdb_id)
+        .map(m => [`${m.title.toLowerCase()}|${m.release_date || ''}`, m.id])
+    );
+    const existingTmdbMap = new Map(
+      (existingMovies || [])
+        .filter(m => m.tmdb_id)
+        .map(m => [m.tmdb_id, m.id])
     );
 
     const moviesToInsert: any[] = [];
     const moviesToUpdate: { id: string; data: any }[] = [];
 
     for (const movie of movies) {
-      const existingId = existingTitleMap.get(movie.title.toLowerCase());
+      const existingId = existingTmdbMap.get(movie.tmdb_id) || existingTitleMap.get(`${movie.title.toLowerCase()}|${movie.release_date || ''}`);
       const movieData: any = {
         tmdb_id: movie.tmdb_id,
         title: movie.title,
@@ -92,7 +104,7 @@ export function useMovieSync() {
         rating: movie.rating,
         duration_minutes: movie.duration_minutes || 120,
         genre: movie.genre || [],
-        director: movie.director,
+        director: getDirectorName(movie.director as any),
         cast_members: movie.cast_members || [],
         budget: movie.budget || 0,
         revenue: movie.revenue || 0,

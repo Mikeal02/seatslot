@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { Clock, Star, Play, Ticket, DollarSign, Flame, Zap } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -37,6 +37,7 @@ const formatCompact = (n: number): string => {
 };
 
 export function MovieCard({ movie, index = 0 }: MovieCardProps) {
+  const navigate = useNavigate();
   const nowShowing = isNowShowing(movie.release_date);
   const newRelease = isNewRelease(movie.release_date);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -89,6 +90,11 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
+      onClick={() => navigate(`/movie/${movie.id}`)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/movie/${movie.id}`); }}
+      className="cursor-pointer"
     >
       <Card className="group overflow-hidden bg-card border-border/20 hover:border-primary/25 transition-all duration-500 glow-card h-full flex flex-col rounded-2xl">
         <div className="relative w-full overflow-hidden" style={{ paddingBottom: '150%' }}>

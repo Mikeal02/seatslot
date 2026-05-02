@@ -618,23 +618,42 @@ export type Database = {
         }
         Returns: boolean
       }
-      import_movie_from_tmdb: {
-        Args: {
-          p_backdrop_url?: string
-          p_cast_members?: string[]
-          p_description?: string
-          p_director?: string
-          p_duration_minutes?: number
-          p_genre?: string[]
-          p_poster_url?: string
-          p_rating?: number
-          p_release_date?: string
-          p_status?: string
-          p_title: string
-          p_trailer_key?: string
-        }
-        Returns: string
-      }
+      import_movie_from_tmdb:
+        | {
+            Args: {
+              p_backdrop_url?: string
+              p_cast_members?: string[]
+              p_description?: string
+              p_director?: string
+              p_duration_minutes?: number
+              p_genre?: string[]
+              p_poster_url?: string
+              p_rating?: number
+              p_release_date?: string
+              p_status?: string
+              p_title: string
+              p_trailer_key?: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              p_backdrop_url?: string
+              p_cast_members?: string[]
+              p_description?: string
+              p_director?: string
+              p_duration_minutes?: number
+              p_genre?: string[]
+              p_poster_url?: string
+              p_rating?: number
+              p_release_date?: string
+              p_status?: string
+              p_title: string
+              p_tmdb_id?: number
+              p_trailer_key?: string
+            }
+            Returns: string
+          }
     }
     Enums: {
       app_role: "admin" | "user"

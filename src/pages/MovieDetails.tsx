@@ -27,6 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Movie, Showtime } from '@/types/database';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { fetchTMDBDetails, isUuid, resolveTMDBMovieId } from '@/lib/movieImport';
 import { format, parseISO } from 'date-fns';
 
 interface TMDBDetails {
@@ -89,13 +90,37 @@ export default function MovieDetails() {
 
   const fetchMovieDetails = async () => {
     try {
-      const { data: movieData, error: movieError } = await supabase
-        .from('movies')
-        .select('*')
-        .eq('id', id)
-        .single();
+      const movieQuery = supabase.from('movies').select('*');
+      const { data: movieData, error: movieError } = isUuid(id || '')
+        ? await movieQuery.eq('id', id).single()
+        : await movieQuery.eq('tmdb_id', Number(id)).maybeSingle();
 
       if (movieError) throw movieError;
+      if (!movieData && id && !isUuid(id)) {
+        const details = await fetchTMDBDetails(Number(id));
+        setMovie({
+          id: `tmdb-${details.tmdb_id}`,
+          title: details.title,
+          description: details.description || null,
+          poster_url: details.poster_url || null,
+          backdrop_url: details.backdrop_url || null,
+          duration_minutes: details.duration_minutes || 120,
+          rating: details.rating || null,
+          genre: details.genre || [],
+          cast_members: details.cast_members || [],
+          director: typeof details.director === 'string' ? details.director : details.director?.name || null,
+          release_date: details.release_date || null,
+          status: 'coming_soon',
+          trailer_key: details.trailer_key || null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        } as Movie);
+        setTrailerKey(details.trailer_key || null);
+        setTmdbDetailsFromResponse(details, details.tmdb_id);
+        setShowtimes([]);
+        return;
+      }
+      if (!movieData) throw new Error('Movie not found');
       setMovie(movieData as Movie);
       
       if (movieData.trailer_key) {
@@ -103,7 +128,7 @@ export default function MovieDetails() {
       }
 
       // Fetch TMDB rich details in background
-      fetchTMDBRichDetails(movieData.title, movieData.trailer_key, (movieData as any).tmdb_id ?? null);
+      fetchTMDBRichDetails(movieData as Movie & { tmdb_id?: number | null });
 
       // Fetch showtimes
       const { data: showtimeData, error: showtimeError } = await supabase
@@ -142,71 +167,62 @@ export default function MovieDetails() {
     }
   };
 
-  const fetchTMDBRichDetails = useCallback(async (title: string, existingTrailerKey: string | null, knownTmdbId: number | null = null) => {
+  const setTmdbDetailsFromResponse = (details: any, tmdbId: number) => {
+    setTmdbDetails({
+      tagline: details.tagline,
+      original_title: details.original_title,
+      status: details.status,
+      homepage: details.homepage,
+      budget: details.budget,
+      revenue: details.revenue,
+      budget_formatted: details.budget_formatted,
+      revenue_formatted: details.revenue_formatted,
+      profit_formatted: details.profit_formatted,
+      roi: details.roi,
+      revenue_multiplier: details.revenue_multiplier,
+      is_profitable: details.is_profitable,
+      production_companies: details.production_companies,
+      production_countries: details.production_countries,
+      spoken_languages: details.spoken_languages,
+      writers: details.writers,
+      composers: details.composers,
+      cinematographers: details.cinematographers,
+      editors: details.editors,
+      director: details.director,
+      cast_details: details.cast_details,
+      similar_movies: details.similar_movies,
+      recommended_movies: details.recommended_movies,
+      collection: details.collection,
+      tmdb_id: tmdbId,
+      original_language: details.original_language,
+      certification: details.certification,
+      keywords: details.keywords,
+      backdrops: details.backdrops,
+      posters: details.posters,
+      logos: details.logos,
+      streaming_providers: details.streaming_providers,
+      rent_buy_providers: details.rent_buy_providers,
+      external_ids: details.external_ids,
+      all_videos: details.all_videos,
+      vote_count: details.vote_count,
+      popularity: details.popularity,
+    });
+  };
+
+  const fetchTMDBRichDetails = useCallback(async (movieData: Movie & { tmdb_id?: number | null }) => {
     try {
-      let tmdbId = knownTmdbId;
-
-      // Only fall back to title search when we don't already have the canonical TMDB id
-      if (!tmdbId) {
-        const searchRes = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tmdb-movies?action=search&query=${encodeURIComponent(title)}`,
-          { headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY } }
-        );
-        if (!searchRes.ok) return;
-        const searchData = await searchRes.json();
-        if (!searchData.movies?.[0]?.tmdb_id) return;
-        tmdbId = searchData.movies[0].tmdb_id;
-      }
-
-      // Fetch full details
-      const detailsRes = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tmdb-movies?action=details&movie_id=${tmdbId}`,
-        { headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY } }
-      );
-      if (!detailsRes.ok) return;
-      const details = await detailsRes.json();
-
-      setTmdbDetails({
-        tagline: details.tagline,
-        original_title: details.original_title,
-        status: details.status,
-        homepage: details.homepage,
-        budget: details.budget,
-        revenue: details.revenue,
-        budget_formatted: details.budget_formatted,
-        revenue_formatted: details.revenue_formatted,
-        profit_formatted: details.profit_formatted,
-        roi: details.roi,
-        revenue_multiplier: details.revenue_multiplier,
-        is_profitable: details.is_profitable,
-        production_companies: details.production_companies,
-        production_countries: details.production_countries,
-        spoken_languages: details.spoken_languages,
-        writers: details.writers,
-        composers: details.composers,
-        cinematographers: details.cinematographers,
-        editors: details.editors,
-        director: details.director,
-        cast_details: details.cast_details,
-        similar_movies: details.similar_movies,
-        recommended_movies: details.recommended_movies,
-        collection: details.collection,
-        tmdb_id: tmdbId,
-        original_language: details.original_language,
-        certification: details.certification,
-        keywords: details.keywords,
-        backdrops: details.backdrops,
-        posters: details.posters,
-        logos: details.logos,
-        streaming_providers: details.streaming_providers,
-        rent_buy_providers: details.rent_buy_providers,
-        external_ids: details.external_ids,
-        all_videos: details.all_videos,
-        vote_count: details.vote_count,
-        popularity: details.popularity,
+      const tmdbId = await resolveTMDBMovieId({
+        tmdbId: movieData.tmdb_id,
+        title: movieData.title,
+        releaseDate: movieData.release_date,
+        posterUrl: movieData.poster_url,
+        backdropUrl: movieData.backdrop_url,
       });
+      if (!tmdbId) return;
+      const details = await fetchTMDBDetails(tmdbId);
+      setTmdbDetailsFromResponse(details, tmdbId);
 
-      if (!existingTrailerKey && details.trailer_key) {
+      if (!movieData.trailer_key && details.trailer_key) {
         setTrailerKey(details.trailer_key);
       }
     } catch (error) {
