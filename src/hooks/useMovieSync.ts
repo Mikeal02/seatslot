@@ -21,7 +21,13 @@ interface TMDBMovie {
 }
 
 const SYNC_CACHE_KEY = 'movie_sync_timestamp';
-const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
+const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours
+
+// Rotate which TMDB pages we pull daily so the catalogue refreshes naturally
+const dailyPage = (max: number, offset = 0) => {
+  const dayIndex = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+  return ((dayIndex + offset) % max) + 1;
+};
 
 export function useMovieSync() {
   const [syncing, setSyncing] = useState(false);
@@ -76,7 +82,8 @@ export function useMovieSync() {
 
     for (const movie of movies) {
       const existingId = existingTitleMap.get(movie.title.toLowerCase());
-      const movieData = {
+      const movieData: any = {
+        tmdb_id: movie.tmdb_id,
         title: movie.title,
         description: movie.description,
         poster_url: movie.poster_url,
@@ -129,9 +136,9 @@ export function useMovieSync() {
     setSyncing(true);
 
     try {
-      // Get random pages for variety (between 1-5)
-      const nowPlayingPage = Math.floor(Math.random() * 5) + 1;
-      const upcomingPage = Math.floor(Math.random() * 5) + 1;
+      // Day-rotating pages — fresh selection every day, then random jitter
+      const nowPlayingPage = dailyPage(5, Math.floor(Math.random() * 2));
+      const upcomingPage = dailyPage(5, Math.floor(Math.random() * 2));
 
       // Fetch both endpoints in parallel
       const [nowPlayingRes, upcomingRes] = await Promise.all([
