@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getDirectorName } from '@/lib/movieImport';
 
 interface TMDBMovie {
   tmdb_id: number;
@@ -38,15 +39,6 @@ export function useTMDB() {
       if (params?.query) searchParams.set('query', params.query);
       if (params?.page) searchParams.set('page', String(params.page));
 
-      const { data, error: fnError } = await supabase.functions.invoke('tmdb-movies', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: null,
-      });
-
-      // Use direct fetch since supabase.functions.invoke doesn't support query params well
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tmdb-movies?${searchParams.toString()}`,
         {
@@ -87,6 +79,7 @@ export function useTMDB() {
         const { error } = await supabase
           .from('movies')
           .update({
+            tmdb_id: tmdbMovie.tmdb_id,
             description: tmdbMovie.description,
             poster_url: tmdbMovie.poster_url,
             backdrop_url: tmdbMovie.backdrop_url,
@@ -94,7 +87,7 @@ export function useTMDB() {
             rating: tmdbMovie.rating,
             duration_minutes: tmdbMovie.duration_minutes || 120,
             genre: tmdbMovie.genre || [],
-            director: tmdbMovie.director,
+            director: getDirectorName(tmdbMovie.director as any),
             cast_members: tmdbMovie.cast_members || [],
             status,
           })
@@ -107,6 +100,7 @@ export function useTMDB() {
         const { data, error } = await supabase
           .from('movies')
           .insert({
+            tmdb_id: tmdbMovie.tmdb_id,
             title: tmdbMovie.title,
             description: tmdbMovie.description,
             poster_url: tmdbMovie.poster_url,
@@ -115,7 +109,7 @@ export function useTMDB() {
             rating: tmdbMovie.rating,
             duration_minutes: tmdbMovie.duration_minutes || 120,
             genre: tmdbMovie.genre || [],
-            director: tmdbMovie.director,
+            director: getDirectorName(tmdbMovie.director as any),
             cast_members: tmdbMovie.cast_members || [],
             status,
           })
