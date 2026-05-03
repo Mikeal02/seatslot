@@ -1,5 +1,6 @@
 export interface Movie {
   id: string;
+  tmdb_id?: number | null;
   title: string;
   description: string | null;
   poster_url: string | null;
@@ -12,6 +13,10 @@ export interface Movie {
   release_date: string | null;
   status: 'now_showing' | 'coming_soon';
   trailer_key?: string | null;
+  budget?: number | null;
+  revenue?: number | null;
+  original_language?: string | null;
+  popularity?: number | null;
   created_at: string;
   updated_at: string;
 }
