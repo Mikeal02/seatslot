@@ -100,6 +100,10 @@ function formatCurrency(amount: number): string {
   return `$${amount}`;
 }
 
+function formatDateParam(date: Date): string {
+  return date.toISOString().split('T')[0];
+}
+
 function getCertification(releaseDates?: TMDBMovie['release_dates']): { certification: string; country: string } | null {
   if (!releaseDates?.results) return null;
   // Prefer US, then GB, then first found
@@ -336,6 +340,19 @@ serve(async (req) => {
       case 'now_playing': {
         const data = await fetchFromTMDB(`/movie/now_playing?page=${page}&region=US`);
         result = { movies: data.results.map((m: TMDBMovie) => transformMovie(m)), total_pages: data.total_pages, page: data.page };
+        break;
+      }
+      case 'latest_releases': {
+        const today = new Date();
+        const windowStart = new Date(today);
+        windowStart.setDate(today.getDate() - 90);
+        const data = await fetchFromTMDB(
+          `/discover/movie?page=${page}&region=US&sort_by=primary_release_date.desc&primary_release_date.lte=${formatDateParam(today)}&primary_release_date.gte=${formatDateParam(windowStart)}&vote_count.gte=5&include_adult=false&include_video=false&with_release_type=2%7C3`
+        );
+        const movies = data.results
+          .filter((m: TMDBMovie) => m.release_date && new Date(m.release_date) <= today)
+          .map((m: TMDBMovie) => transformMovie(m));
+        result = { movies, total_pages: Math.min(data.total_pages || 1, 5), page: data.page };
         break;
       }
       case 'upcoming': {
