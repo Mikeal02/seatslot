@@ -17,6 +17,15 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useMovieSync } from '@/hooks/useMovieSync';
 
+const FOUR_DAY_ROTATION_MS = 4 * 24 * 60 * 60 * 1000;
+
+const rotatedWindow = (movies: Movie[], size = 6) => {
+  if (movies.length <= size) return movies;
+  const rotation = Math.floor(Date.now() / FOUR_DAY_ROTATION_MS);
+  const start = (rotation * size) % movies.length;
+  return [...movies.slice(start), ...movies.slice(0, start)].slice(0, size);
+};
+
 const Index = () => {
   const [nowShowing, setNowShowing] = useState<Movie[]>([]);
   const [comingSoon, setComingSoon] = useState<Movie[]>([]);
@@ -66,11 +75,20 @@ const Index = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    const recentCutoff = new Date(today);
+    recentCutoff.setDate(today.getDate() - 120);
+
     const now = (movies || []).filter((m) => {
       if (!m.release_date) return true;
       const release = new Date(m.release_date);
       release.setHours(0, 0, 0, 0);
       return release <= today;
+    }).sort((a, b) => {
+      const aDate = a.release_date ? new Date(a.release_date).getTime() : 0;
+      const bDate = b.release_date ? new Date(b.release_date).getTime() : 0;
+      const aRecentBoost = aDate >= recentCutoff.getTime() ? 10000 : 0;
+      const bRecentBoost = bDate >= recentCutoff.getTime() ? 10000 : 0;
+      return (bRecentBoost + bDate / 86_400_000 + Number(b.popularity || 0)) - (aRecentBoost + aDate / 86_400_000 + Number(a.popularity || 0));
     });
 
     const coming = (movies || []).filter((m) => {
@@ -82,7 +100,7 @@ const Index = () => {
 
     setNowShowing(now as Movie[]);
     setComingSoon(coming as Movie[]);
-    setFeaturedMovie((now[0] as Movie) || null);
+    setFeaturedMovie((rotatedWindow(now as Movie[], 6)[0] as Movie) || null);
 
     if (movies?.length === 0) {
       toast({
@@ -157,7 +175,7 @@ const Index = () => {
         {featuredMovie && (
           <HeroSection 
             movie={featuredMovie} 
-            movies={nowShowing.filter(m => m.backdrop_url).slice(0, 6)}
+            movies={rotatedWindow(nowShowing.filter(m => m.backdrop_url), 6)}
             autoRotateInterval={3000}
           />
         )}

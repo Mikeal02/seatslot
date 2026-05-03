@@ -134,7 +134,7 @@ export default function MovieDetails() {
       const { data: showtimeData, error: showtimeError } = await supabase
         .from('showtimes')
         .select(`*, screen:screens(*, theatre:theatres(*))`)
-        .eq('movie_id', id)
+        .eq('movie_id', movieData.id)
         .gte('show_date', new Date().toISOString().split('T')[0])
         .order('show_date')
         .order('show_time');
@@ -143,7 +143,7 @@ export default function MovieDetails() {
       setShowtimes((showtimeData || []) as Showtime[]);
 
       // Fetch review stats
-      const { data: reviews } = await supabase.from('reviews').select('rating').eq('movie_id', id);
+      const { data: reviews } = await supabase.from('reviews').select('rating').eq('movie_id', movieData.id);
       if (reviews && reviews.length > 0) {
         const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
         setReviewStats({ count: reviews.length, avg: Math.round(avg * 10) / 10 });
@@ -280,6 +280,28 @@ export default function MovieDetails() {
   }
 
   const langMap: Record<string, string> = { en: 'English', es: 'Spanish', fr: 'French', de: 'German', ja: 'Japanese', ko: 'Korean', zh: 'Chinese', hi: 'Hindi', pt: 'Portuguese', it: 'Italian', ru: 'Russian' };
+  const releaseDate = movie.release_date ? parseISO(movie.release_date) : null;
+  const releaseState = releaseDate && releaseDate > new Date() ? 'Upcoming' : 'Released';
+  const dataCompleteness = Math.min(100, Math.round([
+    movie.description,
+    movie.poster_url,
+    movie.backdrop_url,
+    movie.genre?.length,
+    movie.director,
+    tmdbDetails.cast_details?.length || movie.cast_members?.length,
+    trailerKey,
+    tmdbDetails.production_companies?.length,
+    tmdbDetails.backdrops?.length,
+    tmdbDetails.certification?.certification,
+  ].filter(Boolean).length * 10));
+  const detailCards = [
+    { label: 'TMDB ID', value: tmdbDetails.tmdb_id || movie.tmdb_id || 'Resolving', icon: Shield },
+    { label: 'Release', value: releaseDate ? format(releaseDate, 'MMM d, yyyy') : 'TBA', icon: Calendar },
+    { label: 'State', value: tmdbDetails.status || releaseState, icon: Tag },
+    { label: 'Votes', value: tmdbDetails.vote_count ? tmdbDetails.vote_count.toLocaleString() : 'Fresh import', icon: Users },
+    { label: 'Popularity', value: tmdbDetails.popularity ? Math.round(tmdbDetails.popularity).toLocaleString() : 'Live sync', icon: TrendingUp },
+    { label: 'Completeness', value: `${dataCompleteness}%`, icon: BarChart3 },
+  ];
 
   return (
     <motion.div 
@@ -425,6 +447,29 @@ export default function MovieDetails() {
           </div>
         </section>
 
+        <section className="border-y border-border/20 bg-card/35 backdrop-blur-xl">
+          <div className="container mx-auto px-4 py-5">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+              {detailCards.map(({ label, value, icon: Icon }, index) => (
+                <motion.div
+                  key={label}
+                  className="group relative overflow-hidden rounded-xl border border-border/25 bg-background/45 p-4"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.05 * index }}
+                >
+                  <div className="absolute inset-x-0 top-0 h-px cinema-gradient opacity-40" />
+                  <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                    <Icon className="h-3.5 w-3.5 text-primary" />
+                    {label}
+                  </div>
+                  <p className="mt-2 truncate text-sm font-black text-foreground">{value}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Main Content */}
         <section className="container mx-auto px-4 py-6 sm:py-10">
           <div className="grid lg:grid-cols-3 gap-6 lg:gap-10">
@@ -468,11 +513,25 @@ export default function MovieDetails() {
 
                   {/* Movie Info Grid */}
                   <motion.div
-                    className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
+                    className="relative overflow-hidden rounded-2xl border border-border/25 bg-card/70 p-4 sm:p-5 shadow-lg"
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
                   >
+                    <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                      <div>
+                        <p className="section-label mb-2">TMDB intelligence</p>
+                        <h3 className="text-xl font-black tracking-tight">Verified movie data</h3>
+                      </div>
+                      <div className="min-w-[180px]">
+                        <div className="mb-2 flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                          <span>Profile depth</span>
+                          <span>{dataCompleteness}%</span>
+                        </div>
+                        <Progress value={dataCompleteness} className="h-2" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                     {movie.director && (
                       <div className="flex items-center gap-3 p-4 rounded-xl bg-card border border-border/30 hover:border-primary/20 transition-colors">
                         <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
@@ -561,6 +620,7 @@ export default function MovieDetails() {
                         </div>
                       </a>
                     )}
+                    </div>
                   </motion.div>
 
                   {/* Collection */}

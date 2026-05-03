@@ -113,6 +113,10 @@ export async function ensureMovieImported(
     p_cast_members: castMembers,
     p_trailer_key: movie.trailer_key || null,
     p_status: status,
+    p_budget: movie.budget || 0,
+    p_revenue: movie.revenue || 0,
+    p_original_language: movie.original_language || 'en',
+    p_popularity: movie.popularity || 0,
   });
 
   if (error) throw error;
