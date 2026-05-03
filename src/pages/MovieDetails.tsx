@@ -513,11 +513,25 @@ export default function MovieDetails() {
 
                   {/* Movie Info Grid */}
                   <motion.div
-                    className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
+                    className="relative overflow-hidden rounded-2xl border border-border/25 bg-card/70 p-4 sm:p-5 shadow-lg"
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
                   >
+                    <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                      <div>
+                        <p className="section-label mb-2">TMDB intelligence</p>
+                        <h3 className="text-xl font-black tracking-tight">Verified movie data</h3>
+                      </div>
+                      <div className="min-w-[180px]">
+                        <div className="mb-2 flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                          <span>Profile depth</span>
+                          <span>{dataCompleteness}%</span>
+                        </div>
+                        <Progress value={dataCompleteness} className="h-2" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                     {movie.director && (
                       <div className="flex items-center gap-3 p-4 rounded-xl bg-card border border-border/30 hover:border-primary/20 transition-colors">
                         <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
@@ -606,6 +620,7 @@ export default function MovieDetails() {
                         </div>
                       </a>
                     )}
+                    </div>
                   </motion.div>
 
                   {/* Collection */}
