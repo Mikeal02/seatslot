@@ -447,6 +447,29 @@ export default function MovieDetails() {
           </div>
         </section>
 
+        <section className="border-y border-border/20 bg-card/35 backdrop-blur-xl">
+          <div className="container mx-auto px-4 py-5">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+              {detailCards.map(({ label, value, icon: Icon }, index) => (
+                <motion.div
+                  key={label}
+                  className="group relative overflow-hidden rounded-xl border border-border/25 bg-background/45 p-4"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.05 * index }}
+                >
+                  <div className="absolute inset-x-0 top-0 h-px cinema-gradient opacity-40" />
+                  <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                    <Icon className="h-3.5 w-3.5 text-primary" />
+                    {label}
+                  </div>
+                  <p className="mt-2 truncate text-sm font-black text-foreground">{value}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Main Content */}
         <section className="container mx-auto px-4 py-6 sm:py-10">
           <div className="grid lg:grid-cols-3 gap-6 lg:gap-10">
