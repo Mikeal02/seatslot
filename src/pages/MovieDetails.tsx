@@ -280,6 +280,28 @@ export default function MovieDetails() {
   }
 
   const langMap: Record<string, string> = { en: 'English', es: 'Spanish', fr: 'French', de: 'German', ja: 'Japanese', ko: 'Korean', zh: 'Chinese', hi: 'Hindi', pt: 'Portuguese', it: 'Italian', ru: 'Russian' };
+  const releaseDate = movie.release_date ? parseISO(movie.release_date) : null;
+  const releaseState = releaseDate && releaseDate > new Date() ? 'Upcoming' : 'Released';
+  const dataCompleteness = Math.min(100, Math.round([
+    movie.description,
+    movie.poster_url,
+    movie.backdrop_url,
+    movie.genre?.length,
+    movie.director,
+    tmdbDetails.cast_details?.length || movie.cast_members?.length,
+    trailerKey,
+    tmdbDetails.production_companies?.length,
+    tmdbDetails.backdrops?.length,
+    tmdbDetails.certification?.certification,
+  ].filter(Boolean).length * 10));
+  const detailCards = [
+    { label: 'TMDB ID', value: tmdbDetails.tmdb_id || movie.tmdb_id || 'Resolving', icon: Shield },
+    { label: 'Release', value: releaseDate ? format(releaseDate, 'MMM d, yyyy') : 'TBA', icon: Calendar },
+    { label: 'State', value: tmdbDetails.status || releaseState, icon: Tag },
+    { label: 'Votes', value: tmdbDetails.vote_count ? tmdbDetails.vote_count.toLocaleString() : 'Fresh import', icon: Users },
+    { label: 'Popularity', value: tmdbDetails.popularity ? Math.round(tmdbDetails.popularity).toLocaleString() : 'Live sync', icon: TrendingUp },
+    { label: 'Completeness', value: `${dataCompleteness}%`, icon: BarChart3 },
+  ];
 
   return (
     <motion.div 
