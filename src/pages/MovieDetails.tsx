@@ -134,7 +134,7 @@ export default function MovieDetails() {
       const { data: showtimeData, error: showtimeError } = await supabase
         .from('showtimes')
         .select(`*, screen:screens(*, theatre:theatres(*))`)
-        .eq('movie_id', id)
+        .eq('movie_id', movieData.id)
         .gte('show_date', new Date().toISOString().split('T')[0])
         .order('show_date')
         .order('show_time');
@@ -143,7 +143,7 @@ export default function MovieDetails() {
       setShowtimes((showtimeData || []) as Showtime[]);
 
       // Fetch review stats
-      const { data: reviews } = await supabase.from('reviews').select('rating').eq('movie_id', id);
+      const { data: reviews } = await supabase.from('reviews').select('rating').eq('movie_id', movieData.id);
       if (reviews && reviews.length > 0) {
         const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
         setReviewStats({ count: reviews.length, avg: Math.round(avg * 10) / 10 });
