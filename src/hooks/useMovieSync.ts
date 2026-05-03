@@ -89,9 +89,6 @@ export function useMovieSync() {
         .map(m => [m.tmdb_id, m.id])
     );
 
-    const moviesToInsert: any[] = [];
-    const moviesToUpdate: { id: string; data: any }[] = [];
-
     for (const movie of movies) {
       const existingId = existingTmdbMap.get(movie.tmdb_id) || existingTitleMap.get(`${movie.title.toLowerCase()}|${movie.release_date || ''}`);
       const movieData: any = {
@@ -112,26 +109,22 @@ export function useMovieSync() {
         popularity: movie.popularity || 0,
         status: determineMovieStatus(movie.release_date),
       };
-
-      if (existingId) {
-        moviesToUpdate.push({ id: existingId, data: movieData });
-      } else {
-        moviesToInsert.push(movieData);
-      }
-    }
-
-    // Batch insert new movies
-    if (moviesToInsert.length > 0) {
-      await supabase.from('movies').insert(moviesToInsert);
-    }
-
-    // Batch update existing movies (use Promise.all for parallel updates)
-    if (moviesToUpdate.length > 0) {
-      await Promise.all(
-        moviesToUpdate.map(({ id, data }) =>
-          supabase.from('movies').update(data).eq('id', id)
-        )
-      );
+      const { error } = await supabase.rpc('import_movie_from_tmdb', {
+        p_tmdb_id: movieData.tmdb_id,
+        p_title: movieData.title,
+        p_description: movieData.description,
+        p_poster_url: movieData.poster_url,
+        p_backdrop_url: movieData.backdrop_url,
+        p_release_date: movieData.release_date,
+        p_duration_minutes: movieData.duration_minutes,
+        p_rating: movieData.rating,
+        p_genre: movieData.genre,
+        p_director: movieData.director,
+        p_cast_members: movieData.cast_members,
+        p_trailer_key: movie.trailer_key || null,
+        p_status: movieData.status,
+      });
+      if (error) throw error;
     }
   };
 
