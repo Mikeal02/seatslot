@@ -100,6 +100,10 @@ export function useMovieSync() {
         p_cast_members: movieData.cast_members,
         p_trailer_key: movie.trailer_key || null,
         p_status: movieData.status,
+        p_budget: movieData.budget,
+        p_revenue: movieData.revenue,
+        p_original_language: movieData.original_language,
+        p_popularity: movieData.popularity,
       });
       if (error) throw error;
     }
