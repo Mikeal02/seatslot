@@ -654,6 +654,28 @@ export type Database = {
             }
             Returns: string
           }
+        | {
+            Args: {
+              p_backdrop_url?: string
+              p_budget?: number
+              p_cast_members?: string[]
+              p_description?: string
+              p_director?: string
+              p_duration_minutes?: number
+              p_genre?: string[]
+              p_original_language?: string
+              p_popularity?: number
+              p_poster_url?: string
+              p_rating?: number
+              p_release_date?: string
+              p_revenue?: number
+              p_status?: string
+              p_title: string
+              p_tmdb_id?: number
+              p_trailer_key?: string
+            }
+            Returns: string
+          }
     }
     Enums: {
       app_role: "admin" | "user"
