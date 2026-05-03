@@ -21,8 +21,8 @@ interface TMDBMovie {
   popularity?: number;
 }
 
-const SYNC_CACHE_KEY = 'movie_sync_timestamp_v2';
-const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours
+const SYNC_CACHE_KEY = 'movie_sync_timestamp_v3';
+const CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours
 
 // Rotate which TMDB pages we pull daily so the catalogue refreshes naturally
 const dailyPage = (max: number, offset = 0) => {
@@ -148,12 +148,22 @@ export function useMovieSync() {
     setSyncing(true);
 
     try {
-      // Day-rotating pages — fresh selection every day, then random jitter
-      const nowPlayingPage = dailyPage(5, Math.floor(Math.random() * 2));
-      const upcomingPage = dailyPage(5, Math.floor(Math.random() * 2));
+      // Latest-release pages rotate every 4 days so the homepage feels fresh without changing constantly
+      const latestReleasePage = Math.floor(Date.now() / (1000 * 60 * 60 * 24 * 4)) % 5 + 1;
+      const nowPlayingPage = dailyPage(3, 1);
+      const upcomingPage = dailyPage(5, 2);
 
-      // Fetch both endpoints in parallel
-      const [nowPlayingRes, upcomingRes] = await Promise.all([
+      // Fetch high-confidence recent releases first, then supporting catalogue rows
+      const [latestReleaseRes, nowPlayingRes, upcomingRes] = await Promise.all([
+        fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tmdb-movies?action=latest_releases&page=${latestReleasePage}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            },
+          }
+        ),
         fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tmdb-movies?action=now_playing&page=${nowPlayingPage}`,
           {
@@ -174,28 +184,32 @@ export function useMovieSync() {
         ),
       ]);
 
-      if (!nowPlayingRes.ok || !upcomingRes.ok) {
+      if (!latestReleaseRes.ok || !nowPlayingRes.ok || !upcomingRes.ok) {
         console.warn('TMDB API returned error');
         return false;
       }
 
-      const [nowPlayingData, upcomingData] = await Promise.all([
+      const [latestReleaseData, nowPlayingData, upcomingData] = await Promise.all([
+        latestReleaseRes.json(),
         nowPlayingRes.json(),
         upcomingRes.json(),
       ]);
 
       // Check for API errors
-      if (nowPlayingData.error || upcomingData.error) {
-        console.warn('TMDB API error:', nowPlayingData.error || upcomingData.error);
+      if (latestReleaseData.error || nowPlayingData.error || upcomingData.error) {
+        console.warn('TMDB API error:', latestReleaseData.error || nowPlayingData.error || upcomingData.error);
         return false;
       }
 
       const allMovies: TMDBMovie[] = [];
 
-      // Add now playing movies (random 8)
+      if (latestReleaseData.movies?.length > 0) {
+        allMovies.push(...latestReleaseData.movies.slice(0, 12));
+      }
+
+      // Add now playing movies as backup theatre inventory
       if (nowPlayingData.movies?.length > 0) {
-        const shuffled = [...nowPlayingData.movies].sort(() => Math.random() - 0.5);
-        allMovies.push(...shuffled.slice(0, 8));
+        allMovies.push(...nowPlayingData.movies.slice(0, 8));
       }
 
       // Add upcoming movies (filter future dates, random 6)
