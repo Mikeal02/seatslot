@@ -67,30 +67,7 @@ export function useMovieSync() {
   const batchUpsertMovies = async (movies: TMDBMovie[]) => {
     if (movies.length === 0) return;
 
-    // Match by exact TMDB id first, then legacy title/date rows without TMDB ids
-    const tmdbIds = movies.map(m => m.tmdb_id).filter(Boolean);
-    const titles = movies.map(m => m.title);
-    const [existingByTmdb, existingByTitle] = await Promise.all([
-      tmdbIds.length
-        ? supabase.from('movies').select('id, title, tmdb_id, release_date').in('tmdb_id', tmdbIds)
-        : Promise.resolve({ data: [] }),
-      supabase.from('movies').select('id, title, tmdb_id, release_date').in('title', titles),
-    ]);
-    const existingMovies = [...(existingByTmdb.data || []), ...(existingByTitle.data || [])];
-
-    const existingTitleMap = new Map(
-      (existingMovies || [])
-        .filter(m => !m.tmdb_id)
-        .map(m => [`${m.title.toLowerCase()}|${m.release_date || ''}`, m.id])
-    );
-    const existingTmdbMap = new Map(
-      (existingMovies || [])
-        .filter(m => m.tmdb_id)
-        .map(m => [m.tmdb_id, m.id])
-    );
-
     for (const movie of movies) {
-      const existingId = existingTmdbMap.get(movie.tmdb_id) || existingTitleMap.get(`${movie.title.toLowerCase()}|${movie.release_date || ''}`);
       const movieData: any = {
         tmdb_id: movie.tmdb_id,
         title: movie.title,
