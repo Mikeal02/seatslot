@@ -96,6 +96,8 @@ export default function MovieDetails() {
         : await movieQuery.eq('tmdb_id', Number(id)).maybeSingle();
 
       if (movieError) throw movieError;
+
+      // No local row + numeric TMDB id → render directly from TMDB (no DB roundtrip wait)
       if (!movieData && id && !isUuid(id)) {
         const details = await fetchTMDBDetails(Number(id));
         setMovie({
@@ -118,51 +120,52 @@ export default function MovieDetails() {
         setTrailerKey(details.trailer_key || null);
         setTmdbDetailsFromResponse(details, details.tmdb_id);
         setShowtimes([]);
+        setLoading(false);
         return;
       }
       if (!movieData) throw new Error('Movie not found');
-      setMovie(movieData as Movie);
-      
-      if (movieData.trailer_key) {
-        setTrailerKey(movieData.trailer_key);
-      }
 
-      // Fetch TMDB rich details in background
+      // PAINT IMMEDIATELY with movie row — everything else loads in background
+      setMovie(movieData as Movie);
+      if (movieData.trailer_key) setTrailerKey(movieData.trailer_key);
+      setLoading(false);
+
+      // Background: rich TMDB, showtimes, reviews, bookings — all in parallel
       fetchTMDBRichDetails(movieData as Movie & { tmdb_id?: number | null });
 
-      // Fetch showtimes
-      const { data: showtimeData, error: showtimeError } = await supabase
-        .from('showtimes')
-        .select(`*, screen:screens(*, theatre:theatres(*))`)
-        .eq('movie_id', movieData.id)
-        .gte('show_date', new Date().toISOString().split('T')[0])
-        .order('show_date')
-        .order('show_time');
+      const today = new Date().toISOString().split('T')[0];
+      const [showtimeRes, reviewRes] = await Promise.all([
+        supabase
+          .from('showtimes')
+          .select(`*, screen:screens(*, theatre:theatres(*))`)
+          .eq('movie_id', movieData.id)
+          .gte('show_date', today)
+          .order('show_date')
+          .order('show_time'),
+        supabase.from('reviews').select('rating').eq('movie_id', movieData.id),
+      ]);
 
-      if (showtimeError) throw showtimeError;
-      setShowtimes((showtimeData || []) as Showtime[]);
+      const showtimeData = showtimeRes.data || [];
+      setShowtimes(showtimeData as Showtime[]);
 
-      // Fetch review stats
-      const { data: reviews } = await supabase.from('reviews').select('rating').eq('movie_id', movieData.id);
-      if (reviews && reviews.length > 0) {
+      const reviews = reviewRes.data || [];
+      if (reviews.length > 0) {
         const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
         setReviewStats({ count: reviews.length, avg: Math.round(avg * 10) / 10 });
       }
 
-      // Fetch booking count
-      const showtimeIds = (showtimeData || []).map((s: any) => s.id);
+      const showtimeIds = showtimeData.map((s: any) => s.id);
       if (showtimeIds.length > 0) {
-        const { count } = await supabase
+        supabase
           .from('bookings')
           .select('*', { count: 'exact', head: true })
           .in('showtime_id', showtimeIds)
-          .eq('booking_status', 'confirmed');
-        setBookingCount(count || 0);
+          .eq('booking_status', 'confirmed')
+          .then(({ count }) => setBookingCount(count || 0));
       }
     } catch (error) {
       console.error('Error fetching movie details:', error);
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to load movie details.' });
-    } finally {
       setLoading(false);
     }
   };
