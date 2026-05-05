@@ -30,6 +30,14 @@ export function HeroSection({ movie, movies, autoRotateInterval = 5000 }: HeroSe
     return () => clearInterval(timer);
   }, [heroMovies.length, autoRotateInterval, isPaused]);
 
+  // Preload all hero backdrops + posters once so transitions are instant
+  useEffect(() => {
+    heroMovies.forEach(m => {
+      if (m.backdrop_url) { const i = new Image(); i.decoding = 'async'; i.src = m.backdrop_url; }
+      if (m.poster_url) { const i = new Image(); i.decoding = 'async'; i.src = m.poster_url; }
+    });
+  }, [heroMovies]);
+
   const goTo = useCallback((index: number) => {
     setActiveIndex(index);
   }, []);
