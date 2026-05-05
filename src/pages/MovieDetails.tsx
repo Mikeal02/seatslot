@@ -219,11 +219,47 @@ export default function MovieDetails() {
         backdropUrl: movieData.backdrop_url,
       });
       if (!tmdbId) return;
-      const details = await fetchTMDBDetails(tmdbId);
+      const details: any = await fetchTMDBDetails(tmdbId);
       setTmdbDetailsFromResponse(details, tmdbId);
 
       if (!movieData.trailer_key && details.trailer_key) {
         setTrailerKey(details.trailer_key);
+      }
+
+      // Self-heal: if local DB runtime/genre/cast looks like a placeholder, refresh it
+      const needsRefresh =
+        !movieData.tmdb_id ||
+        movieData.duration_minutes === 120 ||
+        !movieData.genre?.length ||
+        !movieData.cast_members?.length;
+      if (needsRefresh && isUuid(movieData.id)) {
+        await supabase.rpc('import_movie_from_tmdb', {
+          p_tmdb_id: tmdbId,
+          p_title: details.title || movieData.title,
+          p_description: details.description ?? null,
+          p_poster_url: details.poster_url ?? null,
+          p_backdrop_url: details.backdrop_url ?? null,
+          p_release_date: details.release_date ?? null,
+          p_duration_minutes: details.duration_minutes || 120,
+          p_rating: details.rating ?? null,
+          p_genre: details.genre || [],
+          p_director: typeof details.director === 'string' ? details.director : details.director?.name ?? null,
+          p_cast_members: details.cast_members || [],
+          p_trailer_key: details.trailer_key ?? null,
+          p_status: movieData.status || 'now_showing',
+          p_budget: details.budget || 0,
+          p_revenue: details.revenue || 0,
+          p_original_language: details.original_language || 'en',
+          p_popularity: details.popularity || 0,
+        });
+        setMovie((prev) => prev ? {
+          ...prev,
+          tmdb_id: tmdbId,
+          duration_minutes: details.duration_minutes || prev.duration_minutes,
+          genre: details.genre?.length ? details.genre : prev.genre,
+          cast_members: details.cast_members?.length ? details.cast_members : prev.cast_members,
+          director: (typeof details.director === 'string' ? details.director : details.director?.name) || prev.director,
+        } : prev);
       }
     } catch (error) {
       console.error('Error fetching TMDB details:', error);
@@ -413,8 +449,23 @@ export default function MovieDetails() {
                   )}
                   <div className="flex items-center gap-1.5 bg-background/30 backdrop-blur-sm rounded-full px-3 py-1.5 border border-border/10">
                     <Clock className="h-4 w-4 text-primary" />
-                    <span className="font-medium">{movie.duration_minutes} min</span>
+                    <span className="font-medium">
+                      {movie.duration_minutes >= 60
+                        ? `${Math.floor(movie.duration_minutes / 60)}h ${movie.duration_minutes % 60}m`
+                        : `${movie.duration_minutes} min`}
+                    </span>
                   </div>
+                  {tmdbDetails.external_ids?.imdb_id && (
+                    <a
+                      href={`https://www.imdb.com/title/${tmdbDetails.external_ids.imdb_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 bg-background/30 backdrop-blur-sm rounded-full px-3 py-1.5 border border-border/10 hover:border-accent/50 transition-colors"
+                    >
+                      <ExternalLink className="h-4 w-4 text-accent" />
+                      <span className="font-bold text-accent">IMDb</span>
+                    </a>
+                  )}
                   {movie.release_date && (
                     <div className="flex items-center gap-1.5 bg-background/30 backdrop-blur-sm rounded-full px-3 py-1.5 border border-border/10">
                       <Calendar className="h-4 w-4 text-muted-foreground" />

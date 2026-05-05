@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { getDirectorName } from '@/lib/movieImport';
+import { fetchTMDBDetails, getDirectorName } from '@/lib/movieImport';
 
 interface TMDBMovie {
   tmdb_id: number;
@@ -21,8 +21,40 @@ interface TMDBMovie {
   popularity?: number;
 }
 
-const SYNC_CACHE_KEY = 'movie_sync_timestamp_v3';
+const SYNC_CACHE_KEY = 'movie_sync_timestamp_v4';
 const CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours
+
+// Fetch full details concurrently in small batches so runtime / cast / director / genres are accurate
+async function enrichWithDetails(movies: TMDBMovie[]): Promise<TMDBMovie[]> {
+  const BATCH = 6;
+  const out: TMDBMovie[] = [];
+  for (let i = 0; i < movies.length; i += BATCH) {
+    const slice = movies.slice(i, i + BATCH);
+    const results = await Promise.all(
+      slice.map(async (m) => {
+        try {
+          const d: any = await fetchTMDBDetails(m.tmdb_id);
+          return {
+            ...m,
+            duration_minutes: d.duration_minutes ?? m.duration_minutes,
+            genre: d.genre?.length ? d.genre : m.genre,
+            director: typeof d.director === 'string' ? d.director : d.director?.name ?? m.director,
+            cast_members: d.cast_members?.length ? d.cast_members : m.cast_members,
+            trailer_key: d.trailer_key ?? m.trailer_key,
+            budget: d.budget ?? m.budget,
+            revenue: d.revenue ?? m.revenue,
+            original_language: d.original_language ?? m.original_language,
+            popularity: d.popularity ?? m.popularity,
+          } as TMDBMovie;
+        } catch {
+          return m;
+        }
+      })
+    );
+    out.push(...results);
+  }
+  return out;
+}
 
 // Rotate which TMDB pages we pull daily so the catalogue refreshes naturally
 const dailyPage = (max: number, offset = 0) => {
@@ -202,8 +234,11 @@ export function useMovieSync() {
         allMovies.push(...shuffled.slice(0, 6));
       }
 
+      // Enrich with full TMDB details so runtime/cast/director/genres are accurate
+      const enriched = await enrichWithDetails(allMovies);
+
       // Batch upsert all movies at once
-      await batchUpsertMovies(allMovies);
+      await batchUpsertMovies(enriched);
       
       // Auto-generate showtimes server-side (bypasses RLS)
       await supabase.rpc('generate_showtimes_for_movies');
