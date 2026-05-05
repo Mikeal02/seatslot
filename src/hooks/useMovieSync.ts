@@ -234,8 +234,11 @@ export function useMovieSync() {
         allMovies.push(...shuffled.slice(0, 6));
       }
 
+      // Enrich with full TMDB details so runtime/cast/director/genres are accurate
+      const enriched = await enrichWithDetails(allMovies);
+
       // Batch upsert all movies at once
-      await batchUpsertMovies(allMovies);
+      await batchUpsertMovies(enriched);
       
       // Auto-generate showtimes server-side (bypasses RLS)
       await supabase.rpc('generate_showtimes_for_movies');
