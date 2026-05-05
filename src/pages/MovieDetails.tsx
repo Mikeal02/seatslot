@@ -449,8 +449,23 @@ export default function MovieDetails() {
                   )}
                   <div className="flex items-center gap-1.5 bg-background/30 backdrop-blur-sm rounded-full px-3 py-1.5 border border-border/10">
                     <Clock className="h-4 w-4 text-primary" />
-                    <span className="font-medium">{movie.duration_minutes} min</span>
+                    <span className="font-medium">
+                      {movie.duration_minutes >= 60
+                        ? `${Math.floor(movie.duration_minutes / 60)}h ${movie.duration_minutes % 60}m`
+                        : `${movie.duration_minutes} min`}
+                    </span>
                   </div>
+                  {tmdbDetails.external_ids?.imdb_id && (
+                    <a
+                      href={`https://www.imdb.com/title/${tmdbDetails.external_ids.imdb_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 bg-background/30 backdrop-blur-sm rounded-full px-3 py-1.5 border border-border/10 hover:border-accent/50 transition-colors"
+                    >
+                      <ExternalLink className="h-4 w-4 text-accent" />
+                      <span className="font-bold text-accent">IMDb</span>
+                    </a>
+                  )}
                   {movie.release_date && (
                     <div className="flex items-center gap-1.5 bg-background/30 backdrop-blur-sm rounded-full px-3 py-1.5 border border-border/10">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
