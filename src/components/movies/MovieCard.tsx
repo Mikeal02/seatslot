@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Movie } from '@/types/database';
+import { prefetchMovie } from '@/lib/prefetchMovie';
 
 interface MovieCardProps {
   movie: Movie & { budget?: number; revenue?: number };
@@ -68,6 +69,11 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
     setIsHovered(false);
   };
 
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    prefetchMovie(String(movie.id), movie.poster_url, movie.backdrop_url);
+  };
+
   const extMovie = movie as any;
   const hasRevenue = extMovie.revenue && extMovie.revenue > 0;
 
@@ -88,7 +94,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
         transformStyle: 'preserve-3d',
       }}
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={() => navigate(`/movie/${movie.id}`)}
       role="button"
