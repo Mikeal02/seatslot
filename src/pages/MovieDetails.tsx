@@ -219,11 +219,47 @@ export default function MovieDetails() {
         backdropUrl: movieData.backdrop_url,
       });
       if (!tmdbId) return;
-      const details = await fetchTMDBDetails(tmdbId);
+      const details: any = await fetchTMDBDetails(tmdbId);
       setTmdbDetailsFromResponse(details, tmdbId);
 
       if (!movieData.trailer_key && details.trailer_key) {
         setTrailerKey(details.trailer_key);
+      }
+
+      // Self-heal: if local DB runtime/genre/cast looks like a placeholder, refresh it
+      const needsRefresh =
+        !movieData.tmdb_id ||
+        movieData.duration_minutes === 120 ||
+        !movieData.genre?.length ||
+        !movieData.cast_members?.length;
+      if (needsRefresh && isUuid(movieData.id)) {
+        await supabase.rpc('import_movie_from_tmdb', {
+          p_tmdb_id: tmdbId,
+          p_title: details.title || movieData.title,
+          p_description: details.description ?? null,
+          p_poster_url: details.poster_url ?? null,
+          p_backdrop_url: details.backdrop_url ?? null,
+          p_release_date: details.release_date ?? null,
+          p_duration_minutes: details.duration_minutes || 120,
+          p_rating: details.rating ?? null,
+          p_genre: details.genre || [],
+          p_director: typeof details.director === 'string' ? details.director : details.director?.name ?? null,
+          p_cast_members: details.cast_members || [],
+          p_trailer_key: details.trailer_key ?? null,
+          p_status: movieData.status || 'now_showing',
+          p_budget: details.budget || 0,
+          p_revenue: details.revenue || 0,
+          p_original_language: details.original_language || 'en',
+          p_popularity: details.popularity || 0,
+        });
+        setMovie((prev) => prev ? {
+          ...prev,
+          tmdb_id: tmdbId,
+          duration_minutes: details.duration_minutes || prev.duration_minutes,
+          genre: details.genre?.length ? details.genre : prev.genre,
+          cast_members: details.cast_members?.length ? details.cast_members : prev.cast_members,
+          director: (typeof details.director === 'string' ? details.director : details.director?.name) || prev.director,
+        } : prev);
       }
     } catch (error) {
       console.error('Error fetching TMDB details:', error);
