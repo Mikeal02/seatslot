@@ -212,7 +212,8 @@ export function GlobalSearch({ variant = 'desktop', onNavigate }: GlobalSearchPr
   }, [variant]);
 
   const fetchTrending = useCallback(async () => {
-    if (trending || trendingLoading) return;
+    if (trendingLoading) return;
+    if (trending) return; // already have it (possibly from persisted cache)
     setTrendingLoading(true);
     try {
       const res = await fetch(
@@ -231,7 +232,9 @@ export function GlobalSearch({ variant = 'desktop', onNavigate }: GlobalSearchPr
         popularity: m.popularity,
         overview: (m.description || '').slice(0, 120),
       }));
-      setTrending({ movies: trendingMovies, people: [] });
+      const payload = { movies: trendingMovies, people: [] };
+      setTrending(payload);
+      setTrendingCache(payload);
     } catch (err) {
       console.error('Trending error:', err);
     } finally {
@@ -240,7 +243,20 @@ export function GlobalSearch({ variant = 'desktop', onNavigate }: GlobalSearchPr
   }, [trending, trendingLoading]);
 
   const search = useCallback(async (q: string) => {
-    if (q.length < 2) { setMovies([]); setPeople([]); return; }
+    const norm = q.trim().toLowerCase();
+    if (norm.length < 2) { setMovies([]); setPeople([]); return; }
+
+    // Cache hit → instant render, no network
+    const cached = getSearchCache(norm);
+    if (cached) {
+      reqId.current++; // invalidate any in-flight
+      setMovies(cached.movies);
+      setPeople(cached.people);
+      setLocalMovieMap(cached.localMap);
+      setLoading(false);
+      return;
+    }
+
     const myId = ++reqId.current;
     setLoading(true);
     try {
@@ -250,20 +266,27 @@ export function GlobalSearch({ variant = 'desktop', onNavigate }: GlobalSearchPr
       );
       if (!res.ok) throw new Error('Search failed');
       const data = await res.json();
-      if (myId !== reqId.current) return; // stale
-      setMovies(data.movies || []);
-      setPeople(data.people || []);
+      if (myId !== reqId.current) return;
+      const moviesRes: MovieResult[] = data.movies || [];
+      const peopleRes: PersonResult[] = data.people || [];
+      setMovies(moviesRes);
+      setPeople(peopleRes);
 
-      const tmdbIds = (data.movies || []).map((m: MovieResult) => m.tmdb_id);
+      let localMap: Record<number, string> = {};
+      const tmdbIds = moviesRes.map((m) => m.tmdb_id);
       if (tmdbIds.length > 0) {
         const { data: localMovies } = await supabase
           .from('movies').select('id, tmdb_id').in('tmdb_id', tmdbIds);
-        if (localMovies && myId === reqId.current) {
-          const map: Record<number, string> = {};
-          localMovies.forEach((m) => { if (m.tmdb_id) map[m.tmdb_id] = m.id; });
-          setLocalMovieMap(map);
+        if (myId !== reqId.current) return;
+        if (localMovies) {
+          localMovies.forEach((m) => { if (m.tmdb_id) localMap[m.tmdb_id] = m.id; });
+          setLocalMovieMap(localMap);
         }
+      } else {
+        setLocalMovieMap({});
       }
+
+      setSearchCache(norm, { movies: moviesRes, people: peopleRes, localMap });
     } catch (err) {
       console.error('Search error:', err);
     } finally {
@@ -275,6 +298,18 @@ export function GlobalSearch({ variant = 'desktop', onNavigate }: GlobalSearchPr
     setQuery(val);
     setOpen(true);
     setActiveIdx(0);
+    const norm = val.trim().toLowerCase();
+    // Synchronous cache hit → render instantly, skip debounce
+    const cached = norm.length >= 2 ? getSearchCache(norm) : null;
+    if (cached) {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      reqId.current++;
+      setMovies(cached.movies);
+      setPeople(cached.people);
+      setLocalMovieMap(cached.localMap);
+      setLoading(false);
+      return;
+    }
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => search(val), 220);
   };
