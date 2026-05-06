@@ -48,6 +48,75 @@ interface GlobalSearchProps {
 const RECENT_KEY = 'cb_recent_searches_v1';
 const MAX_RECENT = 6;
 
+// Cache config
+const SEARCH_CACHE_KEY = 'cb_search_cache_v1';
+const TRENDING_CACHE_KEY = 'cb_trending_cache_v1';
+const SEARCH_TTL = 10 * 60 * 1000;
+const TRENDING_TTL = 30 * 60 * 1000;
+const MAX_CACHE_ENTRIES = 60;
+
+interface SearchPayload {
+  movies: MovieResult[];
+  people: PersonResult[];
+  localMap: Record<number, string>;
+}
+interface CacheEntry<T> { ts: number; data: T }
+
+const memSearchCache = new Map<string, CacheEntry<SearchPayload>>();
+let memTrendingCache: CacheEntry<TrendingData> | null = null;
+
+(function loadPersistedSearchCache() {
+  try {
+    const raw = localStorage.getItem(SEARCH_CACHE_KEY);
+    if (!raw) return;
+    const parsed: Record<string, CacheEntry<SearchPayload>> = JSON.parse(raw);
+    const now = Date.now();
+    Object.entries(parsed).forEach(([k, v]) => {
+      if (v && now - v.ts < SEARCH_TTL) memSearchCache.set(k, v);
+    });
+  } catch {}
+})();
+
+function persistSearchCache() {
+  try {
+    const obj: Record<string, CacheEntry<SearchPayload>> = {};
+    memSearchCache.forEach((v, k) => { obj[k] = v; });
+    localStorage.setItem(SEARCH_CACHE_KEY, JSON.stringify(obj));
+  } catch {}
+}
+function setSearchCache(key: string, data: SearchPayload) {
+  if (memSearchCache.size >= MAX_CACHE_ENTRIES) {
+    const firstKey = memSearchCache.keys().next().value;
+    if (firstKey) memSearchCache.delete(firstKey);
+  }
+  memSearchCache.set(key, { ts: Date.now(), data });
+  persistSearchCache();
+}
+function getSearchCache(key: string): SearchPayload | null {
+  const hit = memSearchCache.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.ts > SEARCH_TTL) { memSearchCache.delete(key); return null; }
+  memSearchCache.delete(key);
+  memSearchCache.set(key, hit);
+  return hit.data;
+}
+function loadPersistedTrending(): TrendingData | null {
+  if (memTrendingCache && Date.now() - memTrendingCache.ts < TRENDING_TTL) return memTrendingCache.data;
+  try {
+    const raw = localStorage.getItem(TRENDING_CACHE_KEY);
+    if (!raw) return null;
+    const parsed: CacheEntry<TrendingData> = JSON.parse(raw);
+    if (Date.now() - parsed.ts > TRENDING_TTL) return null;
+    memTrendingCache = parsed;
+    return parsed.data;
+  } catch { return null; }
+}
+function setTrendingCache(data: TrendingData) {
+  const entry = { ts: Date.now(), data };
+  memTrendingCache = entry;
+  try { localStorage.setItem(TRENDING_CACHE_KEY, JSON.stringify(entry)); } catch {}
+}
+
 const ROTATING_HINTS = [
   'Search "Oppenheimer"',
   'Try "Christopher Nolan"',
