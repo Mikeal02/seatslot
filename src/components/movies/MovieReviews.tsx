@@ -239,25 +239,25 @@ export function MovieReviews({ movieId }: MovieReviewsProps) {
         )}
 
         {/* Reviews List */}
-        {reviews.filter(r => r.user_id !== user?.id).length === 0 && !userReview ? (
+        {reviews.filter(r => !r.is_mine).length === 0 && !userReview ? (
           <p className="text-center text-muted-foreground py-8">
             No reviews yet. Be the first to review!
           </p>
         ) : (
           <div className="space-y-4">
             {reviews
-              .filter(r => r.user_id !== user?.id)
+              .filter(r => !r.is_mine)
               .map((review) => (
                 <div key={review.id} className="flex gap-3 p-3 rounded-lg bg-muted/30">
                   <Avatar className="h-10 w-10">
                     <AvatarFallback>
-                      {review.profile?.full_name?.[0] || review.profile?.email?.[0] || <User className="h-4 w-4" />}
+                      {review.author_name?.[0] || <User className="h-4 w-4" />}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-medium">
-                        {review.profile?.full_name || 'Anonymous'}
+                        {review.author_name || 'Anonymous'}
                       </p>
                       <span className="text-xs text-muted-foreground">
                         {format(parseISO(review.created_at), 'MMM d, yyyy')}
