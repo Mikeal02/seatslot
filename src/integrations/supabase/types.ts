@@ -610,7 +610,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      award_loyalty_points: {
+        Args: { p_amount: number; p_booking_id?: string; p_description: string }
+        Returns: undefined
+      }
       generate_showtimes_for_movies: { Args: never; Returns: undefined }
+      get_movie_reviews: {
+        Args: { p_movie_id: string }
+        Returns: {
+          author_name: string
+          created_at: string
+          id: string
+          is_mine: boolean
+          movie_id: string
+          rating: number
+          review_text: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -676,6 +692,10 @@ export type Database = {
             }
             Returns: string
           }
+      redeem_loyalty_points: {
+        Args: { p_description: string; p_points: number }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
