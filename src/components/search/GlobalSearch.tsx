@@ -48,6 +48,75 @@ interface GlobalSearchProps {
 const RECENT_KEY = 'cb_recent_searches_v1';
 const MAX_RECENT = 6;
 
+// Cache config
+const SEARCH_CACHE_KEY = 'cb_search_cache_v1';
+const TRENDING_CACHE_KEY = 'cb_trending_cache_v1';
+const SEARCH_TTL = 10 * 60 * 1000;
+const TRENDING_TTL = 30 * 60 * 1000;
+const MAX_CACHE_ENTRIES = 60;
+
+interface SearchPayload {
+  movies: MovieResult[];
+  people: PersonResult[];
+  localMap: Record<number, string>;
+}
+interface CacheEntry<T> { ts: number; data: T }
+
+const memSearchCache = new Map<string, CacheEntry<SearchPayload>>();
+let memTrendingCache: CacheEntry<TrendingData> | null = null;
+
+(function loadPersistedSearchCache() {
+  try {
+    const raw = localStorage.getItem(SEARCH_CACHE_KEY);
+    if (!raw) return;
+    const parsed: Record<string, CacheEntry<SearchPayload>> = JSON.parse(raw);
+    const now = Date.now();
+    Object.entries(parsed).forEach(([k, v]) => {
+      if (v && now - v.ts < SEARCH_TTL) memSearchCache.set(k, v);
+    });
+  } catch {}
+})();
+
+function persistSearchCache() {
+  try {
+    const obj: Record<string, CacheEntry<SearchPayload>> = {};
+    memSearchCache.forEach((v, k) => { obj[k] = v; });
+    localStorage.setItem(SEARCH_CACHE_KEY, JSON.stringify(obj));
+  } catch {}
+}
+function setSearchCache(key: string, data: SearchPayload) {
+  if (memSearchCache.size >= MAX_CACHE_ENTRIES) {
+    const firstKey = memSearchCache.keys().next().value;
+    if (firstKey) memSearchCache.delete(firstKey);
+  }
+  memSearchCache.set(key, { ts: Date.now(), data });
+  persistSearchCache();
+}
+function getSearchCache(key: string): SearchPayload | null {
+  const hit = memSearchCache.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.ts > SEARCH_TTL) { memSearchCache.delete(key); return null; }
+  memSearchCache.delete(key);
+  memSearchCache.set(key, hit);
+  return hit.data;
+}
+function loadPersistedTrending(): TrendingData | null {
+  if (memTrendingCache && Date.now() - memTrendingCache.ts < TRENDING_TTL) return memTrendingCache.data;
+  try {
+    const raw = localStorage.getItem(TRENDING_CACHE_KEY);
+    if (!raw) return null;
+    const parsed: CacheEntry<TrendingData> = JSON.parse(raw);
+    if (Date.now() - parsed.ts > TRENDING_TTL) return null;
+    memTrendingCache = parsed;
+    return parsed.data;
+  } catch { return null; }
+}
+function setTrendingCache(data: TrendingData) {
+  const entry = { ts: Date.now(), data };
+  memTrendingCache = entry;
+  try { localStorage.setItem(TRENDING_CACHE_KEY, JSON.stringify(entry)); } catch {}
+}
+
 const ROTATING_HINTS = [
   'Search "Oppenheimer"',
   'Try "Christopher Nolan"',
@@ -75,7 +144,7 @@ export function GlobalSearch({ variant = 'desktop', onNavigate }: GlobalSearchPr
   const [loading, setLoading] = useState(false);
   const [movies, setMovies] = useState<MovieResult[]>([]);
   const [people, setPeople] = useState<PersonResult[]>([]);
-  const [trending, setTrending] = useState<TrendingData | null>(null);
+  const [trending, setTrending] = useState<TrendingData | null>(() => loadPersistedTrending());
   const [trendingLoading, setTrendingLoading] = useState(false);
   const [localMovieMap, setLocalMovieMap] = useState<Record<number, string>>({});
   const [recents, setRecents] = useState<RecentItem[]>([]);
@@ -143,7 +212,8 @@ export function GlobalSearch({ variant = 'desktop', onNavigate }: GlobalSearchPr
   }, [variant]);
 
   const fetchTrending = useCallback(async () => {
-    if (trending || trendingLoading) return;
+    if (trendingLoading) return;
+    if (trending) return; // already have it (possibly from persisted cache)
     setTrendingLoading(true);
     try {
       const res = await fetch(
@@ -162,7 +232,9 @@ export function GlobalSearch({ variant = 'desktop', onNavigate }: GlobalSearchPr
         popularity: m.popularity,
         overview: (m.description || '').slice(0, 120),
       }));
-      setTrending({ movies: trendingMovies, people: [] });
+      const payload = { movies: trendingMovies, people: [] };
+      setTrending(payload);
+      setTrendingCache(payload);
     } catch (err) {
       console.error('Trending error:', err);
     } finally {
@@ -171,7 +243,20 @@ export function GlobalSearch({ variant = 'desktop', onNavigate }: GlobalSearchPr
   }, [trending, trendingLoading]);
 
   const search = useCallback(async (q: string) => {
-    if (q.length < 2) { setMovies([]); setPeople([]); return; }
+    const norm = q.trim().toLowerCase();
+    if (norm.length < 2) { setMovies([]); setPeople([]); return; }
+
+    // Cache hit → instant render, no network
+    const cached = getSearchCache(norm);
+    if (cached) {
+      reqId.current++; // invalidate any in-flight
+      setMovies(cached.movies);
+      setPeople(cached.people);
+      setLocalMovieMap(cached.localMap);
+      setLoading(false);
+      return;
+    }
+
     const myId = ++reqId.current;
     setLoading(true);
     try {
@@ -181,20 +266,27 @@ export function GlobalSearch({ variant = 'desktop', onNavigate }: GlobalSearchPr
       );
       if (!res.ok) throw new Error('Search failed');
       const data = await res.json();
-      if (myId !== reqId.current) return; // stale
-      setMovies(data.movies || []);
-      setPeople(data.people || []);
+      if (myId !== reqId.current) return;
+      const moviesRes: MovieResult[] = data.movies || [];
+      const peopleRes: PersonResult[] = data.people || [];
+      setMovies(moviesRes);
+      setPeople(peopleRes);
 
-      const tmdbIds = (data.movies || []).map((m: MovieResult) => m.tmdb_id);
+      let localMap: Record<number, string> = {};
+      const tmdbIds = moviesRes.map((m) => m.tmdb_id);
       if (tmdbIds.length > 0) {
         const { data: localMovies } = await supabase
           .from('movies').select('id, tmdb_id').in('tmdb_id', tmdbIds);
-        if (localMovies && myId === reqId.current) {
-          const map: Record<number, string> = {};
-          localMovies.forEach((m) => { if (m.tmdb_id) map[m.tmdb_id] = m.id; });
-          setLocalMovieMap(map);
+        if (myId !== reqId.current) return;
+        if (localMovies) {
+          localMovies.forEach((m) => { if (m.tmdb_id) localMap[m.tmdb_id] = m.id; });
+          setLocalMovieMap(localMap);
         }
+      } else {
+        setLocalMovieMap({});
       }
+
+      setSearchCache(norm, { movies: moviesRes, people: peopleRes, localMap });
     } catch (err) {
       console.error('Search error:', err);
     } finally {
@@ -206,6 +298,18 @@ export function GlobalSearch({ variant = 'desktop', onNavigate }: GlobalSearchPr
     setQuery(val);
     setOpen(true);
     setActiveIdx(0);
+    const norm = val.trim().toLowerCase();
+    // Synchronous cache hit → render instantly, skip debounce
+    const cached = norm.length >= 2 ? getSearchCache(norm) : null;
+    if (cached) {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      reqId.current++;
+      setMovies(cached.movies);
+      setPeople(cached.people);
+      setLocalMovieMap(cached.localMap);
+      setLoading(false);
+      return;
+    }
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => search(val), 220);
   };
