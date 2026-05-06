@@ -110,39 +110,14 @@ export function useLoyaltyPoints() {
   };
 
   const earnPoints = async (amount: number, description: string, bookingId?: string) => {
-    if (!user || !points) return false;
-
-    const pointsToEarn = Math.floor(amount * POINTS_PER_RUPEE);
-    const newTotal = points.total_points + pointsToEarn;
-    const newLifetime = points.lifetime_points + pointsToEarn;
-    const newTier = calculateTier(newLifetime);
-
+    if (!user) return false;
     try {
-      // Update points
-      const { error: updateError } = await supabase
-        .from('loyalty_points')
-        .update({
-          total_points: newTotal,
-          lifetime_points: newLifetime,
-          tier: newTier,
-        })
-        .eq('user_id', user.id);
-
-      if (updateError) throw updateError;
-
-      // Record transaction
-      const { error: transError } = await supabase
-        .from('points_transactions')
-        .insert({
-          user_id: user.id,
-          points: pointsToEarn,
-          transaction_type: 'earned',
-          description,
-          booking_id: bookingId || null,
-        });
-
-      if (transError) throw transError;
-
+      const { error } = await supabase.rpc('award_loyalty_points', {
+        p_amount: amount,
+        p_description: description,
+        p_booking_id: bookingId || null,
+      } as any);
+      if (error) throw error;
       await fetchLoyaltyData();
       return true;
     } catch (error) {
@@ -153,26 +128,12 @@ export function useLoyaltyPoints() {
 
   const redeemPoints = async (pointsToRedeem: number, description: string) => {
     if (!user || !points || points.total_points < pointsToRedeem) return false;
-
     try {
-      const { error: updateError } = await supabase
-        .from('loyalty_points')
-        .update({ total_points: points.total_points - pointsToRedeem })
-        .eq('user_id', user.id);
-
-      if (updateError) throw updateError;
-
-      const { error: transError } = await supabase
-        .from('points_transactions')
-        .insert({
-          user_id: user.id,
-          points: -pointsToRedeem,
-          transaction_type: 'redeemed',
-          description,
-        });
-
-      if (transError) throw transError;
-
+      const { error } = await supabase.rpc('redeem_loyalty_points', {
+        p_points: pointsToRedeem,
+        p_description: description,
+      } as any);
+      if (error) throw error;
       await fetchLoyaltyData();
       return true;
     } catch (error) {
