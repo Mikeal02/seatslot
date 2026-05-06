@@ -7,12 +7,12 @@ interface SplashScreenProps {
   minDuration?: number;
 }
 
-export function SplashScreen({ onComplete, minDuration = 2200 }: SplashScreenProps) {
+export function SplashScreen({ onComplete, minDuration = 1000 }: SplashScreenProps) {
   const [phase, setPhase] = useState<'logo' | 'text' | 'exit'>('logo');
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase('text'), 600);
-    const t2 = setTimeout(() => setPhase('exit'), minDuration - 400);
+    const t1 = setTimeout(() => setPhase('text'), 250);
+    const t2 = setTimeout(() => setPhase('exit'), Math.max(minDuration - 200, 300));
     const t3 = setTimeout(onComplete, minDuration);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [onComplete, minDuration]);
