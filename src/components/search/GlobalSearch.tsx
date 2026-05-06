@@ -144,7 +144,7 @@ export function GlobalSearch({ variant = 'desktop', onNavigate }: GlobalSearchPr
   const [loading, setLoading] = useState(false);
   const [movies, setMovies] = useState<MovieResult[]>([]);
   const [people, setPeople] = useState<PersonResult[]>([]);
-  const [trending, setTrending] = useState<TrendingData | null>(null);
+  const [trending, setTrending] = useState<TrendingData | null>(() => loadPersistedTrending());
   const [trendingLoading, setTrendingLoading] = useState(false);
   const [localMovieMap, setLocalMovieMap] = useState<Record<number, string>>({});
   const [recents, setRecents] = useState<RecentItem[]>([]);
