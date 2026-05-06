@@ -607,9 +607,31 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      reviews_public: {
+        Row: {
+          author_name: string | null
+          created_at: string | null
+          id: string | null
+          movie_id: string | null
+          rating: number | null
+          review_text: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_movie_id_fkey"
+            columns: ["movie_id"]
+            isOneToOne: false
+            referencedRelation: "movies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      award_loyalty_points: {
+        Args: { p_amount: number; p_booking_id?: string; p_description: string }
+        Returns: undefined
+      }
       generate_showtimes_for_movies: { Args: never; Returns: undefined }
       has_role: {
         Args: {
@@ -676,6 +698,10 @@ export type Database = {
             }
             Returns: string
           }
+      redeem_loyalty_points: {
+        Args: { p_description: string; p_points: number }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
