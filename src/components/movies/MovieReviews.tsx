@@ -11,15 +11,12 @@ import { format, parseISO } from 'date-fns';
 
 interface Review {
   id: string;
-  user_id: string;
   movie_id: string;
   rating: number;
   review_text: string | null;
   created_at: string;
-  profile?: {
-    full_name: string | null;
-    email: string | null;
-  };
+  author_name: string;
+  is_mine: boolean;
 }
 
 interface MovieReviewsProps {
@@ -44,36 +41,15 @@ export function MovieReviews({ movieId }: MovieReviewsProps) {
 
   const fetchReviews = async () => {
     try {
-      const { data, error } = await supabase
-        .from('reviews')
-        .select('*')
-        .eq('movie_id', movieId)
-        .order('created_at', { ascending: false });
-
+      const { data, error } = await supabase.rpc('get_movie_reviews', { p_movie_id: movieId } as any);
       if (error) throw error;
-
-      // Fetch profile info for each review
-      const reviewsWithProfiles = await Promise.all(
-        (data as Review[]).map(async (review) => {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('full_name, email')
-            .eq('user_id', review.user_id)
-            .single();
-          return { ...review, profile };
-        })
-      );
-
-      setReviews(reviewsWithProfiles);
-
-      // Find user's review
-      if (user) {
-        const myReview = reviewsWithProfiles.find(r => r.user_id === user.id);
-        if (myReview) {
-          setUserReview(myReview);
-          setRating(myReview.rating);
-          setReviewText(myReview.review_text || '');
-        }
+      const list = (data || []) as Review[];
+      setReviews(list);
+      const mine = list.find(r => r.is_mine) || null;
+      setUserReview(mine);
+      if (mine) {
+        setRating(mine.rating);
+        setReviewText(mine.review_text || '');
       }
     } catch (error) {
       console.error('Error fetching reviews:', error);
