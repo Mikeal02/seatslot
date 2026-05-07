@@ -10,6 +10,8 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PageLoader } from "@/components/ui/loading-spinner";
 import { SplashScreen } from "@/components/SplashScreen";
 import { MobileNavBar } from "@/components/layout/MobileNavBar";
+import { AmbientSpotlight } from "@/components/effects/AmbientSpotlight";
+import { AuroraBackground } from "@/components/effects/AuroraBackground";
 
 // Lazy load routes for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -103,7 +105,10 @@ const App = () => {
             </a>
             <Toaster />
             <Sonner />
-            
+
+            <AuroraBackground />
+            <AmbientSpotlight />
+
             {!splashDone && <SplashScreen onComplete={handleSplashComplete} />}
             
             <BrowserRouter>

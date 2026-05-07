@@ -118,7 +118,7 @@ export function HeroSection({ movie, movies, autoRotateInterval = 5000 }: HeroSe
 
               {/* Title */}
               <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] font-black leading-[0.95] text-cinema-shadow">
-                <span className="block">{currentMovie.title}</span>
+                <span className="block shimmer-text">{currentMovie.title}</span>
               </h1>
 
               {/* Description */}

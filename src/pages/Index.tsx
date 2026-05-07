@@ -11,6 +11,7 @@ import { StatsSection } from '@/components/home/StatsSection';
 import { TrendingCarousel } from '@/components/movies/TrendingCarousel';
 import { FeaturedSpotlight } from '@/components/movies/FeaturedSpotlight';
 import { GenreChips } from '@/components/home/GenreChips';
+import { CinemaTicker } from '@/components/effects/CinemaTicker';
 import { ScrollReveal, ScrollScale } from '@/components/animations/ScrollAnimations';
 import { Movie } from '@/types/database';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -180,6 +181,9 @@ const Index = () => {
           />
         )}
         
+        {/* Cinema Ticker — film reel marquee */}
+        <CinemaTicker />
+
         {/* Quick Rebook — slide up reveal */}
         <ScrollReveal direction="up" distance={30} duration={0.6}>
           <div className="container mx-auto px-4 py-10">
