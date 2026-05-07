@@ -742,4 +742,129 @@
     color: hsl(30 60% 12%);
     animation: newReleasePulse 2s ease-in-out infinite;
   }
+
+  /* ────────────────────────────────
+     AMBIENT SPOTLIGHT (cursor)
+  ──────────────────────────────── */
+  .ambient-spotlight {
+    background: radial-gradient(
+      600px circle at var(--sx, 50%) var(--sy, 30%),
+      hsl(var(--primary) / 0.08),
+      transparent 60%
+    );
+    mix-blend-mode: screen;
+    transition: background 0.05s linear;
+  }
+  :root .ambient-spotlight {
+    mix-blend-mode: multiply;
+    background: radial-gradient(
+      600px circle at var(--sx, 50%) var(--sy, 30%),
+      hsl(var(--primary) / 0.05),
+      transparent 60%
+    );
+  }
+
+  /* ────────────────────────────────
+     AURORA BACKGROUND
+  ──────────────────────────────── */
+  .aurora-bg {
+    background: hsl(var(--background));
+  }
+  .aurora-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(110px);
+    opacity: 0.35;
+    will-change: transform;
+  }
+  .dark .aurora-blob { opacity: 0.25; }
+  :root .aurora-blob { opacity: 0.18; }
+
+  .aurora-blob--1 {
+    width: 55vw; height: 55vw;
+    top: -15vw; left: -10vw;
+    background: radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%);
+    animation: aurora-drift-1 22s ease-in-out infinite;
+  }
+  .aurora-blob--2 {
+    width: 45vw; height: 45vw;
+    top: 40vh; right: -10vw;
+    background: radial-gradient(circle, hsl(var(--accent)) 0%, transparent 70%);
+    animation: aurora-drift-2 28s ease-in-out infinite;
+  }
+  .aurora-blob--3 {
+    width: 40vw; height: 40vw;
+    bottom: -10vw; left: 30vw;
+    background: radial-gradient(circle, hsl(var(--primary) / 0.7) 0%, transparent 70%);
+    animation: aurora-drift-3 32s ease-in-out infinite;
+  }
+  .aurora-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(hsl(var(--foreground) / 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--foreground) / 0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    opacity: 0.5;
+  }
+
+  @keyframes aurora-drift-1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(8vw, 6vh) scale(1.1); }
+  }
+  @keyframes aurora-drift-2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-10vw, -8vh) scale(1.15); }
+  }
+  @keyframes aurora-drift-3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(6vw, -10vh) scale(0.9); }
+  }
+
+  /* ────────────────────────────────
+     CINEMA TICKER (film reel)
+  ──────────────────────────────── */
+  .cinema-ticker__track {
+    animation: ticker-scroll 45s linear infinite;
+    width: max-content;
+  }
+  .cinema-ticker:hover .cinema-ticker__track { animation-play-state: paused; }
+  @keyframes ticker-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-33.3333%); }
+  }
+  .cinema-ticker__perforation {
+    position: absolute;
+    left: 0; right: 0;
+    height: 6px;
+    background-image: radial-gradient(circle, hsl(var(--background)) 2px, transparent 2.5px);
+    background-size: 14px 6px;
+    background-repeat: repeat-x;
+  }
+  .cinema-ticker__perforation--top { top: 0; }
+  .cinema-ticker__perforation--bottom { bottom: 0; }
+
+  /* ────────────────────────────────
+     SHIMMER TITLE
+  ──────────────────────────────── */
+  .shimmer-text {
+    background: linear-gradient(
+      105deg,
+      hsl(var(--foreground)) 0%,
+      hsl(var(--foreground)) 40%,
+      hsl(var(--primary)) 50%,
+      hsl(var(--foreground)) 60%,
+      hsl(var(--foreground)) 100%
+    );
+    background-size: 250% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer-sweep 6s ease-in-out infinite;
+  }
+  @keyframes shimmer-sweep {
+    0%, 100% { background-position: 200% 0; }
+    50% { background-position: -50% 0; }
+  }
 }
