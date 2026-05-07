@@ -13,6 +13,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
+import { Magnetic } from '@/components/effects/Magnetic';
 
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
@@ -48,19 +49,20 @@ export function Header() {
         
         <div className="container mx-auto px-4">
           <div className="flex h-16 sm:h-[4.5rem] items-center justify-between gap-2">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
-              <motion.div
-                whileHover={{ rotate: 15, scale: 1.1 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-                className="h-9 w-9 rounded-xl cinema-gradient flex items-center justify-center shadow-lg shadow-primary/20"
-              >
-                <Film className="h-5 w-5 text-primary-foreground" />
-              </motion.div>
-              <span className="text-lg sm:text-xl font-black cinema-gradient-text tracking-tighter">
-                CineBook
-              </span>
-            </Link>
+            <Magnetic strength={0.25}>
+              <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
+                <motion.div
+                  whileHover={{ rotate: 15, scale: 1.1 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                  className="relative h-9 w-9 rounded-xl cinema-gradient flex items-center justify-center shadow-lg shadow-primary/20 logo-aura"
+                >
+                  <Film className="h-5 w-5 text-primary-foreground relative z-10" />
+                </motion.div>
+                <span className="text-lg sm:text-xl font-black cinema-gradient-text tracking-tighter">
+                  CineBook
+                </span>
+              </Link>
+            </Magnetic>
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-1">
@@ -169,12 +171,14 @@ export function Header() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
-                  <Button 
-                    asChild 
-                    className="cinema-gradient btn-professional shadow-lg shadow-primary/25 h-9 px-6 text-sm font-bold rounded-full tracking-wide"
-                  >
-                    <Link to="/auth">Sign In</Link>
-                  </Button>
+                  <Magnetic strength={0.4}>
+                    <Button
+                      asChild
+                      className="cinema-gradient btn-professional shadow-lg shadow-primary/25 h-9 px-6 text-sm font-bold rounded-full tracking-wide"
+                    >
+                      <Link to="/auth">Sign In</Link>
+                    </Button>
+                  </Magnetic>
                 )}
               </div>
             </div>
