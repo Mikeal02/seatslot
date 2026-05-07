@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Film, TrendingUp, Sparkles } from 'lucide-react';
 import { MovieCard } from './MovieCard';
 import { Movie } from '@/types/database';
+import { KineticCounter } from '@/components/effects/KineticCounter';
 
 interface MovieGridProps {
   movies: Movie[];
@@ -58,9 +59,10 @@ export function MovieGrid({ movies, title, subtitle }: MovieGridProps) {
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
         >
-          <div className="flex items-center gap-1.5 glass-card px-3 py-1.5 rounded-full text-[11px] font-semibold text-muted-foreground">
+          <div className="flex items-center gap-1.5 glass-card px-3 py-1.5 rounded-full text-[11px] font-semibold text-muted-foreground tabular-nums">
             <Sparkles className="h-3 w-3 text-primary" />
-            {movies.length} {isNowShowing ? 'movies showing' : 'upcoming titles'}
+            <KineticCounter to={movies.length} className="cinema-gradient-text font-bold" />
+            <span>{isNowShowing ? 'movies showing' : 'upcoming titles'}</span>
           </div>
         </motion.div>
         

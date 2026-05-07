@@ -12,6 +12,7 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { MobileNavBar } from "@/components/layout/MobileNavBar";
 import { AmbientSpotlight } from "@/components/effects/AmbientSpotlight";
 import { AuroraBackground } from "@/components/effects/AuroraBackground";
+import { ScrollProgressBeam } from "@/components/effects/ScrollProgressBeam";
 
 // Lazy load routes for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -108,6 +109,7 @@ const App = () => {
 
             <AuroraBackground />
             <AmbientSpotlight />
+            <ScrollProgressBeam />
 
             {!splashDone && <SplashScreen onComplete={handleSplashComplete} />}
             
