@@ -24,6 +24,16 @@ export function MobileNavBar() {
   // Don't show on booking flow or auth pages
   const hiddenPaths = ['/booking/', '/auth', '/admin', '/payment'];
   const shouldHide = hiddenPaths.some(path => location.pathname.includes(path));
+
+  useEffect(() => {
+    if (shouldHide) {
+      document.body.classList.remove('has-mobile-nav');
+      return;
+    }
+    document.body.classList.add('has-mobile-nav');
+    return () => document.body.classList.remove('has-mobile-nav');
+  }, [shouldHide]);
+
   if (shouldHide) return null;
 
   return (
