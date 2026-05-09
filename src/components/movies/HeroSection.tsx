@@ -127,19 +127,19 @@ export function HeroSection({ movie, movies, autoRotateInterval = 5000 }: HeroSe
               </p>
 
               {/* Metadata pills */}
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2 glass-card px-4 py-2.5 rounded-full text-sm">
-                  <Clock className="h-4 w-4 text-primary" />
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <div className="flex items-center gap-1.5 sm:gap-2 glass-card px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm">
+                  <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                   <span className="font-semibold">{currentMovie.duration_minutes} min</span>
                 </div>
                 {currentMovie.rating && currentMovie.rating > 0 && (
-                  <div className="flex items-center gap-2 glass-card px-4 py-2.5 rounded-full text-sm">
-                    <Star className="h-4 w-4 fill-accent text-accent" />
+                  <div className="flex items-center gap-1.5 sm:gap-2 glass-card px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm">
+                    <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-accent text-accent" />
                     <span className="font-semibold">{currentMovie.rating}/10</span>
                   </div>
                 )}
                 {currentMovie.genre && currentMovie.genre.length > 0 && (
-                  <div className="flex items-center gap-2 glass-card px-4 py-2.5 rounded-full text-sm">
+                  <div className="hidden xs:flex items-center gap-2 glass-card px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm">
                     <span className="font-semibold">{(currentMovie.genre as string[]).slice(0, 2).join(' · ')}</span>
                   </div>
                 )}
