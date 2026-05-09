@@ -52,7 +52,7 @@ export function HeroSection({ movie, movies, autoRotateInterval = 5000 }: HeroSe
 
   return (
     <section 
-      className="relative h-[90vh] min-h-[700px] overflow-hidden"
+      className="relative h-[78vh] min-h-[560px] sm:h-[88vh] sm:min-h-[680px] overflow-hidden"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
