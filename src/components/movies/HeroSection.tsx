@@ -99,30 +99,30 @@ export function HeroSection({ movie, movies, autoRotateInterval = 5000 }: HeroSe
       <div className="absolute top-0 left-0 right-0 h-[2px] cinema-gradient opacity-60" />
 
       {/* Content with crossfade */}
-      <div className="relative container mx-auto px-4 h-full flex items-end pb-24 sm:pb-28">
-        <div className="max-w-2xl space-y-6 w-full">
+      <div className="relative container mx-auto h-full flex items-end pb-16 sm:pb-24 md:pb-28">
+        <div className="max-w-2xl space-y-4 sm:space-y-6 w-full">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentMovie.id}
-              className="space-y-6"
+              className="space-y-4 sm:space-y-6"
               initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               exit={{ opacity: 0, y: -20, filter: 'blur(4px)' }}
               transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
             >
               {/* Featured Badge */}
-              <Badge className="cinema-gradient text-primary-foreground gap-2 px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.25em] rounded-full shadow-xl shadow-primary/25 border-0">
+              <Badge className="cinema-gradient text-primary-foreground gap-2 px-4 sm:px-5 py-2 sm:py-2.5 text-[10px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] rounded-full shadow-xl shadow-primary/25 border-0">
                 <Sparkles className="h-3 w-3" />
                 Featured Today
               </Badge>
 
               {/* Title */}
-              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] font-black leading-[0.95] text-cinema-shadow">
+              <h1 className="text-[2rem] xs:text-4xl sm:text-6xl md:text-7xl lg:text-[5.5rem] font-black leading-[0.95] text-cinema-shadow">
                 <span className="block shimmer-text">{currentMovie.title}</span>
               </h1>
 
               {/* Description */}
-              <p className="text-sm sm:text-base md:text-lg text-muted-foreground line-clamp-2 max-w-xl leading-relaxed">
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground line-clamp-2 sm:line-clamp-3 max-w-xl leading-relaxed">
                 {currentMovie.description}
               </p>
 
