@@ -118,11 +118,11 @@ const Index = () => {
         <Header />
         <div className="flex-1">
           {/* Hero skeleton with cinematic feel */}
-          <div className="relative h-[90vh] min-h-[700px] overflow-hidden bg-muted/30">
+          <div className="relative h-[78vh] min-h-[560px] sm:h-[88vh] sm:min-h-[680px] overflow-hidden bg-muted/30">
             <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/20" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
             <div className="absolute bottom-0 left-0 right-0 h-80 bg-gradient-to-t from-background via-background/95 to-transparent" />
-            <div className="relative container mx-auto px-4 h-full flex items-end pb-28">
+            <div className="relative container mx-auto h-full flex items-end pb-16 sm:pb-28">
               <div className="max-w-2xl space-y-7">
                 <Skeleton className="h-8 w-40 rounded-full" />
                 <div className="space-y-3">

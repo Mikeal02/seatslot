@@ -52,7 +52,7 @@ export function HeroSection({ movie, movies, autoRotateInterval = 5000 }: HeroSe
 
   return (
     <section 
-      className="relative h-[90vh] min-h-[700px] overflow-hidden"
+      className="relative h-[78vh] min-h-[560px] sm:h-[88vh] sm:min-h-[680px] overflow-hidden"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -99,47 +99,47 @@ export function HeroSection({ movie, movies, autoRotateInterval = 5000 }: HeroSe
       <div className="absolute top-0 left-0 right-0 h-[2px] cinema-gradient opacity-60" />
 
       {/* Content with crossfade */}
-      <div className="relative container mx-auto px-4 h-full flex items-end pb-24 sm:pb-28">
-        <div className="max-w-2xl space-y-6 w-full">
+      <div className="relative container mx-auto h-full flex items-end pb-16 sm:pb-24 md:pb-28">
+        <div className="max-w-2xl space-y-4 sm:space-y-6 w-full">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentMovie.id}
-              className="space-y-6"
+              className="space-y-4 sm:space-y-6"
               initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               exit={{ opacity: 0, y: -20, filter: 'blur(4px)' }}
               transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
             >
               {/* Featured Badge */}
-              <Badge className="cinema-gradient text-primary-foreground gap-2 px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.25em] rounded-full shadow-xl shadow-primary/25 border-0">
+              <Badge className="cinema-gradient text-primary-foreground gap-2 px-4 sm:px-5 py-2 sm:py-2.5 text-[10px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] rounded-full shadow-xl shadow-primary/25 border-0">
                 <Sparkles className="h-3 w-3" />
                 Featured Today
               </Badge>
 
               {/* Title */}
-              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] font-black leading-[0.95] text-cinema-shadow">
+              <h1 className="text-[2rem] xs:text-4xl sm:text-6xl md:text-7xl lg:text-[5.5rem] font-black leading-[0.95] text-cinema-shadow">
                 <span className="block shimmer-text">{currentMovie.title}</span>
               </h1>
 
               {/* Description */}
-              <p className="text-sm sm:text-base md:text-lg text-muted-foreground line-clamp-2 max-w-xl leading-relaxed">
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground line-clamp-2 sm:line-clamp-3 max-w-xl leading-relaxed">
                 {currentMovie.description}
               </p>
 
               {/* Metadata pills */}
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2 glass-card px-4 py-2.5 rounded-full text-sm">
-                  <Clock className="h-4 w-4 text-primary" />
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <div className="flex items-center gap-1.5 sm:gap-2 glass-card px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm">
+                  <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                   <span className="font-semibold">{currentMovie.duration_minutes} min</span>
                 </div>
                 {currentMovie.rating && currentMovie.rating > 0 && (
-                  <div className="flex items-center gap-2 glass-card px-4 py-2.5 rounded-full text-sm">
-                    <Star className="h-4 w-4 fill-accent text-accent" />
+                  <div className="flex items-center gap-1.5 sm:gap-2 glass-card px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm">
+                    <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-accent text-accent" />
                     <span className="font-semibold">{currentMovie.rating}/10</span>
                   </div>
                 )}
                 {currentMovie.genre && currentMovie.genre.length > 0 && (
-                  <div className="flex items-center gap-2 glass-card px-4 py-2.5 rounded-full text-sm">
+                  <div className="hidden xs:flex items-center gap-2 glass-card px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm">
                     <span className="font-semibold">{(currentMovie.genre as string[]).slice(0, 2).join(' · ')}</span>
                   </div>
                 )}

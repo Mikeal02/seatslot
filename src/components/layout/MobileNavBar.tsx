@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Home, Clapperboard, Ticket, User, Heart } from 'lucide-react';
@@ -23,6 +24,16 @@ export function MobileNavBar() {
   // Don't show on booking flow or auth pages
   const hiddenPaths = ['/booking/', '/auth', '/admin', '/payment'];
   const shouldHide = hiddenPaths.some(path => location.pathname.includes(path));
+
+  useEffect(() => {
+    if (shouldHide) {
+      document.body.classList.remove('has-mobile-nav');
+      return;
+    }
+    document.body.classList.add('has-mobile-nav');
+    return () => document.body.classList.remove('has-mobile-nav');
+  }, [shouldHide]);
+
   if (shouldHide) return null;
 
   return (
