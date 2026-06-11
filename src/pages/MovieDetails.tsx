@@ -360,7 +360,7 @@ export default function MovieDetails() {
 
       <main id="main-content" className="flex-1">
         {/* Cinematic Hero */}
-        <section className="relative h-[58vh] min-h-[440px] sm:h-[65vh] sm:min-h-[520px] overflow-hidden">
+        <section className="relative h-[58vh] min-h-[320px] sm:h-[65vh] sm:min-h-[520px] overflow-hidden">
           <motion.div 
             className="absolute inset-0"
             initial={{ scale: 1.15 }}
@@ -381,7 +381,7 @@ export default function MovieDetails() {
             <div className="absolute inset-0 noise-overlay pointer-events-none" />
           </motion.div>
 
-          <div className="relative container mx-auto px-4 h-full flex items-end pb-10">
+          <div className="relative container mx-auto px-5 sm:px-6 h-full flex items-end pb-10">
             <div className="flex gap-6 md:gap-8 items-end w-full">
               <motion.div
                 className="hidden sm:block relative"
@@ -502,7 +502,7 @@ export default function MovieDetails() {
         </section>
 
         <section className="border-y border-border/20 bg-card/35 backdrop-blur-xl">
-          <div className="container mx-auto px-4 py-5">
+          <div className="container mx-auto px-5 sm:px-6 py-5">
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
               {detailCards.map(({ label, value, icon: Icon }, index) => (
                 <motion.div
@@ -525,11 +525,11 @@ export default function MovieDetails() {
         </section>
 
         {/* Main Content */}
-        <section className="container mx-auto px-4 py-6 sm:py-10">
+        <section className="container mx-auto px-5 sm:px-6 py-6 sm:py-10">
           <div className="grid lg:grid-cols-3 gap-6 lg:gap-10">
             <div className="lg:col-span-2">
               <Tabs defaultValue="overview" className="space-y-6">
-                <TabsList className="bg-card/80 backdrop-blur-xl border border-border/30 p-1.5 rounded-2xl w-full sm:w-auto flex-wrap shadow-lg">
+                <TabsList className=" backdrop-blur-xl border border-border/30 p-1.5 rounded-2xl w-full overflow-x-auto flex-nowrap justify-start shadow-lg">
                   <TabsTrigger value="overview" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Overview</TabsTrigger>
                   <TabsTrigger value="cast" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Cast & Crew</TabsTrigger>
                   <TabsTrigger value="media" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Media</TabsTrigger>
@@ -844,7 +844,7 @@ export default function MovieDetails() {
                 transition={{ delay: 0.5, duration: 0.4 }}
               >
                 {showtimes.length > 0 ? (
-                  <div className="lg:sticky lg:top-20 p-5 sm:p-6 rounded-2xl bg-card border border-border/30 glow-card space-y-5">
+                  <div className="lg:sticky lg:top-20 p-4 sm:p-6 py-6 sm:p-6 rounded-2xl bg-card border border-border/30 glow-card space-y-5">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-xl cinema-gradient flex items-center justify-center">
                         <Film className="h-4 w-4 text-primary-foreground" />

@@ -85,21 +85,34 @@ export function SimilarMovies({ movieTitle, tmdbId, similarMovies: propSimilar, 
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+      <div className="grid
+grid-cols-2
+sm:grid-cols-3
+md:grid-cols-4
+lg:grid-cols-5
+gap-3
+items-start">
         {movies.slice(0, 10).map((m, i) => (
-          <motion.div
+          <motion.div className="w-full min-w-0"
             key={`${activeTab}-${m.tmdb_id}`}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.04 }}
           >
-            <div className="group rounded-xl overflow-hidden bg-card border border-border/30 hover:border-primary/20 transition-all duration-300 glow-card">
-              <div className="relative aspect-[2/3] overflow-hidden">
+            <div className=" group
+w-full
+h-full
+rounded-xl
+overflow-hidden
+bg-card
+border
+border-border/30">
+            <div className="relative aspect-[2/3] max-h-[180px] sm:max-h-none overflow-hidden">
                 <img
                   src={m.poster_url || '/placeholder.svg'}
                   alt={m.title}
                   loading="lazy"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="block w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-60" />
                 {m.rating > 0 && (
