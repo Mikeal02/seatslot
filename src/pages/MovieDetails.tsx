@@ -529,7 +529,7 @@ export default function MovieDetails() {
           <div className="grid lg:grid-cols-3 gap-6 lg:gap-10">
             <div className="lg:col-span-2">
               <Tabs defaultValue="overview" className="space-y-6">
-                <TabsList className=" backdrop-blur-xl border border-border/30 p-1.5 rounded-2xl w-full overflow-x-auto flex-nowrap justify-start shadow-lg">
+                <TabsList className=" backdrop-blur-xl border border-border/30 p-1.5 rounded-2xl w-full flex flex-wrap gap-2 justify-start rounded-2xl border border-border/30 p-1.5 shadow-lg">
                   <TabsTrigger value="overview" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Overview</TabsTrigger>
                   <TabsTrigger value="cast" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Cast & Crew</TabsTrigger>
                   <TabsTrigger value="media" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Media</TabsTrigger>
@@ -577,7 +577,7 @@ export default function MovieDetails() {
                         <p className="section-label mb-2">TMDB intelligence</p>
                         <h3 className="text-xl font-black tracking-tight">Verified movie data</h3>
                       </div>
-                      <div className="min-w-[180px]">
+                      <div className="min-w-0 w-full sm:min-w-[180px]">
                         <div className="mb-2 flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
                           <span>Profile depth</span>
                           <span>{dataCompleteness}%</span>
@@ -844,7 +844,7 @@ export default function MovieDetails() {
                 transition={{ delay: 0.5, duration: 0.4 }}
               >
                 {showtimes.length > 0 ? (
-                  <div className="lg:sticky lg:top-20 p-4 sm:p-6 py-6 sm:p-6 rounded-2xl bg-card border border-border/30 glow-card space-y-5">
+                 <div className="lg:sticky lg:top-20 p-4 sm:p-6 py-6 sm:p-6 rounded-2xl bg-card border border-border/30 glow-card space-y-5 overflow-hidden">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-xl cinema-gradient flex items-center justify-center">
                         <Film className="h-4 w-4 text-primary-foreground" />
@@ -855,7 +855,7 @@ export default function MovieDetails() {
                     {/* Movie mini info */}
                     <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50">
                       <img src={movie.poster_url || '/placeholder.svg'} alt="" className="w-12 h-16 rounded-lg object-cover" />
-                      <div>
+                      <div className='min-w-0 flex-1'>
                         <p className="font-semibold text-sm line-clamp-1">{movie.title}</p>
                         <p className="text-xs text-muted-foreground">{movie.duration_minutes} min • {movie.genre[0]}</p>
                       </div>
@@ -867,7 +867,7 @@ export default function MovieDetails() {
                           <div className="text-sm space-y-2 p-3 rounded-xl bg-muted/30 border border-border/20">
                             <p><span className="text-muted-foreground">Date: </span>{format(parseISO(selectedShowtime.show_date), 'EEEE, MMM d')}</p>
                             <p><span className="text-muted-foreground">Time: </span>{format(parseISO(`2000-01-01T${selectedShowtime.show_time}`), 'h:mm a')}</p>
-                            <p><span className="text-muted-foreground">Theatre: </span><span className="break-words">{selectedShowtime.screen?.theatre?.name}</span></p>
+                            <p><span className="text-muted-foreground">Theatre: </span><span className="break-all">{selectedShowtime.screen?.theatre?.name}</span></p>
                           </div>
                           <Button onClick={handleProceedToSeats} className="w-full cinema-gradient btn-professional h-12 text-base font-bold rounded-xl" size="lg">
                             Select Seats

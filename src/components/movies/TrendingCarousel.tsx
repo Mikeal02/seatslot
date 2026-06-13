@@ -38,7 +38,7 @@ export function TrendingCarousel({ movies }: TrendingCarouselProps) {
     const el = scrollRef.current;
     if (!el || trending.length === 0) return;
 
-    const speed = 0.5;
+    const speed = 2;
     const halfWidth = el.scrollWidth / 2;
 
     const animate = () => {

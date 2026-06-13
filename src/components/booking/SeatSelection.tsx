@@ -185,10 +185,13 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
       </div>
 
       {/* Seat grid container — measures width to compute fitting seat size */}
-      <div ref={containerRef} className="w-full overflow-x-auto overflow-y-visible pb-2 scrollbar-thin">
+      <div
+  ref={containerRef}
+  className="w-full max-w-full overflow-x-auto overflow-y-visible pb-2 scrollbar-thin"
+>
         <div
           className="flex flex-col items-center mx-auto"
-          style={{ gap: `${gap}px`, minWidth: 'min-content' }}
+          style={{ gap: `${gap}px`, width: '100%' }}
         >
           {sortedRows.map((row, rowIndex) => {
             const rowSeats = groupedSeats[row];

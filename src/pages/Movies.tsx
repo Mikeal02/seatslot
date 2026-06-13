@@ -295,8 +295,8 @@ export default function Movies() {
         <div className="flex flex-col gap-4 mb-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h1 className="text-2xl sm:text-3xl font-bold">All Movies</h1>
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1 sm:w-60 md:w-80">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <div className="relative w-full sm:flex-1 sm:w-60 md:w-80">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search movies..."
@@ -409,17 +409,28 @@ export default function Movies() {
         )}
 
         <Tabs defaultValue="now_showing" className="w-full">
-          <TabsList className="w-full sm:w-auto grid grid-cols-3 sm:inline-flex">
-            <TabsTrigger value="now_showing" className="text-xs sm:text-sm">
-              Now Showing ({nowShowing.length})
-            </TabsTrigger>
-            <TabsTrigger value="coming_soon" className="text-xs sm:text-sm">
-              Coming Soon ({comingSoon.length})
-            </TabsTrigger>
-            <TabsTrigger value="all" className="text-xs sm:text-sm">
-              All ({filteredMovies.length})
-            </TabsTrigger>
-          </TabsList>
+        <TabsList className="w-full  grid grid-cols-3 gap-2">
+  <TabsTrigger
+    value="now_showing"
+    className="px-4 py-2 text-xs sm:text-sm"
+  >
+    Now Showing ({nowShowing.length})
+  </TabsTrigger>
+
+  <TabsTrigger
+    value="coming_soon"
+    className="px-4 py-2 text-xs sm:text-sm"
+  >
+    Coming Soon ({comingSoon.length})
+  </TabsTrigger>
+
+  <TabsTrigger
+    value="all"
+    className="px-4 py-2 text-xs sm:text-sm"
+  >
+    All ({filteredMovies.length})
+  </TabsTrigger>
+</TabsList>
 
           <TabsContent value="now_showing" className="mt-6">
             {nowShowing.length === 0 ? (

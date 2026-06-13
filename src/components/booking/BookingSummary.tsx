@@ -69,7 +69,7 @@ export function BookingSummary({ movie, showtime, selectedSeats, concessionTotal
         </motion.div>
       </div>
 
-      <CardContent className="space-y-3 px-4 sm:px-5 pb-5">
+      <CardContent className="space-y-3 px-4 sm:px-5 pb-5  min-w-0 overflow-x-hidden">
         {/* Showtime chips */}
         <div className="grid grid-cols-1 gap-1.5 text-[10px] sm:text-xs">
           <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/15 border border-border/10">
@@ -79,9 +79,9 @@ export function BookingSummary({ movie, showtime, selectedSeats, concessionTotal
             <Clock className="h-3 w-3 text-primary/50 shrink-0" />
             <span className="font-medium">{formattedTime}</span>
           </div>
-          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/15 border border-border/10">
-            <MapPin className="h-3 w-3 text-primary/50 shrink-0" />
-            <span className="font-medium truncate">{showtime.screen?.theatre?.name} • {showtime.screen?.name}</span>
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/15 border border-border/10 min-w-0">
+  <MapPin className="h-3 w-3 text-primary/50 shrink-0" />
+  <span className="font-medium truncate min-w-0 flex-1">{showtime.screen?.theatre?.name} • {showtime.screen?.name}</span>
           </div>
         </div>
 
@@ -103,9 +103,9 @@ export function BookingSummary({ movie, showtime, selectedSeats, concessionTotal
                       <Icon className="h-2.5 w-2.5" />
                       {type}
                     </div>
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-1 max-w-full">
                       {typeSeats.map(s => (
-                        <Badge key={s.id} variant="outline" className={cn("text-[10px] font-bold px-2 py-0.5", typeColors[type])}>
+                        <Badge key={s.id} variant="outline" className={cn("max-w-full text-[10px] font-bold px-2 py-0.5", typeColors[type])}>
                           {s.row_label}{s.seat_number}
                         </Badge>
                       ))}
@@ -123,8 +123,8 @@ export function BookingSummary({ movie, showtime, selectedSeats, concessionTotal
                 const typeTotal = typeSeats.reduce((sum, s) => sum + Number(s.price), 0);
                 const Icon = typeIcons[type] || Armchair;
                 return (
-                  <div key={type} className="flex justify-between items-center">
-                    <span className="flex items-center gap-1.5 capitalize text-muted-foreground">
+                  <div key={type} className="flex justify-between items-center gap-2 min-w-0">
+                    <span className="flex items-center gap-1.5 capitalize text-muted-foreground min-w-0 truncate">
                       <Icon className="h-3 w-3" />
                       {type} × {typeSeats.length}
                     </span>
