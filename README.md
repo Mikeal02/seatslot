@@ -1,73 +1,358 @@
-# Welcome to your Lovable project
 
-## Project info
+<h1 align="center">
+  <img src="public/logo.png" alt="CineBook Logo" width="50" />
+  CineBook
+</h1>
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+<p align="center">
+  <strong>Your Personal Gateway to the Big Screen 🎬</strong>
+</p>
 
-## How can I edit this code?
+<p align="center">
+  Search • Discover • Watch Trailers • Select Seats • Book Tickets
+</p>
 
-There are several ways of editing your application.
+<p align="center">
+  <img src="https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react" />
+  <img src="https://img.shields.io/badge/TypeScript-Ready-blue?style=for-the-badge&logo=typescript" />
+  <img src="https://img.shields.io/badge/TMDB-Powered-success?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Vite-Fast-purple?style=for-the-badge&logo=vite" />
+  <img src="https://img.shields.io/badge/Responsive-Mobile%20Friendly-orange?style=for-the-badge" />
+</p>
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## 🎥 Overview
 
-Changes made via Lovable will be committed automatically to this repo.
+**CineBook** is a modern movie discovery and ticket booking platform that brings the cinema experience directly to your browser.
 
-**Use your preferred IDE**
+Powered by TMDB, CineBook allows users to discover movies, explore detailed information, watch trailers, select seats visually, and book tickets through a seamless and immersive interface.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Whether you're searching for the latest blockbuster, checking ratings, watching trailers, or reserving the perfect seat, CineBook makes the entire experience effortless.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## ✨ Core Features
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### 🔍 Smart Movie Discovery
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Explore thousands of movies instantly.
 
-# Step 3: Install the necessary dependencies.
-npm i
+- Search movies in real-time
+- Browse trending titles
+- Discover popular releases
+- Explore upcoming movies
+- View complete movie details
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+---
+
+### 🎬 Rich Movie Information
+
+Get everything you need before booking.
+
+- Posters & Backdrops
+- Ratings & Reviews
+- Genres
+- Runtime
+- Release Date
+- Cast Information
+- Movie Overview
+
+Powered by TMDB's extensive movie database.
+
+---
+
+### ▶️ Trailer Experience
+
+Watch official trailers directly within the platform.
+
+- Instant trailer playback
+- Embedded video experience
+- Quick preview before booking
+- No external navigation required
+
+---
+
+### 🎟️ Interactive Seat Selection
+
+Choose your perfect seat visually.
+
+- Real-time seat selection
+- Premium seat support
+- VIP seat indicators
+- Interactive theater layout
+- Responsive seat map
+
+---
+
+### 🏛️ Cinema Booking Experience
+
+A complete ticket-booking workflow.
+
+- Select movie
+- Choose showtime
+- Pick seats
+- Review booking
+- Confirm reservation
+
+---
+
+### 📱 Fully Responsive Design
+
+Designed for every screen size.
+
+- Mobile Devices
+- Tablets
+- Laptops
+- Desktop Screens
+
+---
+
+### 🌙 Modern User Experience
+
+- Dark Mode Support
+- Smooth Animations
+- Fast Navigation
+- Intuitive Interface
+- Beautiful UI Components
+
+---
+
+## 🚀 User Journey
+
+```text
+Search Movie
+      ↓
+Explore Details
+      ↓
+Watch Trailer
+      ↓
+Choose Showtime
+      ↓
+Select Seats
+      ↓
+Review Booking
+      ↓
+Confirm Ticket
+````
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+* React
+* TypeScript
+* Vite
+
+### Styling
+
+* Tailwind CSS
+* shadcn/ui
+
+### UI Components
+
+* Radix UI
+* Lucide Icons
+
+### State Management
+
+* TanStack React Query
+
+### Routing
+
+* React Router
+
+### Validation
+
+* React Hook Form
+* Zod
+
+### APIs
+
+* TMDB API
+
+---
+
+## 📸 Screenshots
+
+### 🏠 Home Page
+
+![Home Page](README-assets/homepage.png)
+
+---
+
+### 🎬 Movie Details
+
+![Movie Details](README-assets/movie-details.png)
+
+---
+
+### 🎟️ Seat Selection
+
+![Seat Selection](README-assets/seat-selection.png)
+
+---
+
+### 📱 Booked Ticket
+
+![Mobile View](README-assets/mobile-view.png)
+
+---
+
+## ⚙️ Installation
+
+### Prerequisites
+
+* Node.js (LTS)
+* npm
+
+### Clone Repository
+
+```bash
+git clone <YOUR_REPOSITORY_URL>
+cd cinebook
+```
+
+### Install Dependencies
+
+```bash
+npm install
+```
+
+### Start Development Server
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🔑 Environment Variables
 
-**Use GitHub Codespaces**
+Create a `.env` file in the root directory.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```env
+VITE_TMDB_API_KEY=YOUR_API_KEY
+```
 
-## What technologies are used for this project?
+Get your API key from:
+```bash
+https://www.themoviedb.org/
+```
+--
+---
 
-This project is built with:
+## 🌐 Live Demo
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```text
+https://seatslot.netlify.app
+```
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## 🎯 Project Vision
 
-## Can I connect a custom domain to my Lovable project?
+Cinema booking should feel as exciting as watching the movie itself.
 
-Yes, you can!
+CineBook aims to provide:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+* Faster movie discovery
+* Better booking experiences
+* Beautiful seat selection
+* Modern cinema interfaces
+* Seamless user journeys
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+---
+
+## 🔮 Future Roadmap
+
+### Discovery
+
+* [x] Personalized Recommendations
+* [x] AI Movie Suggestions
+* [x] Advanced Filtering
+* [x] Watchlists
+
+### Booking
+
+* [x] Payment Integration
+* [x] QR Tickets
+* [x] Booking History
+* [ ] Ticket Cancellation
+
+### Social Features
+
+* [ ] User Reviews
+* [ ] Ratings
+* [ ] Friend Activity
+* [ ] Shared Watchlists
+
+### Entertainment
+
+* [ ] TV Shows Support
+* [ ] Anime Support
+* [ ] Streaming Availability
+* [x] Celebrity Profiles
+
+---
+
+## 🏗️ Project Architecture
+
+```text
+TMDB API
+    ↓
+Data Fetching Layer
+    ↓
+React Query Cache
+    ↓
+Application State
+    ↓
+UI Components
+    ↓
+User Experience
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome.
+
+1. Fork the repository
+
+2. Create a feature branch
+
+```bash
+git checkout -b feature/amazing-feature
+```
+
+3. Commit your changes
+
+```bash
+git commit -m "Add amazing feature"
+```
+
+4. Push your branch
+
+```bash
+git push origin feature/amazing-feature
+```
+
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+Licensed under the MIT License.
+
+---
+
+<p align="center">
+  <strong>🎬 CineBook</strong>
+  <br/>
+  Bringing the Magic of Cinema to Every Screen.
+</p>
+```
