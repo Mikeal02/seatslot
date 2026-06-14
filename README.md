@@ -1,7 +1,6 @@
 
 <h1 align="center">
-  <img src="public/logo.png" alt="CineBook Logo" width="50" />
-  CineBook
+  <img src="public/favicon.png" alt="CineBook Logo" width="40" />  CineBook
 </h1>
 
 <p align="center">
@@ -179,25 +178,25 @@ Confirm Ticket
 
 ### 🏠 Home Page
 
-![Home Page](README-assets/homepage.png)
+![Home Page](public/Homepage.png)
 
 ---
 
 ### 🎬 Movie Details
 
-![Movie Details](README-assets/movie-details.png)
+![Movie Details](public/MovieDetails.png)
 
 ---
 
 ### 🎟️ Seat Selection
 
-![Seat Selection](README-assets/seat-selection.png)
+![Seat Selection](public/Seats.png)
 
 ---
 
 ### 📱 Booked Ticket
 
-![Mobile View](README-assets/mobile-view.png)
+![Mobile View](public/Ticket.png)
 
 ---
 
@@ -351,7 +350,7 @@ Licensed under the MIT License.
 ---
 
 <p align="center">
-  <strong>🎬 CineBook</strong>
+  <strong><img src="public/favicon.png" alt="CineBook Logo" width="40" />  CineBook</strong>
   <br/>
   Bringing the Magic of Cinema to Every Screen.
 </p>
