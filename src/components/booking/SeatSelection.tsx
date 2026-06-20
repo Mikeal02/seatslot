@@ -67,7 +67,7 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
         const aisle = Math.max(8, g * 3);
         // total = 2 row labels + gaps between row label and seats + (n-1) gaps between seats + aisle gap + seats
         const fixed = label * 2 + g * 2 + aisle + g * (maxSeatsPerRow - 1);
-        const available = containerWidth - fixed;
+        const available = containerWidth - fixed - 16;
         const size = Math.floor(available / maxSeatsPerRow);
         if (size >= SEAT_MIN) {
           return {
@@ -162,7 +162,7 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
       </div>
 
       {/* Price cards */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+      <div className="relative overflow-hidden rounded-xl p-2 sm:p-3 border bg-gradient-to-br text-center min-w-0">
         {(['regular', 'premium', 'vip'] as const).map((type) => {
           const config = seatTypeConfig[type];
           const Icon = config.icon;
@@ -187,7 +187,7 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
       {/* Seat grid container — measures width to compute fitting seat size */}
       <div
   ref={containerRef}
-  className="w-full max-w-full overflow-x-auto overflow-y-visible pb-2 scrollbar-thin"
+  className="w-full max-w-full overflow-hidden pb-2"
 >
         <div
           className="flex flex-col items-center mx-auto"
@@ -201,7 +201,7 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
             return (
               <motion.div
                 key={row}
-                className="flex items-center"
+                className="flex items-center overflow-hidden"
                 style={{ gap: `${gap}px` }}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -221,7 +221,7 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
                   {row}
                 </span>
 
-                <div className="flex items-center" style={{ gap: `${gap}px` }}>
+                <div className="flex items-center overflow-hidden" style={{ gap: `${gap}px` }}>
                   {rowSeats.map((seat, seatIdx) => {
                     const isBooked = bookedSeatIds.includes(seat.id);
                     const isSelected = selectedSeats.some((s) => s.id === seat.id);
@@ -239,7 +239,7 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
                           onMouseLeave={() => setHoveredSeat(null)}
                           disabled={isBooked}
                           whileTap={!isBooked ? { scale: 0.9 } : undefined}
-                          whileHover={!isBooked ? { scale: 1.12 } : undefined}
+                          whileHover={!isBooked ? { scale: 1.05 } : undefined}
                           animate={isSelected ? { scale: [1, 1.08, 1] } : {}}
                           transition={{ duration: 0.2 }}
                           style={{

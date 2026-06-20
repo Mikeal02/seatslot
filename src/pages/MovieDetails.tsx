@@ -577,7 +577,7 @@ export default function MovieDetails() {
                         <p className="section-label mb-2">TMDB intelligence</p>
                         <h3 className="text-xl font-black tracking-tight">Verified movie data</h3>
                       </div>
-                      <div className="min-w-0 w-full sm:min-w-[180px]">
+                      <div className="min-w-[180px]">
                         <div className="mb-2 flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
                           <span>Profile depth</span>
                           <span>{dataCompleteness}%</span>
