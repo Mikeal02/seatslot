@@ -837,7 +837,7 @@ export default function MovieDetails() {
             </div>
 
             {/* Booking Card */}
-            <div className="lg:col-span-1 order-first lg:order-last">
+            <div className="lg:col-span-1 order-first lg:order-last min-w-0">
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}

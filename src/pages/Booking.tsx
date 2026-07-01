@@ -299,7 +299,7 @@ export default function Booking() {
           </div>
 
           {/* Main Content */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 min-w-0">
             <AnimatePresence mode="wait">
               {currentStep === 'seats' && (
                 <motion.div 
