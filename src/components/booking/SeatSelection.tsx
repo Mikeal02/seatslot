@@ -162,7 +162,7 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
       </div>
 
       {/* Price cards */}
-      <div className="relative overflow-hidden rounded-xl p-2 sm:p-3 border bg-gradient-to-br text-center min-w-0">
+      <div className="grid grid-cols-3 gap-2 w-full">
         {(['regular', 'premium', 'vip'] as const).map((type) => {
           const config = seatTypeConfig[type];
           const Icon = config.icon;
