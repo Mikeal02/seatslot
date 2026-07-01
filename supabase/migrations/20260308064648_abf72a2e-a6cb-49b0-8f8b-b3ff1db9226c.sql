@@ -4,16 +4,16 @@ SELECT
   sc.id,
   chr(64 + r) as row_label,
   s as seat_number,
-  CASE 
-    WHEN r <= 2 THEN 'vip'
-    WHEN r <= 4 THEN 'premium'
+ CASE
+    WHEN r > sc.total_rows - 2 THEN 'vip'
+    WHEN r > sc.total_rows - 5 THEN 'premium'
     ELSE 'regular'
-  END as seat_type,
-  CASE 
-    WHEN r <= 2 THEN 350.00
-    WHEN r <= 4 THEN 250.00
+END as seat_type,
+  CASE
+    WHEN r > sc.total_rows - 2 THEN 350.00
+    WHEN r > sc.total_rows - 5 THEN 250.00
     ELSE 150.00
-  END as price
+END as price
 FROM screens sc
 CROSS JOIN generate_series(1, sc.total_rows) AS r
 CROSS JOIN generate_series(1, sc.seats_per_row) AS s

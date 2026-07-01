@@ -67,7 +67,10 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
         const aisle = Math.max(8, g * 3);
         // total = 2 row labels + gaps between row label and seats + (n-1) gaps between seats + aisle gap + seats
         const fixed = label * 2 + g * 2 + aisle + g * (maxSeatsPerRow - 1);
-        const available = containerWidth - fixed - 16;
+        const horizontalPadding = window.innerWidth < 640 ? 24 : 16;
+
+        const available = containerWidth- fixed- horizontalPadding;
+       
         const size = Math.floor(available / maxSeatsPerRow);
         if (size >= SEAT_MIN) {
           return {
@@ -187,7 +190,7 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
       {/* Seat grid container — measures width to compute fitting seat size */}
       <div
   ref={containerRef}
-  className="w-full max-w-full overflow-hidden pb-2"
+  className="w-full px-2 sm:px-0 pb-2"
 >
         <div
           className="flex flex-col items-center mx-auto"
@@ -201,7 +204,7 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
             return (
               <motion.div
                 key={row}
-                className="flex items-center "
+                className="flex items-center"
                 style={{ gap: `${gap}px` }}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -230,7 +233,7 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
                     return (
                       <div
                         key={seat.id}
-                        className="flex shrink-0"
+                        className="flex none"
                         style={{ marginRight: isAisleAfter ? `${aisleW - gap}px` : undefined }}
                       >
                         <motion.button
@@ -243,13 +246,31 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
                           animate={isSelected ? { scale: [1, 1.08, 1] } : {}}
                           transition={{ duration: 0.2 }}
                           style={{
-                            width: `${seatSize}px`,
-                            height: `${seatSize}px`,
-                            fontSize: `${seatFont}px`,
+                            width: seatSize,
+                            aspectRatio: "1 / 1",
+                            minWidth: seatSize,
+                            minHeight: seatSize,
+                            fontSize: seatFont,
                             zIndex: hoveredSeat === seat.id || isSelected ? 5 : 1,
                           }}
                           className={cn(
-                            'relative rounded-md font-bold leading-none transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary will-change-transform',
+                            `
+                            relative
+                            shrink-0
+                            flex-none
+                            aspect-square
+                            p-0
+                            rounded-[3px]
+                            sm:rounded-md
+                            font-bold
+                            leading-none
+                            transition-colors
+                            duration-150
+                            focus-visible:outline-none
+                            focus-visible:ring-2
+                            focus-visible:ring-primary
+                            will-change-transform
+                            `,
                             isBooked && 'bg-muted/20 cursor-not-allowed opacity-20',
                             isSelected && 'bg-primary text-primary-foreground shadow-md shadow-primary/40 ring-2 ring-primary/30',
                             !isBooked &&
