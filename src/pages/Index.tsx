@@ -27,6 +27,37 @@ const rotatedWindow = (movies: Movie[], size = 6) => {
   return [...movies.slice(start), ...movies.slice(0, start)].slice(0, size);
 };
 
+const MOVIES_CACHE_KEY = 'cinebook_movies_cache_v1';
+const MOVIES_CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+
+type CachedMovies = { movies: Movie[]; cachedAt: number };
+
+const readMoviesCache = (): Movie[] | null => {
+  try {
+    const sess = sessionStorage.getItem(MOVIES_CACHE_KEY);
+    if (sess) {
+      const parsed: CachedMovies = JSON.parse(sess);
+      if (parsed?.movies?.length) return parsed.movies;
+    }
+    const local = localStorage.getItem(MOVIES_CACHE_KEY);
+    if (local) {
+      const parsed: CachedMovies = JSON.parse(local);
+      if (parsed?.movies?.length && Date.now() - parsed.cachedAt < MOVIES_CACHE_TTL_MS) {
+        return parsed.movies;
+      }
+    }
+  } catch {}
+  return null;
+};
+
+const writeMoviesCache = (movies: Movie[]) => {
+  try {
+    const payload = JSON.stringify({ movies, cachedAt: Date.now() });
+    sessionStorage.setItem(MOVIES_CACHE_KEY, payload);
+    localStorage.setItem(MOVIES_CACHE_KEY, payload);
+  } catch {}
+};
+
 const Index = () => {
   const [nowShowing, setNowShowing] = useState<Movie[]>([]);
   const [comingSoon, setComingSoon] = useState<Movie[]>([]);
@@ -39,10 +70,52 @@ const Index = () => {
     loadMovies();
   }, []);
 
+  const applyMovies = (movies: Movie[]) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const recentCutoff = new Date(today);
+    recentCutoff.setDate(today.getDate() - 120);
+
+    const now = movies.filter((m) => {
+      if (!m.release_date) return true;
+      const release = new Date(m.release_date);
+      release.setHours(0, 0, 0, 0);
+      return release <= today;
+    }).sort((a, b) => {
+      const aDate = a.release_date ? new Date(a.release_date).getTime() : 0;
+      const bDate = b.release_date ? new Date(b.release_date).getTime() : 0;
+      const aRecentBoost = aDate >= recentCutoff.getTime() ? 10000 : 0;
+      const bRecentBoost = bDate >= recentCutoff.getTime() ? 10000 : 0;
+      return (bRecentBoost + bDate / 86_400_000 + Number(b.popularity || 0)) - (aRecentBoost + aDate / 86_400_000 + Number(a.popularity || 0));
+    });
+
+    const coming = movies.filter((m) => {
+      if (!m.release_date) return false;
+      const release = new Date(m.release_date);
+      release.setHours(0, 0, 0, 0);
+      return release > today;
+    });
+
+    setNowShowing(now);
+    setComingSoon(coming);
+    setFeaturedMovie((rotatedWindow(now, 6)[0] as Movie) || null);
+  };
+
   const loadMovies = async () => {
     try {
+      // 1) Instant render from cache if we have it
+      const cached = readMoviesCache();
+      if (cached && cached.length) {
+        applyMovies(cached);
+        setLoading(false);
+      }
+
+      // 2) Fetch fresh from Supabase in background (or as first paint if no cache)
       await fetchMoviesFromDB();
       setLoading(false);
+
+      // 3) Trigger TMDB sync only if the hook decides it's due (respects its own TTL)
       const synced = await syncMovies();
       if (synced) {
         await fetchMoviesFromDB();
@@ -73,35 +146,9 @@ const Index = () => {
       return;
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const recentCutoff = new Date(today);
-    recentCutoff.setDate(today.getDate() - 120);
-
-    const now = (movies || []).filter((m) => {
-      if (!m.release_date) return true;
-      const release = new Date(m.release_date);
-      release.setHours(0, 0, 0, 0);
-      return release <= today;
-    }).sort((a, b) => {
-      const aDate = a.release_date ? new Date(a.release_date).getTime() : 0;
-      const bDate = b.release_date ? new Date(b.release_date).getTime() : 0;
-      const aRecentBoost = aDate >= recentCutoff.getTime() ? 10000 : 0;
-      const bRecentBoost = bDate >= recentCutoff.getTime() ? 10000 : 0;
-      return (bRecentBoost + bDate / 86_400_000 + Number(b.popularity || 0)) - (aRecentBoost + aDate / 86_400_000 + Number(a.popularity || 0));
-    });
-
-    const coming = (movies || []).filter((m) => {
-      if (!m.release_date) return false;
-      const release = new Date(m.release_date);
-      release.setHours(0, 0, 0, 0);
-      return release > today;
-    });
-
-    setNowShowing(now as Movie[]);
-    setComingSoon(coming as Movie[]);
-    setFeaturedMovie((rotatedWindow(now as Movie[], 6)[0] as Movie) || null);
+    const list = (movies || []) as Movie[];
+    writeMoviesCache(list);
+    applyMovies(list);
 
     if (movies?.length === 0) {
       toast({
