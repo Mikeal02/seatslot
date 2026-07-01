@@ -358,7 +358,7 @@ export default function MovieDetails() {
       />
       <Header />
 
-      <main id="main-content" className="flex-1">
+      <main id="main-content" className="flex-1 overflow-x-hidden max-w-[100vw]">
         {/* Cinematic Hero */}
         <section className="relative h-[58vh] min-h-[320px] sm:h-[65vh] sm:min-h-[520px] overflow-hidden">
           <motion.div 
@@ -381,7 +381,7 @@ export default function MovieDetails() {
             <div className="absolute inset-0 noise-overlay pointer-events-none" />
           </motion.div>
 
-          <div className="relative container mx-auto px-5 sm:px-6 h-full flex items-end pb-10">
+          <div className="relative container mx-auto px-3 sm:px-6 h-full flex items-end pb-10">
             <div className="flex gap-6 md:gap-8 items-end w-full">
               <motion.div
                 className="hidden sm:block relative"
@@ -502,7 +502,7 @@ export default function MovieDetails() {
         </section>
 
         <section className="border-y border-border/20 bg-card/35 backdrop-blur-xl">
-          <div className="container mx-auto px-5 sm:px-6 py-5">
+          <div className="container mx-auto px-3 sm:px-6 py-5">
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
               {detailCards.map(({ label, value, icon: Icon }, index) => (
                 <motion.div
@@ -525,9 +525,9 @@ export default function MovieDetails() {
         </section>
 
         {/* Main Content */}
-        <section className="container mx-auto px-5 sm:px-6 py-6 sm:py-10">
-          <div className="grid lg:grid-cols-3 gap-6 lg:gap-10">
-            <div className="lg:col-span-2">
+        <section className="container mx-auto px-3 sm:px-6 py-6 sm:py-10">
+          <div className="grid lg:grid-cols-3 gap-6 lg:gap-10 min-w-0">
+            <div className="lg:col-span-2 min-w-0">
               <Tabs defaultValue="overview" className="space-y-6">
                 <TabsList className=" backdrop-blur-xl border border-border/30 p-1.5 rounded-2xl w-full flex flex-wrap gap-2 justify-start rounded-2xl border border-border/30 p-1.5 shadow-lg">
                   <TabsTrigger value="overview" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Overview</TabsTrigger>
