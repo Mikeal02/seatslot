@@ -107,7 +107,7 @@ overflow-hidden
 bg-card
 border
 border-border/30">
-            <div className="relative aspect-[2/3] max-h-[180px] sm:max-h-none overflow-hidden">
+            <div className="relative aspect-[2/3] w-full overflow-hidden">
                 <img
                   src={m.poster_url || '/placeholder.svg'}
                   alt={m.title}

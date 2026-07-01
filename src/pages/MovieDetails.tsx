@@ -899,7 +899,7 @@ export default function MovieDetails() {
       </main>
 
       {/* Floating Book CTA - appears on scroll for mobile */}
-      <FloatingBookCTA 
+      {/* <FloatingBookCTA 
         movie={movie}
         hasShowtimes={showtimes.length > 0}
         onBookClick={() => {
@@ -909,7 +909,7 @@ export default function MovieDetails() {
             document.querySelector('#showtimes-section')?.scrollIntoView({ behavior: 'smooth' });
           }
         }}
-      />
+      /> */}
 
       <Footer />
     </motion.div>

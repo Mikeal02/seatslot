@@ -201,7 +201,7 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
             return (
               <motion.div
                 key={row}
-                className="flex items-center overflow-hidden"
+                className="flex items-center "
                 style={{ gap: `${gap}px` }}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -221,7 +221,7 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
                   {row}
                 </span>
 
-                <div className="flex items-center overflow-hidden" style={{ gap: `${gap}px` }}>
+                <div className="flex items-center " style={{ gap: `${gap}px` }}>
                   {rowSeats.map((seat, seatIdx) => {
                     const isBooked = bookedSeatIds.includes(seat.id);
                     const isSelected = selectedSeats.some((s) => s.id === seat.id);

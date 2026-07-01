@@ -84,7 +84,7 @@ export function CastCarousel({ cast, director, composers, cinematographers, edit
       )}
 
       {/* Cast scroll */}
-      <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-thin ">
+      <div className="flex flex-nowrap gap-3 overflow-x-auto overflow-y-hidden pb-3 w-full min-w-0 scrollbar-thin">
         {detailed
           ? (cast as CastMember[]).map((member, i) => {
               const inner = (
