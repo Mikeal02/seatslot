@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Clock, Star, Calendar, Users, TrendingUp, Eye, Film, Clapperboard, Globe, Quote, BarChart3, Shield, Tag, Tv, ExternalLink, Languages, Image as LucideImage } from 'lucide-react';
-import { FloatingBookCTA } from '@/components/movies/FloatingBookCTA';
+import { BackButton } from '@/components/nav/BackButton';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -408,9 +408,8 @@ export default function MovieDetails() {
               >
                 {/* Action bar */}
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Button variant="ghost" size="sm" asChild className="bg-background/30 backdrop-blur-sm">
-                    <Link to="/"><ArrowLeft className="h-4 w-4 mr-2" />Back</Link>
-                  </Button>
+                  <BackButton />
+
                   <WishlistButton movieId={movie.id} movieTitle={movie.title} variant="outline" className="bg-background/30 backdrop-blur-sm hover:bg-background/60" />
                   <SocialShare title={movie.title} description={movie.description || `Watch ${movie.title}`} variant="outline" />
                 </div>

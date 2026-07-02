@@ -291,9 +291,8 @@ export default function PersonDetails() {
           )}
 
           <div className="relative container mx-auto px-4 py-10 md:py-16">
-            <Button variant="ghost" size="sm" asChild className="mb-6 bg-background/30 backdrop-blur-sm">
-              <Link to="/"><ArrowLeft className="h-4 w-4 mr-2" />Back</Link>
-            </Button>
+            <BackButton className="mb-6" />
+
 
             <div className="flex flex-col md:flex-row gap-6 md:gap-10">
               {/* Photo */}
