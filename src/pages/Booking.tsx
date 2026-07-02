@@ -5,6 +5,7 @@ import { ArrowLeft, Timer, Film, MapPin, Calendar, Clock, Sparkles, ShieldCheck,
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
+import { BackButton } from '@/components/nav/BackButton';
 import { Footer } from '@/components/layout/Footer';
 import { SeatSelection } from '@/components/booking/SeatSelection';
 import { BookingSummary } from '@/components/booking/BookingSummary';
@@ -213,9 +214,7 @@ export default function Booking() {
             <img src={movie.poster_url || '/placeholder.svg'} alt={movie.title} className="w-16 h-24 rounded-lg object-cover shadow-lg border border-border/20 hidden sm:block" />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <Button variant="ghost" size="sm" asChild className="h-7 px-2 text-xs">
-                  <Link to={`/movie/${movie.id}`}><ArrowLeft className="h-3 w-3 mr-1" />Back</Link>
-                </Button>
+                <BackButton fallback={`/movie/${movie.id}`} className="h-7 px-2 text-xs" />
                 {selectedSeats.length > 0 && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
