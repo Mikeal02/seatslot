@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Calendar, MapPin, Star, Film, Tv, Award, TrendingUp, ExternalLink, Users, BarChart3, Clock } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
+import { BackButton } from '@/components/nav/BackButton';
 import { Footer } from '@/components/layout/Footer';
 import { MetaTags } from '@/components/MetaTags';
 import { Button } from '@/components/ui/button';
