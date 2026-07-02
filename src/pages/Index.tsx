@@ -27,8 +27,8 @@ const rotatedWindow = (movies: Movie[], size = 6) => {
   return [...movies.slice(start), ...movies.slice(0, start)].slice(0, size);
 };
 
-const MOVIES_CACHE_KEY = 'cinebook_movies_cache_v1';
-const MOVIES_CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+const MOVIES_CACHE_KEY = 'cinebook_movies_cache_v2';
+const MOVIES_CACHE_TTL_MS = 10 * 24 * 60 * 60 * 1000; // 10 days
 
 type CachedMovies = { movies: Movie[]; cachedAt: number };
 

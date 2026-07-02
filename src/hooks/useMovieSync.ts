@@ -21,8 +21,8 @@ interface TMDBMovie {
   popularity?: number;
 }
 
-const SYNC_CACHE_KEY = 'movie_sync_timestamp_v4';
-const CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours
+const SYNC_CACHE_KEY = 'movie_sync_timestamp_v5';
+const CACHE_DURATION = 10 * 24 * 60 * 60 * 1000; // 10 days
 
 // Fetch full details concurrently in small batches so runtime / cast / director / genres are accurate
 async function enrichWithDetails(movies: TMDBMovie[]): Promise<TMDBMovie[]> {
