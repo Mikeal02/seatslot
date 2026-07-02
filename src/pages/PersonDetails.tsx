@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Calendar, MapPin, Star, Film, Tv, Award, TrendingUp, ExternalLink, Users, BarChart3, Clock } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
+import { BackButton } from '@/components/nav/BackButton';
 import { Footer } from '@/components/layout/Footer';
 import { MetaTags } from '@/components/MetaTags';
 import { Button } from '@/components/ui/button';
@@ -291,9 +292,8 @@ export default function PersonDetails() {
           )}
 
           <div className="relative container mx-auto px-4 py-10 md:py-16">
-            <Button variant="ghost" size="sm" asChild className="mb-6 bg-background/30 backdrop-blur-sm">
-              <Link to="/"><ArrowLeft className="h-4 w-4 mr-2" />Back</Link>
-            </Button>
+            <BackButton className="mb-6" />
+
 
             <div className="flex flex-col md:flex-row gap-6 md:gap-10">
               {/* Photo */}
