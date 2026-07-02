@@ -13,6 +13,7 @@ import { MobileNavBar } from "@/components/layout/MobileNavBar";
 import { AmbientSpotlight } from "@/components/effects/AmbientSpotlight";
 import { AuroraBackground } from "@/components/effects/AuroraBackground";
 import { ScrollProgressBeam } from "@/components/effects/ScrollProgressBeam";
+import { ScrollManager } from "@/components/nav/ScrollManager";
 
 // Lazy load routes for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -54,6 +55,7 @@ function AnimatedRoutes() {
   
   return (
     <ErrorBoundary>
+      <ScrollManager />
       <AnimatePresence mode="wait">
         <Suspense fallback={<PageLoader />}>
           <Routes location={location} key={location.pathname}>
