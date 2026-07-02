@@ -18,13 +18,18 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useMovieSync } from '@/hooks/useMovieSync';
 
-const FOUR_DAY_ROTATION_MS = 4 * 24 * 60 * 60 * 1000;
-
+/**
+ * Show the freshest movies at the top: sort by release_date desc first,
+ * then popularity. Guarantees the newest releases lead the hero + grid.
+ */
 const rotatedWindow = (movies: Movie[], size = 6) => {
-  if (movies.length <= size) return movies;
-  const rotation = Math.floor(Date.now() / FOUR_DAY_ROTATION_MS);
-  const start = (rotation * size) % movies.length;
-  return [...movies.slice(start), ...movies.slice(0, start)].slice(0, size);
+  const sorted = [...movies].sort((a, b) => {
+    const aDate = a.release_date ? new Date(a.release_date).getTime() : 0;
+    const bDate = b.release_date ? new Date(b.release_date).getTime() : 0;
+    if (bDate !== aDate) return bDate - aDate;
+    return Number(b.popularity || 0) - Number(a.popularity || 0);
+  });
+  return sorted.slice(0, size);
 };
 
 const MOVIES_CACHE_KEY = 'cinebook_movies_cache_v2';

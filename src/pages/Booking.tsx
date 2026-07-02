@@ -213,8 +213,10 @@ export default function Booking() {
             <img src={movie.poster_url || '/placeholder.svg'} alt={movie.title} className="w-16 h-24 rounded-lg object-cover shadow-lg border border-border/20 hidden sm:block" />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <Button variant="ghost" size="sm" asChild className="h-7 px-2 text-xs">
-                  <Link to={`/movie/${movie.id}`}><ArrowLeft className="h-3 w-3 mr-1" />Back</Link>
+                <Button variant="ghost" size="sm" onClick={() => (window.history.state?.idx ?? 0) > 0 ? window.history.back() : null} asChild={((window.history.state?.idx ?? 0) === 0)} className="h-7 px-2 text-xs">
+                  {((window.history.state?.idx ?? 0) === 0)
+                    ? <Link to={`/movie/${movie.id}`}><ArrowLeft className="h-3 w-3 mr-1" />Back</Link>
+                    : <span><ArrowLeft className="h-3 w-3 mr-1 inline" />Back</span>}
                 </Button>
                 {selectedSeats.length > 0 && (
                   <motion.div
