@@ -147,7 +147,11 @@ export function SeatSelection({ seats, bookedSeatIds, lockedByOtherSeatIds = [],
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-5 h-5 rounded-md bg-muted/30 opacity-40" />
-            <span className="text-muted-foreground">Taken</span>
+            <span className="text-muted-foreground">Booked</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-5 h-5 rounded-md bg-muted-foreground/30 border border-muted-foreground/40" />
+            <span className="text-muted-foreground">Reserved</span>
           </div>
         </div>
 
