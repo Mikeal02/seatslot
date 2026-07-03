@@ -8,6 +8,7 @@ import { Armchair, Crown, Star, Zap } from 'lucide-react';
 interface SeatSelectionProps {
   seats: Seat[];
   bookedSeatIds: string[];
+  lockedByOtherSeatIds?: string[];
   selectedSeats: Seat[];
   onSelectionChange: (seats: Seat[]) => void;
 }
@@ -26,7 +27,8 @@ const GAP_MAX = 6;
 const ROW_LABEL_MIN = 18;
 const ROW_LABEL_MAX = 28;
 
-export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelectionChange }: SeatSelectionProps) {
+export function SeatSelection({ seats, bookedSeatIds, lockedByOtherSeatIds = [], selectedSeats, onSelectionChange }: SeatSelectionProps) {
+  const lockedByOtherSet = useMemo(() => new Set(lockedByOtherSeatIds), [lockedByOtherSeatIds]);
   const [hoveredSeat, setHoveredSeat] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -88,6 +90,7 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
 
   const handleSeatClick = (seat: Seat) => {
     if (bookedSeatIds.includes(seat.id)) return;
+    if (lockedByOtherSet.has(seat.id)) return;
     const isSelected = selectedSeats.some((s) => s.id === seat.id);
     onSelectionChange(
       isSelected ? selectedSeats.filter((s) => s.id !== seat.id) : [...selectedSeats, seat]
@@ -144,7 +147,11 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-5 h-5 rounded-md bg-muted/30 opacity-40" />
-            <span className="text-muted-foreground">Taken</span>
+            <span className="text-muted-foreground">Booked</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-5 h-5 rounded-md bg-muted-foreground/30 border border-muted-foreground/40" />
+            <span className="text-muted-foreground">Reserved</span>
           </div>
         </div>
 
@@ -227,7 +234,9 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
                 <div className="flex items-center " style={{ gap: `${gap}px` }}>
                   {rowSeats.map((seat, seatIdx) => {
                     const isBooked = bookedSeatIds.includes(seat.id);
+                    const isLockedByOther = !isBooked && lockedByOtherSet.has(seat.id);
                     const isSelected = selectedSeats.some((s) => s.id === seat.id);
+                    const isDisabled = isBooked || isLockedByOther;
                     const isAisleAfter = seatIdx === midpoint - 1;
 
                     return (
@@ -238,16 +247,16 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
                       >
                         <motion.button
                           onClick={() => handleSeatClick(seat)}
-                          onMouseEnter={() => !isBooked && setHoveredSeat(seat.id)}
+                          onMouseEnter={() => !isDisabled && setHoveredSeat(seat.id)}
                           onMouseLeave={() => setHoveredSeat(null)}
-                          disabled={isBooked}
-                          whileTap={!isBooked ? { scale: 0.9 } : undefined}
-                          whileHover={!isBooked ? { scale: 1.05 } : undefined}
+                          disabled={isDisabled}
+                          whileTap={!isDisabled ? { scale: 0.9 } : undefined}
+                          whileHover={!isDisabled ? { scale: 1.05 } : undefined}
                           animate={isSelected ? { scale: [1, 1.08, 1] } : {}}
                           transition={{ duration: 0.2 }}
                           style={{
                             width: seatSize,
-                            aspectRatio: "1 / 1",
+                            aspectRatio: '1 / 1',
                             minWidth: seatSize,
                             minHeight: seatSize,
                             fontSize: seatFont,
@@ -272,22 +281,24 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
                             will-change-transform
                             `,
                             isBooked && 'bg-muted/20 cursor-not-allowed opacity-20',
+                            isLockedByOther &&
+                              'bg-muted-foreground/25 border border-muted-foreground/30 text-transparent cursor-not-allowed',
                             isSelected && 'bg-primary text-primary-foreground shadow-md shadow-primary/40 ring-2 ring-primary/30',
-                            !isBooked &&
+                            !isDisabled &&
                               !isSelected &&
                               seat.seat_type === 'vip' &&
                               'bg-purple-500/15 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30',
-                            !isBooked &&
+                            !isDisabled &&
                               !isSelected &&
                               seat.seat_type === 'premium' &&
                               'bg-amber-500/12 border border-amber-500/25 text-amber-300 hover:bg-amber-500/25',
-                            !isBooked &&
+                            !isDisabled &&
                               !isSelected &&
                               seat.seat_type === 'regular' &&
                               'bg-secondary/60 border border-border/40 hover:bg-primary/20 hover:border-primary/30'
                           )}
                           aria-label={`${row}${seat.seat_number}, ${seat.seat_type}, ₹${seat.price}${
-                            isBooked ? ', taken' : isSelected ? ', selected' : ''
+                            isBooked ? ', booked' : isLockedByOther ? ', reserved by another user' : isSelected ? ', selected' : ''
                           }`}
                           aria-pressed={isSelected}
                         >

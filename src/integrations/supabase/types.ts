@@ -451,6 +451,48 @@ export type Database = {
           },
         ]
       }
+      seat_locks: {
+        Row: {
+          expires_at: string
+          id: string
+          locked_at: string
+          seat_id: string
+          showtime_id: string
+          user_id: string
+        }
+        Insert: {
+          expires_at?: string
+          id?: string
+          locked_at?: string
+          seat_id: string
+          showtime_id: string
+          user_id: string
+        }
+        Update: {
+          expires_at?: string
+          id?: string
+          locked_at?: string
+          seat_id?: string
+          showtime_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seat_locks_seat_id_fkey"
+            columns: ["seat_id"]
+            isOneToOne: false
+            referencedRelation: "seats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seat_locks_showtime_id_fkey"
+            columns: ["showtime_id"]
+            isOneToOne: false
+            referencedRelation: "showtimes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       seats: {
         Row: {
           created_at: string
@@ -610,8 +652,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      acquire_seat_locks: {
+        Args: { p_seat_ids: string[]; p_showtime_id: string }
+        Returns: {
+          reason: string
+          seat_id: string
+          success: boolean
+        }[]
+      }
       award_loyalty_points: {
         Args: { p_amount: number; p_booking_id?: string; p_description: string }
+        Returns: undefined
+      }
+      cleanup_showtime_if_ended: {
+        Args: { p_showtime_id: string }
         Returns: undefined
       }
       generate_showtimes_for_movies: { Args: never; Returns: undefined }
@@ -695,6 +749,10 @@ export type Database = {
       redeem_loyalty_points: {
         Args: { p_description: string; p_points: number }
         Returns: undefined
+      }
+      release_seat_locks: {
+        Args: { p_seat_ids: string[]; p_showtime_id: string }
+        Returns: number
       }
     }
     Enums: {
