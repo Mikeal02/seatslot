@@ -99,6 +99,13 @@ serve(async (req) => {
       throw new Error("Some seats were already booked. Payment will be refunded.");
     }
 
+    // Release temporary seat locks for these seats (any user) — booking is now permanent
+    await supabaseAdmin
+      .from("seat_locks")
+      .delete()
+      .eq("showtime_id", showtimeId)
+      .in("seat_id", seatIds);
+
     // Save concession orders if any
     if (concessionItems.length > 0 && concessionTotal > 0) {
       const { data: concessionOrder } = await supabaseAdmin
