@@ -8,6 +8,7 @@ import { Armchair, Crown, Star, Zap } from 'lucide-react';
 interface SeatSelectionProps {
   seats: Seat[];
   bookedSeatIds: string[];
+  lockedByOtherSeatIds?: string[];
   selectedSeats: Seat[];
   onSelectionChange: (seats: Seat[]) => void;
 }
@@ -26,7 +27,8 @@ const GAP_MAX = 6;
 const ROW_LABEL_MIN = 18;
 const ROW_LABEL_MAX = 28;
 
-export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelectionChange }: SeatSelectionProps) {
+export function SeatSelection({ seats, bookedSeatIds, lockedByOtherSeatIds = [], selectedSeats, onSelectionChange }: SeatSelectionProps) {
+  const lockedByOtherSet = useMemo(() => new Set(lockedByOtherSeatIds), [lockedByOtherSeatIds]);
   const [hoveredSeat, setHoveredSeat] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -88,6 +90,7 @@ export function SeatSelection({ seats, bookedSeatIds, selectedSeats, onSelection
 
   const handleSeatClick = (seat: Seat) => {
     if (bookedSeatIds.includes(seat.id)) return;
+    if (lockedByOtherSet.has(seat.id)) return;
     const isSelected = selectedSeats.some((s) => s.id === seat.id);
     onSelectionChange(
       isSelected ? selectedSeats.filter((s) => s.id !== seat.id) : [...selectedSeats, seat]
