@@ -51,7 +51,11 @@ CREATE OR REPLACE FUNCTION public.acquire_seat_locks(
   p_showtime_id uuid,
   p_seat_ids uuid[]
 )
-RETURNS TABLE(seat_id uuid, success boolean, reason text)
+RETURNS TABLE(
+    locked_seat_id uuid,
+    success boolean,
+    reason text
+)
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
@@ -88,8 +92,8 @@ BEGIN
     BEGIN
       -- Reject if already permanently booked
       IF EXISTS (
-        SELECT 1 FROM public.booked_seats
-         WHERE showtime_id = p_showtime_id AND seat_id = v_seat
+        SELECT 1 FROM public.booked_seats bs
+         WHERE bs.showtime_id = p_showtime_id AND bs.seat_id = v_seat
       ) THEN
         seat_id := v_seat; success := false; reason := 'already_booked'; RETURN NEXT;
         CONTINUE;
@@ -101,13 +105,19 @@ BEGIN
     EXCEPTION WHEN unique_violation THEN
       -- Someone else holds a lock. If it's ours, treat as success (idempotent).
       IF EXISTS (
-        SELECT 1 FROM public.seat_locks
-         WHERE showtime_id = p_showtime_id AND seat_id = v_seat AND user_id = v_user
-      ) THEN
+  SELECT 1
+  FROM public.seat_locks s1
+  WHERE s1.showtime_id = p_showtime_id
+    AND s1.seat_id = v_seat
+    AND s1.user_id = v_user
+)THEN
         -- Refresh expires_at
-        UPDATE public.seat_locks
-           SET expires_at = now() + interval '10 minutes', locked_at = now()
-         WHERE showtime_id = p_showtime_id AND seat_id = v_seat AND user_id = v_user;
+        UPDATE public.seat_locks sl
+SET expires_at = now() + interval '10 minutes',
+    locked_at = now()
+WHERE sl.showtime_id = p_showtime_id
+  AND sl.seat_id = v_seat
+  AND sl.user_id = v_user;
         seat_id := v_seat; success := true; reason := NULL; RETURN NEXT;
       ELSE
         seat_id := v_seat; success := false; reason := 'locked_by_other'; RETURN NEXT;
@@ -133,10 +143,10 @@ DECLARE
 BEGIN
   IF v_user IS NULL THEN RAISE EXCEPTION 'Not authenticated'; END IF;
 
-  DELETE FROM public.seat_locks
-   WHERE showtime_id = p_showtime_id
-     AND user_id = v_user
-     AND seat_id = ANY(p_seat_ids);
+  DELETE FROM public.seat_locks sl
+WHERE sl.showtime_id = p_showtime_id
+  AND sl.user_id = v_user
+  AND sl.seat_id = ANY(p_seat_ids);
 
   GET DIAGNOSTICS v_deleted = ROW_COUNT;
   RETURN v_deleted;
