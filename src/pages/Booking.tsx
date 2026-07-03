@@ -183,8 +183,10 @@ export default function Booking() {
         },
       });
       if (error) throw error;
-      if (data?.url) { window.location.href = data.url; }
-      else throw new Error('Failed to create payment session');
+      if (data?.url) {
+        markPaymentInitiated();
+        window.location.href = data.url;
+      } else throw new Error('Failed to create payment session');
     } catch (error: any) {
       toast({ variant: 'destructive', title: 'Payment failed', description: error.message || 'Failed to initiate payment.' });
     } finally {
@@ -358,7 +360,13 @@ export default function Booking() {
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <SeatSelection seats={seats} bookedSeatIds={bookedSeatIds} selectedSeats={selectedSeats} onSelectionChange={setSelectedSeats} />
+                  <SeatSelection
+                    seats={seats}
+                    bookedSeatIds={bookedSeatIds}
+                    lockedByOtherSeatIds={lockedByOtherSeatIds}
+                    selectedSeats={selectedSeats}
+                    onSelectionChange={handleSelectionChange}
+                  />
                 </motion.div>
               )}
 
