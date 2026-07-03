@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Timer, Film, MapPin, Calendar, Clock, Sparkles, ShieldCheck, ChevronRight, CreditCard } from 'lucide-react';
@@ -17,7 +17,8 @@ import { Progress } from '@/components/ui/progress';
 import { Movie, Showtime, Seat } from '@/types/database';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { useBookingTimer } from '@/hooks/useBookingTimer';
+import { useSeatLocks } from '@/hooks/useSeatLocks';
+import { useSeatReservation } from '@/hooks/useSeatReservation';
 import { format, parseISO } from 'date-fns';
 
 // Booking steps
@@ -37,37 +38,62 @@ export default function Booking() {
   const [showtime, setShowtime] = useState<Showtime | null>(null);
   const [movie, setMovie] = useState<Movie | null>(null);
   const [seats, setSeats] = useState<Seat[]>([]);
-  const [bookedSeatIds, setBookedSeatIds] = useState<string[]>([]);
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
   const [selectedConcessions, setSelectedConcessions] = useState<SelectedConcession[]>([]);
   const [loading, setLoading] = useState(true);
   const [booking, setBooking] = useState(false);
   const [currentStep, setCurrentStep] = useState<StepId>('seats');
 
+  const { locks, bookedSeatIds: bookedSet } = useSeatLocks(showtimeId, user?.id);
+  const { reserve, release, markPaymentInitiated, earliestExpiry } = useSeatReservation(showtimeId);
+
+  const bookedSeatIds = useMemo(() => Array.from(bookedSet), [bookedSet]);
+  const lockedByOtherSeatIds = useMemo(() => {
+    const arr: string[] = [];
+    locks.forEach((l, seatId) => {
+      if (l.user_id !== user?.id) arr.push(seatId);
+    });
+    return arr;
+  }, [locks, user?.id]);
+
   const concessionTotal = selectedConcessions.reduce((sum, s) => sum + s.item.price * s.quantity, 0);
   const seatTotal = selectedSeats.reduce((sum, seat) => sum + Number(seat.price), 0);
   const grandTotal = seatTotal + concessionTotal;
 
-  const { timeLeft, formattedTime, isExpired } = useBookingTimer(selectedSeats.length > 0);
+  // Countdown from earliest personal lock expiry
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const timeLeft = earliestExpiry ? Math.max(0, Math.floor((earliestExpiry - now) / 1000)) : 0;
+  const formattedTime = `${Math.floor(timeLeft / 60)}:${String(timeLeft % 60).padStart(2, '0')}`;
+  const isExpired = earliestExpiry !== null && earliestExpiry <= now;
 
-  const stepIndex = STEPS.findIndex(s => s.id === currentStep);
+  const stepIndex = STEPS.findIndex((s) => s.id === currentStep);
   const progressPercent = ((stepIndex + 1) / STEPS.length) * 100;
 
   useEffect(() => {
     if (isExpired && selectedSeats.length > 0) {
       setSelectedSeats([]);
       setCurrentStep('seats');
-      toast({ variant: 'destructive', title: 'Session expired', description: 'Your seat selection has expired. Please select again.' });
+      toast({ variant: 'destructive', title: 'Reservation expired', description: 'Your seat hold expired. Please select again.' });
     }
   }, [isExpired]);
 
+  // If another user permanently books one of our selected seats, drop it
   useEffect(() => {
-    if (!user) { navigate('/auth'); return; }
-    if (showtimeId) {
-      fetchBookingData();
-      const unsubscribe = subscribeToSeatChanges();
-      return unsubscribe;
+    if (selectedSeats.some((s) => bookedSet.has(s.id))) {
+      setSelectedSeats((prev) => prev.filter((s) => !bookedSet.has(s.id)));
     }
+  }, [bookedSet]);
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+    if (showtimeId) fetchBookingData();
   }, [showtimeId, user]);
 
   const fetchBookingData = async () => {
@@ -75,21 +101,20 @@ export default function Booking() {
       const { data: showtimeData, error: showtimeError } = await supabase
         .from('showtimes')
         .select(`*, movie:movies(*), screen:screens(*, theatre:theatres(*))`)
-        .eq('id', showtimeId).single();
+        .eq('id', showtimeId)
+        .single();
       if (showtimeError) throw showtimeError;
       setShowtime(showtimeData as Showtime);
       setMovie(showtimeData.movie as Movie);
 
       const { data: seatsData, error: seatsError } = await supabase
-        .from('seats').select('*').eq('screen_id', showtimeData.screen_id)
-        .order('row_label').order('seat_number');
+        .from('seats')
+        .select('*')
+        .eq('screen_id', showtimeData.screen_id)
+        .order('row_label')
+        .order('seat_number');
       if (seatsError) throw seatsError;
       setSeats(seatsData as Seat[]);
-
-      const { data: bookedData, error: bookedError } = await supabase
-        .from('booked_seats').select('seat_id').eq('showtime_id', showtimeId);
-      if (bookedError) throw bookedError;
-      setBookedSeatIds(bookedData.map((b) => b.seat_id));
     } catch (error) {
       console.error('Error fetching booking data:', error);
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to load booking information.' });
@@ -98,18 +123,42 @@ export default function Booking() {
     }
   };
 
-  const subscribeToSeatChanges = () => {
-    const channel = supabase
-      .channel('booked-seats-changes')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'booked_seats', filter: `showtime_id=eq.${showtimeId}` },
-        (payload) => {
-          const newSeatId = payload.new.seat_id;
-          setBookedSeatIds((prev) => [...prev, newSeatId]);
-          setSelectedSeats((prev) => prev.filter((s) => s.id !== newSeatId));
-        })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  };
+  // Optimistic seat selection with server-side lock reservation
+  const handleSelectionChange = useCallback(
+    async (nextSeats: Seat[]) => {
+      const prevIds = new Set(selectedSeats.map((s) => s.id));
+      const nextIds = new Set(nextSeats.map((s) => s.id));
+      const toAdd = nextSeats.filter((s) => !prevIds.has(s.id));
+      const toRemove = selectedSeats.filter((s) => !nextIds.has(s.id));
+
+      // Optimistic UI
+      setSelectedSeats(nextSeats);
+
+      if (toRemove.length > 0) {
+        release(toRemove.map((s) => s.id)).catch(() => {});
+      }
+
+      if (toAdd.length > 0) {
+        const res = await reserve(toAdd.map((s) => s.id));
+        if (!res.ok) {
+          const failedIds = new Set(res.failed.map((f) => f.seatId));
+          setSelectedSeats((cur) => cur.filter((s) => !failedIds.has(s.id)));
+          const firstReason = res.failed[0]?.reason;
+          toast({
+            variant: 'destructive',
+            title: 'Seat unavailable',
+            description:
+              firstReason === 'already_booked'
+                ? 'Sorry, this seat was just booked by another customer.'
+                : firstReason === 'show_ended'
+                ? 'This show has already ended.'
+                : 'Sorry, this seat was just reserved by another customer.',
+          });
+        }
+      }
+    },
+    [selectedSeats, reserve, release, toast]
+  );
 
   const handleConfirmBooking = async () => {
     if (selectedSeats.length === 0) {
