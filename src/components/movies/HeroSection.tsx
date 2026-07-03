@@ -12,7 +12,7 @@ interface HeroSectionProps {
   autoRotateInterval?: number;
 }
 
-export function HeroSection({ movie, movies, autoRotateInterval = 5000 }: HeroSectionProps) {
+export function HeroSection({ movie, movies, autoRotateInterval = 10000 }: HeroSectionProps) {
   const heroMovies = (movies && movies.length > 1)
     ? movies.filter(m => m.backdrop_url).slice(0, 6)
     : [movie];
@@ -64,12 +64,15 @@ export function HeroSection({ movie, movies, autoRotateInterval = 5000 }: HeroSe
           initial={{ opacity: 0, scale: 1.08 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 1.02 }}
-          transition={{ duration: 1.2, ease: [0.25, 0.1, 0.25, 1] }}
+          transition={{
+            duration: 1.5,
+            ease: "easeInOut"
+        }}
         >
           <img
             src={currentMovie.backdrop_url || currentMovie.poster_url || '/placeholder.svg'}
             alt={currentMovie.title}
-            className="w-full h-full object-cover"
+            className="w-full h-[120%] object-cover object-top"
           />
         </motion.div>
       </AnimatePresence>
@@ -177,7 +180,7 @@ export function HeroSection({ movie, movies, autoRotateInterval = 5000 }: HeroSe
           {/* Navigation dots + arrows */}
           {heroMovies.length > 1 && (
             <motion.div 
-              className="flex items-center gap-4 pt-4"
+              className="hidden sm:flex items-center gap-4 pt-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
@@ -233,6 +236,8 @@ export function HeroSection({ movie, movies, autoRotateInterval = 5000 }: HeroSe
                 {String(activeIndex + 1).padStart(2, '0')} / {String(heroMovies.length).padStart(2, '0')}
               </span>
             </motion.div>
+
+            
           )}
         </div>
       </div>
@@ -257,7 +262,7 @@ export function HeroSection({ movie, movies, autoRotateInterval = 5000 }: HeroSe
               <img
                 src={m.poster_url || '/placeholder.svg'}
                 alt={m.title}
-                className="w-full h-full object-cover"
+               className="w-full h-[120%] object-cover object-top"
               />
               {i === activeIndex && (
                 <motion.div

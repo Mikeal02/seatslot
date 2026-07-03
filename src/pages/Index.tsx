@@ -229,7 +229,7 @@ const Index = () => {
           <HeroSection 
             movie={featuredMovie} 
             movies={rotatedWindow(nowShowing.filter(m => m.backdrop_url), 6)}
-            autoRotateInterval={3000}
+            autoRotateInterval={7000}
           />
         )}
         
