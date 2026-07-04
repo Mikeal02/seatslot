@@ -50,7 +50,7 @@ BEGIN
     RETURN;
   END IF;
 
-  v_new_expiry := now() + interval '10 minutes';
+  v_new_expiry := now() + interval '5 minutes';
 
   FOREACH v_seat IN ARRAY p_seat_ids LOOP
     -- Reject if already permanently booked

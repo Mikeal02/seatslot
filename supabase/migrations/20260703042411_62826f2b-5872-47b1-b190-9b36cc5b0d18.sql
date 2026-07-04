@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS public.seat_locks (
   seat_id uuid NOT NULL REFERENCES public.seats(id) ON DELETE CASCADE,
   user_id uuid NOT NULL,
   locked_at timestamptz NOT NULL DEFAULT now(),
-  expires_at timestamptz NOT NULL DEFAULT (now() + interval '10 minutes'),
+  expires_at timestamptz NOT NULL DEFAULT (now() + interval '5 minutes'),
   CONSTRAINT seat_locks_unique_show_seat UNIQUE (showtime_id, seat_id)
 );
 
@@ -182,7 +182,7 @@ BEGIN
                     UPDATE public.seat_locks sl
                     SET
                         locked_at = now(),
-                        expires_at = now() + interval '10 minutes'
+                        expires_at = now() + interval '5 minutes'
                     WHERE sl.showtime_id = p_showtime_id
                       AND sl.seat_id = v_seat
                       AND sl.user_id = v_user

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { format, addDays, isSameDay, parseISO } from 'date-fns';
+import { format, addDays, isSameDay, parseISO, isToday,set } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Clock, MapPin } from 'lucide-react';
 import { SeatAvailabilityBadge } from '@/components/booking/SeatAvailabilityBadge';
@@ -26,9 +26,33 @@ export function ShowtimeSelector({
   const dates = Array.from({ length: 7 }, (_, i) => addDays(new Date(), i));
 
   // Filter showtimes by selected date
-  const filteredShowtimes = showtimes.filter((st) =>
-    isSameDay(parseISO(st.show_date), selectedDate)
-  );
+  const now = new Date();
+
+  const filteredShowtimes = showtimes.filter((st) => {
+    const showDate = parseISO(st.show_date);
+  
+    // Only showtimes for the selected date
+    if (!isSameDay(showDate, selectedDate)) {
+      return false;
+    }
+  
+    // Future dates: show everything
+    if (!isToday(showDate)) {
+      return true;
+    }
+  
+    // Today's shows: hide past showtimes
+    const [hours, minutes] = st.show_time.split(':').map(Number);
+  
+    const showDateTime = set(showDate, {
+      hours,
+      minutes,
+      seconds: 0,
+      milliseconds: 0,
+    });
+  
+    return showDateTime > now;
+  });
 
   // Group showtimes by theatre
   const groupedByTheatre = filteredShowtimes.reduce((acc, st) => {
