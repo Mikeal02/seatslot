@@ -48,82 +48,171 @@ END $$;
 
 -- 3. RPC: acquire_seat_locks
 CREATE OR REPLACE FUNCTION public.acquire_seat_locks(
-  p_showtime_id uuid,
-  p_seat_ids uuid[]
+    p_showtime_id uuid,
+    p_seat_ids uuid[]
 )
-RETURNS TABLE(
-    locked_seat_id uuid,
+RETURNS TABLE (
+    seat_id uuid,
     success boolean,
-    reason text
+    reason text,
+    expires_at timestamptz
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
-  v_user uuid := auth.uid();
-  v_seat uuid;
-  v_show_end timestamptz;
+    v_user uuid := auth.uid();
+    v_seat uuid;
+    v_show_end timestamptz;
 BEGIN
-  IF v_user IS NULL THEN
-    RAISE EXCEPTION 'Not authenticated';
-  END IF;
+    ------------------------------------------------------------------------
+    -- Authentication
+    ------------------------------------------------------------------------
+    IF v_user IS NULL THEN
+        RAISE EXCEPTION 'Not authenticated';
+    END IF;
 
-  -- Lazy cleanup: purge expired locks for this showtime
-  DELETE FROM public.seat_locks
-   WHERE showtime_id = p_showtime_id AND expires_at < now();
+    ------------------------------------------------------------------------
+    -- Remove expired locks for this showtime
+    ------------------------------------------------------------------------
+    DELETE FROM public.seat_locks sl
+    WHERE sl.showtime_id = p_showtime_id
+      AND sl.expires_at < now();
 
-  -- Lazy cleanup: if show already ended, purge all its locks and stop.
-  SELECT (s.show_date + s.show_time + (COALESCE(m.duration_minutes, 180) || ' minutes')::interval)
+    ------------------------------------------------------------------------
+    -- Check whether show has already ended
+    ------------------------------------------------------------------------
+    SELECT
+        (
+            s.show_date
+            + s.show_time
+            + (COALESCE(m.duration_minutes, 180) || ' minutes')::interval
+        )
     INTO v_show_end
     FROM public.showtimes s
-    LEFT JOIN public.movies m ON m.id = s.movie_id
-   WHERE s.id = p_showtime_id;
+    LEFT JOIN public.movies m
+        ON m.id = s.movie_id
+    WHERE s.id = p_showtime_id;
 
-  IF v_show_end IS NOT NULL AND v_show_end < now() THEN
-    DELETE FROM public.seat_locks WHERE showtime_id = p_showtime_id;
-    FOREACH v_seat IN ARRAY p_seat_ids LOOP
-      seat_id := v_seat; success := false; reason := 'show_ended'; RETURN NEXT;
+    IF v_show_end IS NOT NULL
+       AND v_show_end < now()
+    THEN
+        DELETE FROM public.seat_locks
+        WHERE showtime_id = p_showtime_id;
+
+        FOREACH v_seat IN ARRAY p_seat_ids
+        LOOP
+            seat_id := v_seat;
+            success := false;
+            reason := 'show_ended';
+            expires_at := NULL;
+            RETURN NEXT;
+        END LOOP;
+
+        RETURN;
+    END IF;
+
+    ------------------------------------------------------------------------
+    -- Process each requested seat
+    ------------------------------------------------------------------------
+    FOREACH v_seat IN ARRAY p_seat_ids
+    LOOP
+
+        --------------------------------------------------------------------
+        -- Already permanently booked?
+        --------------------------------------------------------------------
+        IF EXISTS (
+            SELECT 1
+            FROM public.booked_seats bs
+            WHERE bs.showtime_id = p_showtime_id
+              AND bs.seat_id = v_seat
+        ) THEN
+            seat_id := v_seat;
+            success := false;
+            reason := 'already_booked';
+            expires_at := NULL;
+
+            RETURN NEXT;
+            CONTINUE;
+        END IF;
+
+        --------------------------------------------------------------------
+        -- Try to create a new lock
+        --------------------------------------------------------------------
+        BEGIN
+
+            INSERT INTO public.seat_locks (
+                showtime_id,
+                seat_id,
+                user_id
+            )
+            VALUES (
+                p_showtime_id,
+                v_seat,
+                v_user
+            )
+            RETURNING seat_locks.expires_at
+            INTO expires_at;
+
+            seat_id := v_seat;
+            success := true;
+            reason := NULL;
+
+            RETURN NEXT;
+
+        EXCEPTION
+            WHEN unique_violation THEN
+
+                ----------------------------------------------------------------
+                -- Lock already exists
+                ----------------------------------------------------------------
+
+                IF EXISTS (
+                    SELECT 1
+                    FROM public.seat_locks sl
+                    WHERE sl.showtime_id = p_showtime_id
+                      AND sl.seat_id = v_seat
+                      AND sl.user_id = v_user
+                ) THEN
+
+                    ------------------------------------------------------------
+                    -- Refresh own lock
+                    ------------------------------------------------------------
+                    UPDATE public.seat_locks sl
+                    SET
+                        locked_at = now(),
+                        expires_at = now() + interval '10 minutes'
+                    WHERE sl.showtime_id = p_showtime_id
+                      AND sl.seat_id = v_seat
+                      AND sl.user_id = v_user
+                    RETURNING sl.expires_at
+                    INTO expires_at;
+
+                    seat_id := v_seat;
+                    success := true;
+                    reason := NULL;
+
+                    RETURN NEXT;
+
+                ELSE
+
+                    ------------------------------------------------------------
+                    -- Locked by another user
+                    ------------------------------------------------------------
+                    seat_id := v_seat;
+                    success := false;
+                    reason := 'locked_by_other';
+                    expires_at := NULL;
+
+                    RETURN NEXT;
+
+                END IF;
+
+        END;
+
     END LOOP;
-    RETURN;
-  END IF;
 
-  FOREACH v_seat IN ARRAY p_seat_ids LOOP
-    BEGIN
-      -- Reject if already permanently booked
-      IF EXISTS (
-        SELECT 1 FROM public.booked_seats bs
-         WHERE bs.showtime_id = p_showtime_id AND bs.seat_id = v_seat
-      ) THEN
-        seat_id := v_seat; success := false; reason := 'already_booked'; RETURN NEXT;
-        CONTINUE;
-      END IF;
-
-      INSERT INTO public.seat_locks (showtime_id, seat_id, user_id)
-      VALUES (p_showtime_id, v_seat, v_user);
-      seat_id := v_seat; success := true; reason := NULL; RETURN NEXT;
-    EXCEPTION WHEN unique_violation THEN
-      -- Someone else holds a lock. If it's ours, treat as success (idempotent).
-      IF EXISTS (
-  SELECT 1
-  FROM public.seat_locks s1
-  WHERE s1.showtime_id = p_showtime_id
-    AND s1.seat_id = v_seat
-    AND s1.user_id = v_user
-)THEN
-        -- Refresh expires_at
-        UPDATE public.seat_locks sl
-SET expires_at = now() + interval '10 minutes',
-    locked_at = now()
-WHERE sl.showtime_id = p_showtime_id
-  AND sl.seat_id = v_seat
-  AND sl.user_id = v_user;
-        seat_id := v_seat; success := true; reason := NULL; RETURN NEXT;
-      ELSE
-        seat_id := v_seat; success := false; reason := 'locked_by_other'; RETURN NEXT;
-      END IF;
-    END;
-  END LOOP;
 END;
 $$;
 
