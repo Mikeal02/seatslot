@@ -5,6 +5,7 @@ interface AcquireRow {
   seat_id: string;
   success: boolean;
   reason: string | null;
+  expires_at: string | null;
 }
 
 export interface ReserveResult {
