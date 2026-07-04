@@ -39,15 +39,17 @@ export function useSeatReservation(showtimeId: string | undefined) {
         p_seat_ids: seatIds,
       });
       if (error) {
+        console.error('[useSeatReservation] acquire_seat_locks failed:', error);
         return { ok: false, failed: seatIds.map((id) => ({ seatId: id, reason: error.message })) };
       }
       const rows = (data ?? []) as AcquireRow[];
       const failed: { seatId: string; reason: string | null }[] = [];
-      const expiresAt = Date.now() + 10 * 60 * 1000;
       rows.forEach((r) => {
         if (r.success) {
           heldSeatsRef.current.add(r.seat_id);
-          expiryMapRef.current.set(r.seat_id, expiresAt);
+          if (r.expires_at) {
+            expiryMapRef.current.set(r.seat_id, new Date(r.expires_at).getTime());
+          }
         } else {
           failed.push({ seatId: r.seat_id, reason: r.reason });
         }
