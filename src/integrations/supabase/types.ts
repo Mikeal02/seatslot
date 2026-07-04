@@ -655,6 +655,7 @@ export type Database = {
       acquire_seat_locks: {
         Args: { p_seat_ids: string[]; p_showtime_id: string }
         Returns: {
+          expires_at: string
           reason: string
           seat_id: string
           success: boolean
