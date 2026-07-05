@@ -979,3 +979,126 @@ html,body{
     to { transform: scaleX(1); }
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   GLOBAL SUBTLE MOTION LAYER — professional micro-interactions
+   Applied project-wide. Fully respects prefers-reduced-motion.
+   ═══════════════════════════════════════════════════════════ */
+@layer utilities {
+  /* Smooth defaults for interactive surfaces */
+  a, button, [role="button"], .interactive {
+    transition:
+      color 220ms cubic-bezier(0.25, 0.1, 0.25, 1),
+      background-color 220ms cubic-bezier(0.25, 0.1, 0.25, 1),
+      border-color 220ms cubic-bezier(0.25, 0.1, 0.25, 1),
+      box-shadow 260ms cubic-bezier(0.25, 0.1, 0.25, 1),
+      transform 260ms cubic-bezier(0.25, 0.1, 0.25, 1),
+      opacity 220ms cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  /* Focus ring polish (keyboard-only) */
+  :focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(var(--primary) / 0.55);
+    border-radius: calc(var(--radius) - 2px);
+    transition: box-shadow 180ms ease-out;
+  }
+
+  /* Subtle image lift on cards & posters */
+  .lift-on-hover {
+    transition: transform 420ms cubic-bezier(0.25, 0.1, 0.25, 1),
+                box-shadow 420ms cubic-bezier(0.25, 0.1, 0.25, 1),
+                filter 420ms cubic-bezier(0.25, 0.1, 0.25, 1);
+    will-change: transform;
+  }
+  .lift-on-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px -20px hsl(var(--primary) / 0.35),
+                0 8px 20px -12px hsl(0 0% 0% / 0.25);
+  }
+
+  /* Fine underline reveal for inline links */
+  a:not(.no-underline-anim):not([class*="btn"]):not([class*="button"]):not(.headline-accent) {
+    position: relative;
+  }
+
+  /* Soft entrance for any element with data-enter */
+  [data-enter] {
+    opacity: 0;
+    transform: translateY(8px);
+    animation: subtle-enter 520ms cubic-bezier(0.22, 0.8, 0.28, 1) forwards;
+  }
+  @keyframes subtle-enter {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Staggered children helper: add .stagger-children to a container */
+  .stagger-children > * {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: subtle-enter 560ms cubic-bezier(0.22, 0.8, 0.28, 1) forwards;
+  }
+  .stagger-children > *:nth-child(1) { animation-delay: 40ms; }
+  .stagger-children > *:nth-child(2) { animation-delay: 90ms; }
+  .stagger-children > *:nth-child(3) { animation-delay: 140ms; }
+  .stagger-children > *:nth-child(4) { animation-delay: 190ms; }
+  .stagger-children > *:nth-child(5) { animation-delay: 240ms; }
+  .stagger-children > *:nth-child(6) { animation-delay: 290ms; }
+  .stagger-children > *:nth-child(n+7) { animation-delay: 340ms; }
+
+  /* Gentle image zoom (ken-burns) */
+  .ken-burns {
+    animation: ken-burns 18s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+  @keyframes ken-burns {
+    from { transform: scale(1) translate3d(0,0,0); }
+    to   { transform: scale(1.06) translate3d(-1%, -1%, 0); }
+  }
+
+  /* Shimmer for loading skeletons */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .shimmer::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--foreground) / 0.06),
+      transparent
+    );
+    transform: translateX(-100%);
+    animation: shimmer-sweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+  @keyframes shimmer-sweep {
+    to { transform: translateX(100%); }
+  }
+
+  /* Press-down micro feedback for touch/click */
+  .press-down:active { transform: scale(0.97); }
+
+  /* Fade-in-up utility */
+  .fade-in-up {
+    animation: fade-in-up 640ms cubic-bezier(0.22, 0.8, 0.28, 1) both;
+  }
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/* Global respect for reduced motion — kill all non-essential motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .ken-burns, .shimmer::after { animation: none !important; }
+}
