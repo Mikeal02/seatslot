@@ -14,6 +14,7 @@ import { AmbientSpotlight } from "@/components/effects/AmbientSpotlight";
 import { AuroraBackground } from "@/components/effects/AuroraBackground";
 import { ScrollProgressBeam } from "@/components/effects/ScrollProgressBeam";
 import { ScrollManager } from "@/components/nav/ScrollManager";
+import { RouteFocusManager } from "@/components/nav/RouteFocusManager";
 
 // Lazy load routes for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -56,6 +57,7 @@ function AnimatedRoutes() {
   return (
     <ErrorBoundary>
       <ScrollManager />
+      <RouteFocusManager />
       <AnimatePresence mode="wait">
         <Suspense fallback={<PageLoader />}>
           <Routes location={location} key={location.pathname}>
