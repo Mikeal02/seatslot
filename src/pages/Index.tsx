@@ -216,10 +216,10 @@ const Index = () => {
   return (
     <motion.div 
       className="min-h-screen flex flex-col bg-background"
-      initial={{ opacity: 0, filter: 'blur(4px)' }}
-      animate={{ opacity: 1, filter: 'blur(0px)' }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+      initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
+      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
+      transition={{ duration: 0.42, ease: [0.25, 0.1, 0.25, 1] }}
     >
       <Header />
       
