@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Calendar, MapPin, Star, Film, Tv, Award, TrendingUp, ExternalLink, Users, BarChart3, Clock } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { BackButton } from '@/components/nav/BackButton';
+import { StickyPageBar } from '@/components/nav/StickyPageBar';
+import { Breadcrumbs } from '@/components/nav/Breadcrumbs';
 import { Footer } from '@/components/layout/Footer';
 import { MetaTags } from '@/components/MetaTags';
 import { Button } from '@/components/ui/button';
@@ -269,6 +271,18 @@ export default function PersonDetails() {
         image={person.photo || undefined}
       />
       <Header />
+      <StickyPageBar
+        title={person.name}
+        subtitle={
+          [
+            person.known_for_department,
+            careerStats.total_movies ? `${careerStats.total_movies} films` : null,
+          ].filter(Boolean).join(' • ')
+        }
+        imageUrl={person.photo}
+        imageAlt={person.name}
+        imageShape="avatar"
+      />
 
       <main id="main-content" className="flex-1">
         {/* Hero Section */}
@@ -292,7 +306,16 @@ export default function PersonDetails() {
           )}
 
           <div className="relative container mx-auto px-4 py-10 md:py-16">
-            <BackButton className="mb-6" />
+            <div className="mb-4 flex items-center gap-3 flex-wrap">
+              <BackButton />
+              <Breadcrumbs
+                items={[
+                  { label: 'People' },
+                  { label: person.name },
+                ]}
+              />
+            </div>
+
 
 
             <div className="flex flex-col md:flex-row gap-6 md:gap-10">

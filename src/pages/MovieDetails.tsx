@@ -3,6 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Clock, Star, Calendar, Users, TrendingUp, Eye, Film, Clapperboard, Globe, Quote, BarChart3, Shield, Tag, Tv, ExternalLink, Languages, Image as LucideImage } from 'lucide-react';
 import { BackButton } from '@/components/nav/BackButton';
+import { StickyPageBar } from '@/components/nav/StickyPageBar';
+import { Breadcrumbs } from '@/components/nav/Breadcrumbs';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -358,6 +360,30 @@ export default function MovieDetails() {
         type="movie"
       />
       <Header />
+      <StickyPageBar
+        title={movie.title}
+        subtitle={
+          [
+            movie.duration_minutes ? `${Math.floor(movie.duration_minutes / 60)}h ${movie.duration_minutes % 60}m` : null,
+            movie.genre?.[0],
+            releaseDate ? format(releaseDate, 'yyyy') : null,
+          ].filter(Boolean).join(' • ')
+        }
+        imageUrl={movie.poster_url}
+        imageAlt={`${movie.title} poster`}
+        imageShape="poster"
+        action={
+          showtimes.length > 0
+            ? {
+                label: 'Book Tickets',
+                onClick: () => {
+                  const el = document.getElementById('booking-panel');
+                  el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                },
+              }
+            : undefined
+        }
+      />
 
       <main id="main-content" className="flex-1 overflow-x-hidden max-w-[100vw]">
         {/* Cinematic Hero */}
@@ -407,6 +433,15 @@ export default function MovieDetails() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.5 }}
               >
+                {/* Breadcrumbs */}
+                <Breadcrumbs
+                  items={[
+                    { label: 'Movies', to: '/movies' },
+                    ...(movie.genre?.[0] ? [{ label: movie.genre[0], to: `/movies?genre=${encodeURIComponent(movie.genre[0])}` }] : []),
+                    { label: movie.title },
+                  ]}
+                />
+
                 {/* Action bar */}
                 <div className="flex items-center gap-2 flex-wrap">
                   <BackButton />
@@ -837,7 +872,7 @@ export default function MovieDetails() {
             </div>
 
             {/* Booking Card */}
-            <div className="lg:col-span-1 order-first lg:order-last min-w-0">
+            <div id="booking-panel" className="lg:col-span-1 order-first lg:order-last min-w-0 scroll-mt-32">
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
