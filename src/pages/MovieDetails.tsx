@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { ArrowLeft, Clock, Star, Calendar, Users, TrendingUp, Eye, Film, Clapperboard, Globe, Quote, BarChart3, Shield, Tag, Tv, ExternalLink, Languages, Image as LucideImage } from 'lucide-react';
 import { BackButton } from '@/components/nav/BackButton';
 import { StickyPageBar } from '@/components/nav/StickyPageBar';
 import { Breadcrumbs } from '@/components/nav/Breadcrumbs';
+import { ReadingProgressBeam } from '@/components/nav/ReadingProgressBeam';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -85,6 +86,11 @@ export default function MovieDetails() {
   const [loading, setLoading] = useState(true);
   const [reviewStats, setReviewStats] = useState({ count: 0, avg: 0 });
   const [bookingCount, setBookingCount] = useState(0);
+  const heroRef = useRef<HTMLElement | null>(null);
+  const { scrollYProgress: heroProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+  const heroY = useTransform(heroProgress, [0, 1], ['0%', '22%']);
+  const heroScale = useTransform(heroProgress, [0, 1], [1, 1.12]);
+  const heroOpacity = useTransform(heroProgress, [0, 1], [1, 0.35]);
 
   useEffect(() => {
     if (id) fetchMovieDetails();
@@ -385,14 +391,14 @@ export default function MovieDetails() {
         }
       />
 
+      <ReadingProgressBeam />
+
       <main id="main-content" className="flex-1 overflow-x-hidden max-w-[100vw]">
         {/* Cinematic Hero */}
-        <section className="relative h-[58vh] min-h-[320px] sm:h-[65vh] sm:min-h-[520px] overflow-hidden">
-          <motion.div 
-            className="absolute inset-0"
-            initial={{ scale: 1.15 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 1.5, ease: 'easeOut' }}
+        <section ref={heroRef} className="relative h-[58vh] min-h-[320px] sm:h-[65vh] sm:min-h-[520px] overflow-hidden">
+          <motion.div
+            className="absolute inset-0 will-change-transform"
+            style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
           >
             <img
               src={movie.backdrop_url || movie.poster_url || '/placeholder.svg'}

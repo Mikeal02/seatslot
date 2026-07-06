@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { ArrowLeft, Calendar, MapPin, Star, Film, Tv, Award, TrendingUp, ExternalLink, Users, BarChart3, Clock } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { BackButton } from '@/components/nav/BackButton';
 import { StickyPageBar } from '@/components/nav/StickyPageBar';
 import { Breadcrumbs } from '@/components/nav/Breadcrumbs';
+import { ReadingProgressBeam } from '@/components/nav/ReadingProgressBeam';
 import { Footer } from '@/components/layout/Footer';
 import { MetaTags } from '@/components/MetaTags';
 import { Button } from '@/components/ui/button';
@@ -184,6 +185,11 @@ export default function PersonDetails() {
   const [loading, setLoading] = useState(true);
   const [bioExpanded, setBioExpanded] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const heroRef = useRef<HTMLElement | null>(null);
+  const { scrollYProgress: heroProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+  const heroY = useTransform(heroProgress, [0, 1], ['0%', '20%']);
+  const heroScale = useTransform(heroProgress, [0, 1], [1, 1.1]);
+  const heroOpacity = useTransform(heroProgress, [0, 1], [1, 0.4]);
 
   useEffect(() => {
     if (id) fetchPerson(id);
@@ -283,26 +289,27 @@ export default function PersonDetails() {
         imageAlt={person.name}
         imageShape="avatar"
       />
+      <ReadingProgressBeam />
 
       <main id="main-content" className="flex-1">
         {/* Hero Section */}
-        <section className="relative overflow-hidden">
-          {/* Background - cinematic backdrop with parallax feel */}
+        <section ref={heroRef} className="relative overflow-hidden">
+          {/* Background - cinematic backdrop with parallax */}
           {knownFor[0]?.backdrop_url && (
-            <div className="absolute inset-0">
-              <motion.img 
-                src={knownFor[0].backdrop_url} 
-                alt="" 
+            <motion.div
+              className="absolute inset-0 will-change-transform"
+              style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
+            >
+              <img
+                src={knownFor[0].backdrop_url}
+                alt=""
                 className="w-full h-full object-cover"
-                initial={{ scale: 1.1 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 1.5, ease: 'easeOut' }}
               />
               <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" />
               <div className="absolute inset-0 bg-gradient-to-r from-background via-background/50 to-background/20" />
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,transparent_50%,hsl(var(--background))_100%)]" />
               <div className="absolute inset-0 noise-overlay pointer-events-none" />
-            </div>
+            </motion.div>
           )}
 
           <div className="relative container mx-auto px-4 py-10 md:py-16">
