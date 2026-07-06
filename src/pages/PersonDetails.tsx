@@ -309,7 +309,7 @@ export default function PersonDetails() {
               <div className="absolute inset-0 bg-gradient-to-r from-background via-background/50 to-background/20" />
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,transparent_50%,hsl(var(--background))_100%)]" />
               <div className="absolute inset-0 noise-overlay pointer-events-none" />
-            </div>
+            </motion.div>
           )}
 
           <div className="relative container mx-auto px-4 py-10 md:py-16">
