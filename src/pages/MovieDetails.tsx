@@ -86,6 +86,11 @@ export default function MovieDetails() {
   const [loading, setLoading] = useState(true);
   const [reviewStats, setReviewStats] = useState({ count: 0, avg: 0 });
   const [bookingCount, setBookingCount] = useState(0);
+  const heroRef = useRef<HTMLElement | null>(null);
+  const { scrollYProgress: heroProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+  const heroY = useTransform(heroProgress, [0, 1], ['0%', '22%']);
+  const heroScale = useTransform(heroProgress, [0, 1], [1, 1.12]);
+  const heroOpacity = useTransform(heroProgress, [0, 1], [1, 0.35]);
 
   useEffect(() => {
     if (id) fetchMovieDetails();
