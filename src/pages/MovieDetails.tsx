@@ -391,14 +391,14 @@ export default function MovieDetails() {
         }
       />
 
+      <ReadingProgressBeam />
+
       <main id="main-content" className="flex-1 overflow-x-hidden max-w-[100vw]">
         {/* Cinematic Hero */}
-        <section className="relative h-[58vh] min-h-[320px] sm:h-[65vh] sm:min-h-[520px] overflow-hidden">
-          <motion.div 
-            className="absolute inset-0"
-            initial={{ scale: 1.15 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 1.5, ease: 'easeOut' }}
+        <section ref={heroRef} className="relative h-[58vh] min-h-[320px] sm:h-[65vh] sm:min-h-[520px] overflow-hidden">
+          <motion.div
+            className="absolute inset-0 will-change-transform"
+            style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
           >
             <img
               src={movie.backdrop_url || movie.poster_url || '/placeholder.svg'}
