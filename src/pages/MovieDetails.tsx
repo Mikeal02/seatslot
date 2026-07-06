@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { ArrowLeft, Clock, Star, Calendar, Users, TrendingUp, Eye, Film, Clapperboard, Globe, Quote, BarChart3, Shield, Tag, Tv, ExternalLink, Languages, Image as LucideImage } from 'lucide-react';
 import { BackButton } from '@/components/nav/BackButton';
 import { StickyPageBar } from '@/components/nav/StickyPageBar';
 import { Breadcrumbs } from '@/components/nav/Breadcrumbs';
+import { ReadingProgressBeam } from '@/components/nav/ReadingProgressBeam';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { ArrowLeft, Calendar, MapPin, Star, Film, Tv, Award, TrendingUp, ExternalLink, Users, BarChart3, Clock } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { BackButton } from '@/components/nav/BackButton';
 import { StickyPageBar } from '@/components/nav/StickyPageBar';
 import { Breadcrumbs } from '@/components/nav/Breadcrumbs';
+import { ReadingProgressBeam } from '@/components/nav/ReadingProgressBeam';
 import { Footer } from '@/components/layout/Footer';
 import { MetaTags } from '@/components/MetaTags';
 import { Button } from '@/components/ui/button';
