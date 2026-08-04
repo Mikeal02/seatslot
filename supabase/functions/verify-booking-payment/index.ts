@@ -24,17 +24,20 @@ serve(async (req) => {
   );
 
   try {
-    // Try auth but don't require it — session may expire during Stripe checkout
+    // Auth is optional (the session can expire during Stripe checkout), but when
+    // present it must match the Stripe session owner.
     let user = null;
     const authHeader = req.headers.get("Authorization");
-    if (authHeader) {
+    if (authHeader?.startsWith("Bearer ")) {
       const token = authHeader.replace("Bearer ", "");
       const { data: userData } = await supabaseClient.auth.getUser(token);
       user = userData.user;
     }
 
     const { sessionId } = await req.json();
-    if (!sessionId) throw new Error("Missing session ID");
+    if (typeof sessionId !== "string" || !/^cs_[A-Za-z0-9_]+$/.test(sessionId)) {
+      throw new Error("Invalid session ID");
+    }
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
@@ -49,26 +52,32 @@ serve(async (req) => {
       });
     }
 
-    // Verify user matches if authenticated, otherwise trust the Stripe session metadata
     const userId = session.metadata?.user_id;
     if (!userId) throw new Error("Invalid session metadata");
-    if (user && userId !== user.id) {
-      throw new Error("Unauthorized");
-    }
+    if (user && userId !== user.id) throw new Error("Unauthorized");
 
     const showtimeId = session.metadata!.showtime_id;
-    const seatIds = JSON.parse(session.metadata!.seat_ids);
+    const seatIds: string[] = JSON.parse(session.metadata!.seat_ids);
     const totalAmount = parseFloat(session.metadata!.total_amount);
     const concessionTotal = parseFloat(session.metadata!.concession_total || "0");
     const concessionItems = JSON.parse(session.metadata!.concession_items || "[]");
 
-    // Check if booking already exists for this session
-    // Use payment_intent as idempotency key
-    const paymentIntentId = typeof session.payment_intent === 'string' 
-      ? session.payment_intent 
-      : session.payment_intent?.id || sessionId;
+    // Idempotency: one booking per Stripe session, enforced by a unique index.
+    const paymentReference = session.id;
 
-    // Create booking using service role to bypass RLS
+    const { data: existing } = await supabaseAdmin
+      .from("bookings")
+      .select("id")
+      .eq("payment_reference", paymentReference)
+      .maybeSingle();
+
+    if (existing) {
+      return new Response(JSON.stringify({ success: true, bookingId: existing.id }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
     const { data: bookingData, error: bookingError } = await supabaseAdmin
       .from("bookings")
       .insert({
@@ -76,13 +85,29 @@ serve(async (req) => {
         showtime_id: showtimeId,
         total_amount: totalAmount,
         booking_status: "confirmed",
+        payment_reference: paymentReference,
       })
       .select()
       .single();
 
-    if (bookingError) throw bookingError;
+    if (bookingError) {
+      // Unique violation => another concurrent verify already created it
+      if ((bookingError as any).code === "23505") {
+        const { data: dupe } = await supabaseAdmin
+          .from("bookings")
+          .select("id")
+          .eq("payment_reference", paymentReference)
+          .maybeSingle();
+        if (dupe) {
+          return new Response(JSON.stringify({ success: true, bookingId: dupe.id }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 200,
+          });
+        }
+      }
+      throw bookingError;
+    }
 
-    // Book seats
     const bookedSeatsData = seatIds.map((seatId: string) => ({
       booking_id: bookingData.id,
       seat_id: seatId,
@@ -94,19 +119,16 @@ serve(async (req) => {
       .insert(bookedSeatsData);
 
     if (seatsError) {
-      // Rollback booking
       await supabaseAdmin.from("bookings").delete().eq("id", bookingData.id);
       throw new Error("Some seats were already booked. Payment will be refunded.");
     }
 
-    // Release temporary seat locks for these seats (any user) — booking is now permanent
     await supabaseAdmin
       .from("seat_locks")
       .delete()
       .eq("showtime_id", showtimeId)
       .in("seat_id", seatIds);
 
-    // Save concession orders if any
     if (concessionItems.length > 0 && concessionTotal > 0) {
       const { data: concessionOrder } = await supabaseAdmin
         .from("concession_orders")
@@ -129,17 +151,14 @@ serve(async (req) => {
       }
     }
 
-    return new Response(
-      JSON.stringify({ success: true, bookingId: bookingData.id }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      }
-    );
+    return new Response(JSON.stringify({ success: true, bookingId: bookingData.id }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+    });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     console.error("verify-booking-payment error:", msg);
-    return new Response(JSON.stringify({ success: false, error: msg }), {
+    return new Response(JSON.stringify({ success: false, error: "Could not verify payment" }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

@@ -52,13 +52,13 @@ export default function MyBookings() {
 
   const handleCancelBooking = async (bookingId: string) => {
     try {
-      const { error } = await supabase.from('bookings').update({ booking_status: 'cancelled' }).eq('id', bookingId);
+      const { error } = await supabase.rpc('cancel_booking', { p_booking_id: bookingId });
       if (error) throw error;
-      await supabase.from('booked_seats').delete().eq('booking_id', bookingId);
       toast({ title: 'Booking cancelled', description: 'Your booking has been cancelled successfully.' });
       fetchBookings();
     } catch (error) {
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to cancel booking.' });
+
     }
   };
 

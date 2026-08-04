@@ -58,16 +58,17 @@ export function useLoyaltyPoints() {
       if (pointsData) {
         setPoints(pointsData as LoyaltyPoints);
       } else {
-        // Create initial loyalty record
-        const { data: newPoints, error: createError } = await supabase
-          .from('loyalty_points')
-          .insert({ user_id: user.id })
-          .select()
-          .single();
-
-        if (createError) throw createError;
-        setPoints(newPoints as LoyaltyPoints);
+        // The loyalty record is provisioned server-side on signup; clients may
+        // not write to loyalty_points directly.
+        setPoints({
+          id: '',
+          user_id: user.id,
+          total_points: 0,
+          lifetime_points: 0,
+          tier: 'bronze',
+        } as unknown as LoyaltyPoints);
       }
+
 
       // Fetch transactions
       const { data: transData, error: transError } = await supabase

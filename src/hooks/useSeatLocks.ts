@@ -49,7 +49,7 @@ export function useSeatLocks(showtimeId: string | undefined, currentUserId?: str
     const [locksRes, bookedRes] = await Promise.all([
       supabase
         .from('seat_locks')
-        .select('seat_id, user_id, expires_at')
+        .select('seat_id, expires_at')
         .eq('showtime_id', showtimeId)
         .gt('expires_at', new Date().toISOString()),
       supabase.from('booked_seats').select('seat_id').eq('showtime_id', showtimeId),
