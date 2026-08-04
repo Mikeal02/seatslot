@@ -65,6 +65,7 @@ export type Database = {
           booking_status: string
           created_at: string
           id: string
+          payment_reference: string | null
           showtime_id: string
           total_amount: number
           user_id: string
@@ -73,6 +74,7 @@ export type Database = {
           booking_status?: string
           created_at?: string
           id?: string
+          payment_reference?: string | null
           showtime_id: string
           total_amount: number
           user_id: string
@@ -81,6 +83,7 @@ export type Database = {
           booking_status?: string
           created_at?: string
           id?: string
+          payment_reference?: string | null
           showtime_id?: string
           total_amount?: number
           user_id?: string
