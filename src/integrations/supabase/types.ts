@@ -668,6 +668,7 @@ export type Database = {
         Args: { p_amount: number; p_booking_id?: string; p_description: string }
         Returns: undefined
       }
+      cancel_booking: { Args: { p_booking_id: string }; Returns: undefined }
       cleanup_showtime_if_ended: {
         Args: { p_showtime_id: string }
         Returns: undefined
