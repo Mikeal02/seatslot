@@ -24,16 +24,8 @@ jobs:
 
       - name: Coverage summary
         if: always()
-        run: |
-          if [ -f coverage/coverage-summary.json ]; then
-            node -e "
-              const s = require('./coverage/coverage-summary.json').total;
-              const rows = ['lines','statements','functions','branches']
-                .map(k => \`| ${k} | \${s[k].pct}% |\`).join('\n');
-              require('fs').appendFileSync(process.env.GITHUB_STEP_SUMMARY,
-                '## Coverage\n\n| Metric | % |\n| --- | --- |\n' + rows + '\n');
-            "
-          fi
+        run: node .github/scripts/coverage-summary.cjs
+
 
       - name: Upload coverage report
         if: always()
