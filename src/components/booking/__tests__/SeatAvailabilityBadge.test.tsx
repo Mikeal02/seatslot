@@ -41,9 +41,9 @@ describe("SeatAvailabilityBadge (integration with data layer)", () => {
     await waitFor(() => expect(badge.className).toContain("text-destructive"));
   });
 
-  it("renders nothing when the screen has no seats configured", async () => {
+  it("treats a screen with no configured seats as sold out", async () => {
     counts.seats = 0;
-    const { container } = renderBadge();
-    await waitFor(() => expect(container).toBeEmptyDOMElement());
+    renderBadge();
+    expect(await screen.findByText("Sold Out")).toBeInTheDocument();
   });
 });
