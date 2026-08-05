@@ -1,0 +1,61 @@
+title = "SeatSlot gitleaks config"
+
+[extend]
+useDefault = true
+
+# --- Project-specific rules -------------------------------------------------
+
+[[rules]]
+id = "supabase-service-role-key"
+description = "Supabase service_role JWT (server-only, must never be committed)"
+regex = '''eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}'''
+keywords = ["service_role", "eyJ"]
+
+[[rules]]
+id = "supabase-secret-key"
+description = "Supabase secret / secret API key (sb_secret_...)"
+regex = '''sb_secret_[A-Za-z0-9_-]{16,}'''
+keywords = ["sb_secret_"]
+
+[[rules]]
+id = "supabase-db-url"
+description = "Supabase Postgres connection string with password"
+regex = '''postgres(?:ql)?://[^:\s]+:[^@\s]+@[^\s'"]*supabase[^\s'"]*'''
+keywords = ["postgres://", "postgresql://"]
+
+[[rules]]
+id = "stripe-secret-key"
+description = "Stripe secret or restricted key"
+regex = '''\b(sk|rk)_(live|test)_[A-Za-z0-9]{16,}'''
+keywords = ["sk_live_", "sk_test_", "rk_live_", "rk_test_"]
+
+[[rules]]
+id = "resend-api-key"
+description = "Resend API key"
+regex = '''\bre_[A-Za-z0-9_-]{16,}'''
+keywords = ["re_"]
+
+[[rules]]
+id = "generic-service-role-assignment"
+description = "SUPABASE_SERVICE_ROLE_KEY assigned a literal value"
+regex = '''SUPABASE_SERVICE_ROLE_KEY\s*[:=]\s*["'][^"'\s$]{12,}["']'''
+keywords = ["SUPABASE_SERVICE_ROLE_KEY"]
+
+# --- Allowlist --------------------------------------------------------------
+# The Supabase publishable/anon key is designed to ship in the browser bundle
+# and is protected by RLS, so it is not treated as a leak.
+
+[allowlist]
+description = "Public/publishable values and build output"
+paths = [
+  '''bun\.lock''',
+  '''bun\.lockb''',
+  '''package-lock\.json''',
+  '''(^|/)dist/''',
+  '''(^|/)node_modules/''',
+]
+regexes = [
+  '''VITE_SUPABASE_PUBLISHABLE_KEY''',
+  '''VITE_SUPABASE_ANON_KEY''',
+  '''pk_(live|test)_[A-Za-z0-9]+''',
+]
