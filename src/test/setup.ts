@@ -19,5 +19,5 @@ class ResizeObserverStub {
   unobserve() {}
   disconnect() {}
 }
-// @ts-expect-error test stub
-window.ResizeObserver = window.ResizeObserver || ResizeObserverStub;
+window.ResizeObserver = window.ResizeObserver || (ResizeObserverStub as unknown as typeof ResizeObserver);
+
