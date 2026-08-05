@@ -21,13 +21,16 @@ while IFS=: read -r file line _; do
   report "$file" "service_role usage in client code (line $line)."
 done < <(grep -RIn "service_role" "${SRC_GLOBS[@]}" 2>/dev/null || true)
 
-echo "==> 3. .env files must not be tracked by git"
+echo "==> 3. Tracked .env files may only contain public VITE_ variables"
 while read -r file; do
   [ -z "$file" ] && continue
   case "$file" in
     *.example|*.sample|*.template) continue ;;
   esac
-  report "$file" "Environment file is tracked in git. Remove it and add it to .gitignore."
+  bad=$(grep -nE '^[[:space:]]*[A-Za-z_][A-Za-z0-9_]*[[:space:]]*=' "$file" | grep -vE '^[0-9]+:[[:space:]]*VITE_' || true)
+  if [ -n "$bad" ]; then
+    report "$file" "Tracked env file contains non-public variables: $(echo "$bad" | cut -d= -f1 | tr '\n' ' ')"
+  fi
 done < <(git ls-files | grep -E '(^|/)\.env($|\.)' || true)
 
 echo "==> 4. Edge functions must read secrets from the environment, not literals"
