@@ -1,8 +1,9 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Film, Users, Ticket, MapPin, Award } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { usePlatformStats } from '@/data';
 import { StaggerReveal, StaggerRevealItem } from '@/components/animations/ScrollAnimations';
+
 
 interface Stat {
   label: string;
@@ -44,35 +45,20 @@ function AnimatedCounter({ value, suffix, inView }: { value: number; suffix: str
 export function StatsSection() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-100px' });
-  const [stats, setStats] = useState<Stat[]>([
-    { label: 'Movies', value: 0, suffix: '+', icon: Film, description: 'Available to watch', color: 'primary' },
-    { label: 'Customers', value: 0, suffix: '+', icon: Users, description: 'Happy movie-goers', color: 'accent' },
-    { label: 'Tickets', value: 0, suffix: '+', icon: Ticket, description: 'Booked & confirmed', color: 'primary' },
-    { label: 'Theatres', value: 0, suffix: '+', icon: MapPin, description: 'Partner locations', color: 'accent' },
-  ]);
+  const { data } = usePlatformStats();
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
+  const stats = useMemo<Stat[]>(() => {
+    const movies = data?.movies ?? 0;
+    const bookings = data?.bookings ?? 0;
+    const theatres = data?.theatres ?? 0;
+    return [
+      { label: 'Movies', value: movies, suffix: '+', icon: Film, description: 'Available to watch', color: 'primary' },
+      { label: 'Customers', value: data ? Math.max(bookings * 3, 100) : 0, suffix: '+', icon: Users, description: 'Happy movie-goers', color: 'accent' },
+      { label: 'Tickets', value: data ? Math.max(bookings * 2, 50) : 0, suffix: '+', icon: Ticket, description: 'Booked & confirmed', color: 'primary' },
+      { label: 'Theatres', value: data ? Math.max(theatres, 5) : 0, suffix: '+', icon: MapPin, description: 'Partner locations', color: 'accent' },
+    ];
+  }, [data]);
 
-  const fetchStats = async () => {
-    try {
-      const [moviesRes, bookingsRes, theatresRes] = await Promise.all([
-        supabase.from('movies').select('id', { count: 'exact', head: true }),
-        supabase.from('bookings').select('id', { count: 'exact', head: true }),
-        supabase.from('theatres').select('id', { count: 'exact', head: true }),
-      ]);
-
-      setStats([
-        { label: 'Movies', value: moviesRes.count || 0, suffix: '+', icon: Film, description: 'Available to watch', color: 'primary' },
-        { label: 'Customers', value: Math.max((bookingsRes.count || 0) * 3, 100), suffix: '+', icon: Users, description: 'Happy movie-goers', color: 'accent' },
-        { label: 'Tickets', value: Math.max((bookingsRes.count || 0) * 2, 50), suffix: '+', icon: Ticket, description: 'Booked & confirmed', color: 'primary' },
-        { label: 'Theatres', value: Math.max(theatresRes.count || 0, 5), suffix: '+', icon: MapPin, description: 'Partner locations', color: 'accent' },
-      ]);
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    }
-  };
 
   return (
     <section ref={ref} className="py-24 sm:py-32 relative overflow-hidden">

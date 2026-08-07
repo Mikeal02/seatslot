@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Users } from 'lucide-react';
+import { useSeatAvailability } from '@/data';
 
 interface SeatAvailabilityBadgeProps {
   showtimeId: string;
@@ -9,28 +8,13 @@ interface SeatAvailabilityBadgeProps {
 }
 
 export function SeatAvailabilityBadge({ showtimeId, screenId }: SeatAvailabilityBadgeProps) {
-  const [available, setAvailable] = useState<number | null>(null);
-  const [total, setTotal] = useState<number | null>(null);
+  const { data } = useSeatAvailability(showtimeId, screenId);
 
-  useEffect(() => {
-    fetchAvailability();
-  }, [showtimeId, screenId]);
+  if (!data) return null;
 
-  const fetchAvailability = async () => {
-    const [seatsRes, bookedRes] = await Promise.all([
-      supabase.from('seats').select('id', { count: 'exact', head: true }).eq('screen_id', screenId),
-      supabase.from('booked_seats').select('id', { count: 'exact', head: true }).eq('showtime_id', showtimeId),
-    ]);
-
-    const totalSeats = seatsRes.count || 0;
-    const bookedSeats = bookedRes.count || 0;
-    setTotal(totalSeats);
-    setAvailable(totalSeats - bookedSeats);
-  };
-
-  if (available === null || total === null) return null;
-
+  const { available, total } = data;
   const percentage = total > 0 ? (available / total) * 100 : 100;
+
   const isLow = percentage < 30;
   const isSoldOut = available === 0;
 
