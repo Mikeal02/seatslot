@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { SeatAvailabilityBadge } from "@/components/booking/SeatAvailabilityBadge";
+import { renderWithProviders } from "@/test/utils";
 
 const counts: Record<string, number> = { seats: 100, booked: 0 };
 
@@ -14,7 +15,8 @@ vi.mock("@/integrations/supabase/client", () => {
 });
 
 const renderBadge = () =>
-  render(<SeatAvailabilityBadge showtimeId="show-1" screenId="screen-1" />);
+  renderWithProviders(<SeatAvailabilityBadge showtimeId="show-1" screenId="screen-1" />);
+
 
 beforeEach(() => {
   counts.seats = 100;
