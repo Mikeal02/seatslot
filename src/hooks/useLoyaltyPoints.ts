@@ -1,93 +1,40 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
+import {
+  useLoyaltyBalance,
+  useLoyaltyTransactions,
+  loyaltyRepository,
+  qk,
+  type LoyaltyBalance,
+} from '@/data';
 
-interface LoyaltyPoints {
-  total_points: number;
-  lifetime_points: number;
-  tier: 'bronze' | 'silver' | 'gold' | 'platinum';
-}
+const TIER_THRESHOLDS = {
+  bronze: 0,
+  silver: 500,
+  gold: 2000,
+  platinum: 5000,
+} as const;
 
-interface PointsTransaction {
-  id: string;
-  points: number;
-  transaction_type: 'earned' | 'redeemed' | 'bonus' | 'expired';
-  description: string;
-  created_at: string;
-}
-
+/**
+ * Thin view-model over the loyalty repository. All I/O and caching live in the
+ * data layer; this hook only owns presentation rules (tiers, discounts).
+ */
 export function useLoyaltyPoints() {
   const { user } = useAuth();
-  const [points, setPoints] = useState<LoyaltyPoints | null>(null);
-  const [transactions, setTransactions] = useState<PointsTransaction[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  const POINTS_PER_RUPEE = 1; // 1 point per ₹1 spent
-  const TIER_THRESHOLDS = {
-    bronze: 0,
-    silver: 500,
-    gold: 2000,
-    platinum: 5000,
+  const balanceQuery = useLoyaltyBalance(user?.id);
+  const transactionsQuery = useLoyaltyTransactions(user?.id);
+
+  const points: LoyaltyBalance | null = user ? balanceQuery.data ?? null : null;
+  const transactions = user ? transactionsQuery.data ?? [] : [];
+  const loading = Boolean(user) && (balanceQuery.isLoading || transactionsQuery.isLoading);
+
+  const refreshPoints = async () => {
+    await queryClient.invalidateQueries({ queryKey: qk.loyalty.all });
   };
 
-  useEffect(() => {
-    if (user) {
-      fetchLoyaltyData();
-    } else {
-      setPoints(null);
-      setTransactions([]);
-      setLoading(false);
-    }
-  }, [user]);
-
-  const fetchLoyaltyData = async () => {
-    if (!user) return;
-
-    try {
-      // Fetch loyalty points
-      const { data: pointsData, error: pointsError } = await supabase
-        .from('loyalty_points')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-      if (pointsError && pointsError.code !== 'PGRST116') {
-        throw pointsError;
-      }
-
-      if (pointsData) {
-        setPoints(pointsData as LoyaltyPoints);
-      } else {
-        // The loyalty record is provisioned server-side on signup; clients may
-        // not write to loyalty_points directly.
-        setPoints({
-          id: '',
-          user_id: user.id,
-          total_points: 0,
-          lifetime_points: 0,
-          tier: 'bronze',
-        } as unknown as LoyaltyPoints);
-      }
-
-
-      // Fetch transactions
-      const { data: transData, error: transError } = await supabase
-        .from('points_transactions')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(20);
-
-      if (transError) throw transError;
-      setTransactions(transData as PointsTransaction[]);
-    } catch (error) {
-      console.error('Error fetching loyalty data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const calculateTier = (lifetimePoints: number): 'bronze' | 'silver' | 'gold' | 'platinum' => {
+  const calculateTier = (lifetimePoints: number): keyof typeof TIER_THRESHOLDS => {
     if (lifetimePoints >= TIER_THRESHOLDS.platinum) return 'platinum';
     if (lifetimePoints >= TIER_THRESHOLDS.gold) return 'gold';
     if (lifetimePoints >= TIER_THRESHOLDS.silver) return 'silver';
@@ -97,7 +44,7 @@ export function useLoyaltyPoints() {
   const getNextTier = () => {
     if (!points) return null;
     const currentLifetime = points.lifetime_points;
-    
+
     if (currentLifetime < TIER_THRESHOLDS.silver) {
       return { tier: 'Silver', pointsNeeded: TIER_THRESHOLDS.silver - currentLifetime };
     }
@@ -113,13 +60,8 @@ export function useLoyaltyPoints() {
   const earnPoints = async (amount: number, description: string, bookingId?: string) => {
     if (!user) return false;
     try {
-      const { error } = await supabase.rpc('award_loyalty_points', {
-        p_amount: amount,
-        p_description: description,
-        p_booking_id: bookingId || null,
-      } as any);
-      if (error) throw error;
-      await fetchLoyaltyData();
+      await loyaltyRepository.award(amount, description, bookingId);
+      await refreshPoints();
       return true;
     } catch (error) {
       console.error('Error earning points:', error);
@@ -130,12 +72,8 @@ export function useLoyaltyPoints() {
   const redeemPoints = async (pointsToRedeem: number, description: string) => {
     if (!user || !points || points.total_points < pointsToRedeem) return false;
     try {
-      const { error } = await supabase.rpc('redeem_loyalty_points', {
-        p_points: pointsToRedeem,
-        p_description: description,
-      } as any);
-      if (error) throw error;
-      await fetchLoyaltyData();
+      await loyaltyRepository.redeem(pointsToRedeem, description);
+      await refreshPoints();
       return true;
     } catch (error) {
       console.error('Error redeeming points:', error);
@@ -143,10 +81,8 @@ export function useLoyaltyPoints() {
     }
   };
 
-  const getDiscountValue = (pointsUsed: number) => {
-    // 10 points = ₹1 discount
-    return Math.floor(pointsUsed / 10);
-  };
+  // 10 points = ₹1 discount
+  const getDiscountValue = (pointsUsed: number) => Math.floor(pointsUsed / 10);
 
   return {
     points,
@@ -155,8 +91,9 @@ export function useLoyaltyPoints() {
     earnPoints,
     redeemPoints,
     getNextTier,
+    calculateTier,
     getDiscountValue,
     TIER_THRESHOLDS,
-    refreshPoints: fetchLoyaltyData,
+    refreshPoints,
   };
 }

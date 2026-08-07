@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Star, User, Edit2, Trash2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { reviewsRepository, useMovieReviews, useInvalidateMovieReviews, type MovieReview } from '@/data';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,15 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { format, parseISO } from 'date-fns';
 
-interface Review {
-  id: string;
-  movie_id: string;
-  rating: number;
-  review_text: string | null;
-  created_at: string;
-  author_name: string;
-  is_mine: boolean;
-}
+type Review = MovieReview;
 
 interface MovieReviewsProps {
   movieId: string;
@@ -26,37 +18,26 @@ interface MovieReviewsProps {
 export function MovieReviews({ movieId }: MovieReviewsProps) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [userReview, setUserReview] = useState<Review | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
 
-  useEffect(() => {
-    fetchReviews();
-  }, [movieId, user]);
+  const { data, isLoading } = useMovieReviews(movieId);
+  const refreshReviews = useInvalidateMovieReviews(movieId);
+  const reviews: Review[] = data ?? [];
+  const loading = isLoading;
+  const userReview = reviews.find((r) => r.is_mine) ?? null;
 
-  const fetchReviews = async () => {
-    try {
-      const { data, error } = await supabase.rpc('get_movie_reviews', { p_movie_id: movieId } as any);
-      if (error) throw error;
-      const list = (data || []) as Review[];
-      setReviews(list);
-      const mine = list.find(r => r.is_mine) || null;
-      setUserReview(mine);
-      if (mine) {
-        setRating(mine.rating);
-        setReviewText(mine.review_text || '');
-      }
-    } catch (error) {
-      console.error('Error fetching reviews:', error);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (userReview) {
+      setRating(userReview.rating);
+      setReviewText(userReview.review_text || '');
     }
-  };
+  }, [userReview?.id]);
+
+  const fetchReviews = () => { refreshReviews(); };
 
   const handleSubmit = async () => {
     if (!user) {
@@ -79,26 +60,15 @@ export function MovieReviews({ movieId }: MovieReviewsProps) {
     setSubmitting(true);
     try {
       if (userReview) {
-        // Update existing review
-        const { error } = await supabase
-          .from('reviews')
-          .update({ rating, review_text: reviewText || null })
-          .eq('id', userReview.id);
-
-        if (error) throw error;
+        await reviewsRepository.update(userReview.id, { rating, text: reviewText || null });
         toast({ title: 'Review updated' });
       } else {
-        // Create new review
-        const { error } = await supabase
-          .from('reviews')
-          .insert({
-            user_id: user.id,
-            movie_id: movieId,
-            rating,
-            review_text: reviewText || null,
-          });
-
-        if (error) throw error;
+        await reviewsRepository.create({
+          userId: user.id,
+          movieId,
+          rating,
+          text: reviewText || null,
+        });
         toast({ title: 'Review submitted' });
       }
 
@@ -120,14 +90,8 @@ export function MovieReviews({ movieId }: MovieReviewsProps) {
     if (!userReview) return;
 
     try {
-      const { error } = await supabase
-        .from('reviews')
-        .delete()
-        .eq('id', userReview.id);
+      await reviewsRepository.remove(userReview.id);
 
-      if (error) throw error;
-
-      setUserReview(null);
       setRating(0);
       setReviewText('');
       setIsEditing(false);
