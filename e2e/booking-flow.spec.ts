@@ -23,7 +23,7 @@ test.describe('Booking flow', () => {
 
     // --- Seat selection -----------------------------------------------------
     await page.goto(`/booking/${SHOWTIME_ID}`);
-    await expect(page.getByRole('heading', { name: movie.title })).toBeVisible();
+    await expect(page.locator('h1', { hasText: movie.title })).toBeVisible();
 
     const seatButton = page.getByRole('button', { name: seatName(TARGET_SEAT) });
     await seatButton.click();
@@ -64,7 +64,7 @@ test.describe('Booking flow', () => {
 
     await signIn(page, TEST_EMAIL, TEST_PASSWORD);
     await page.goto(`/booking/${SHOWTIME_ID}`);
-    await expect(page.getByRole('heading', { name: movie.title })).toBeVisible();
+    await expect(page.locator('h1', { hasText: movie.title })).toBeVisible();
 
     await expect(page.getByRole('button', { name: seatName(seats[1]) })).toBeDisabled();
     await expect(page.getByRole('button', { name: seatName(seats[2]) })).toBeDisabled();
