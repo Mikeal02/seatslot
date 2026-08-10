@@ -38,7 +38,7 @@ test.describe('Booking flow', () => {
     await page.getByRole('button', { name: /continue/i }).click();
     await page.getByRole('button', { name: /continue/i }).click();
     await expect(page.getByRole('heading', { name: /review & pay/i })).toBeVisible();
-    await expect(page.getByText(`₹${TARGET_SEAT.price}`).first()).toBeVisible();
+    await expect(page.getByRole('button', { name: `Pay ₹${TARGET_SEAT.price}` })).toBeVisible();
 
     // --- Payment ------------------------------------------------------------
     await page.getByRole('button', { name: /^Pay ₹/ }).click();
