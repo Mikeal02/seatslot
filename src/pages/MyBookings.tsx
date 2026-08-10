@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { format, parseISO, isPast } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Ticket, Calendar, Clock, MapPin, X, Film, ChevronRight, Sparkles, TicketCheck, Ban, History } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { useUserBookings, useCancelBooking } from '@/data';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -24,39 +24,28 @@ export default function MyBookings() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabKey>('upcoming');
+  const { data, isLoading, isError, refetch } = useUserBookings(user?.id);
+  const cancelBooking = useCancelBooking(user?.id);
+  const bookings: Booking[] = data ?? [];
+  const loading = isLoading;
 
   useEffect(() => {
-    if (!authLoading && !user) { navigate('/auth'); return; }
-    if (user) fetchBookings();
-  }, [user, authLoading]);
+    if (!authLoading && !user) navigate('/auth');
+  }, [user, authLoading, navigate]);
 
-  const fetchBookings = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('bookings')
-        .select(`*, showtime:showtimes(*, movie:movies(*), screen:screens(*, theatre:theatres(*))), booked_seats(*, seat:seats(*))`)
-        .eq('user_id', user!.id)
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      setBookings(data as Booking[]);
-    } catch (error) {
-      console.error('Error fetching bookings:', error);
+  useEffect(() => {
+    if (isError) {
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to load your bookings.' });
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [isError, toast]);
+
+  const fetchBookings = () => { refetch(); };
 
   const handleCancelBooking = async (bookingId: string) => {
     try {
-      const { error } = await supabase.from('bookings').update({ booking_status: 'cancelled' }).eq('id', bookingId);
-      if (error) throw error;
-      await supabase.from('booked_seats').delete().eq('booking_id', bookingId);
+      await cancelBooking.mutateAsync(bookingId);
       toast({ title: 'Booking cancelled', description: 'Your booking has been cancelled successfully.' });
-      fetchBookings();
     } catch (error) {
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to cancel booking.' });
     }
