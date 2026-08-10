@@ -16,4 +16,4 @@ export function preloadImage(url?: string | null) {
 
 export function preloadImages(urls: (string | null | undefined)[]) {
   urls.forEach(preloadImage);
-}
+} 

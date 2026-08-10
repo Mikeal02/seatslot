@@ -306,9 +306,9 @@ html,body{
     opacity: 0;
     transition: opacity 0.5s ease;
     background: radial-gradient(
-      600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-      hsl(var(--primary) / 0.06),
-      transparent 40%
+      500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      hsl(var(--primary) / 0.025),
+      transparent 35%
     );
     z-index: 1;
     pointer-events: none;
@@ -356,11 +356,11 @@ html,body{
   }
 
   .dark .glow-card:hover {
-    box-shadow: 
-      0 0 50px hsl(var(--glow-primary) / 0.15),
-      0 0 100px hsl(var(--glow-accent) / 0.08),
-      var(--shadow-xl);
-    transform: translateY(-8px) scale(1.01);
+    box-shadow:
+      0 0 18px hsl(var(--glow-primary) / 0.08),
+      0 0 36px hsl(var(--glow-accent) / 0.04),
+      var(--shadow-lg);
+    transform: translateY(-6px) scale(1.01);
   }
 
   /* ────────────────────────────────
@@ -378,8 +378,8 @@ html,body{
     padding: 1px;
     background: linear-gradient(
       135deg,
-      hsl(var(--glow-primary) / 0.4),
-      hsl(var(--glow-accent) / 0.4)
+      hsl(var(--glow-primary) / 0.18),
+      hsl(var(--glow-accent) / 0.18)
     );
     -webkit-mask: 
       linear-gradient(#fff 0 0) content-box, 

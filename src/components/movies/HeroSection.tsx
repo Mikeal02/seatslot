@@ -72,24 +72,24 @@ export function HeroSection({ movie, movies, autoRotateInterval = 10000 }: HeroS
           <img
             src={currentMovie.backdrop_url || currentMovie.poster_url || '/placeholder.svg'}
             alt={currentMovie.title}
-            className="w-full h-[120%] object-cover object-top"
+            className="w-full h-[120%] object-cover object-top brightness-95 contrast-105"
           />
         </motion.div>
       </AnimatePresence>
 
       {/* Multi-layer cinematic overlays */}
-      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/20" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
-      <div className="absolute bottom-0 left-0 right-0 h-80 bg-gradient-to-t from-background via-background/95 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/65 to-background/10" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-background/20" />
+      <div className="absolute bottom-0 left-0 right-0 h-80 bg-gradient-to-t from-background/90 via-background/70 to-transparent" />
       
       {/* Animated cinematic light leak */}
       <motion.div 
         className="absolute inset-0 pointer-events-none"
         animate={{
           background: [
-            'radial-gradient(ellipse at 0% 100%, hsl(var(--primary) / 0.2) 0%, transparent 50%)',
-            'radial-gradient(ellipse at 20% 70%, hsl(var(--accent) / 0.15) 0%, transparent 50%)',
-            'radial-gradient(ellipse at 10% 90%, hsl(var(--primary) / 0.2) 0%, transparent 50%)',
+            'radial-gradient(ellipse at 0% 100%, hsl(var(--primary) / 0.08) 0%, transparent 50%)',
+            'radial-gradient(ellipse at 20% 70%, hsl(var(--accent) / 0.05) 0%, transparent 50%)',
+            'radial-gradient(ellipse at 10% 90%, hsl(var(--primary) / 0.08) 0%, transparent 50%)',
           ],
         }}
         transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
@@ -121,7 +121,7 @@ export function HeroSection({ movie, movies, autoRotateInterval = 10000 }: HeroS
 
               {/* Title */}
               <h1 className="text-[2rem] xs:text-4xl sm:text-6xl md:text-7xl lg:text-[5.5rem] font-black leading-[0.95] text-cinema-shadow">
-                <span className="block shimmer-text">{currentMovie.title}</span>
+                <span className="block ">{currentMovie.title}</span>
               </h1>
 
               {/* Description */}
@@ -262,7 +262,7 @@ export function HeroSection({ movie, movies, autoRotateInterval = 10000 }: HeroS
               <img
                 src={m.poster_url || '/placeholder.svg'}
                 alt={m.title}
-               className="w-full h-[120%] object-cover object-top"
+               className="w-full h-[120%] object-cover object-top brightness-95 contrast-105"
               />
               {i === activeIndex && (
                 <motion.div

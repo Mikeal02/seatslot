@@ -99,6 +99,7 @@ items-start">
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.04 }}
           >
+            <Link to={`/movie/${m.tmdb_id}`}>
             <div className=" group
 w-full
 h-full
@@ -144,6 +145,7 @@ border-border/30">
                 </div>
               </div>
             </div>
+            </Link>
           </motion.div>
         ))}
       </div>
