@@ -1132,3 +1132,64 @@ html,body{
   }
   .ken-burns, .shimmer::after { animation: none !important; }
 }
+
+/* ────────────────────────────────────────────────────────────
+   ELITE DESIGN SYSTEM — shared surfaces, focus, rhythm
+   Token-driven primitives reused by every redesigned component.
+──────────────────────────────────────────────────────────── */
+@layer components {
+  /* Layered surfaces */
+  .surface-1 { background-color: hsl(var(--surface-1)); }
+  .surface-2 { background-color: hsl(var(--surface-2)); }
+  .surface-3 { background-color: hsl(var(--surface-3)); }
+
+  .panel {
+    background-color: hsl(var(--surface-1));
+    border: 1px solid hsl(var(--hairline));
+    border-radius: calc(var(--radius) + 4px);
+    box-shadow: var(--shadow-sm);
+    transition: border-color var(--dur-base) var(--ease-out-quint),
+                box-shadow var(--dur-base) var(--ease-out-quint),
+                transform var(--dur-base) var(--ease-out-quint);
+  }
+
+  .panel-interactive:hover {
+    border-color: hsl(var(--hairline-strong));
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+
+  /* Consistent, visible, non-clipping focus treatment */
+  .focus-ring {
+    outline: none;
+  }
+  .focus-ring:focus-visible {
+    outline: var(--focus-ring-width, 2px) solid hsl(var(--focus-ring));
+    outline-offset: 2px;
+    border-radius: inherit;
+  }
+
+  /* Hairline divider that reads well in both themes */
+  .divider-soft {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, hsl(var(--hairline-strong)), transparent);
+  }
+
+  /* Section rhythm */
+  .section-y { padding-block: 3rem; }
+  @media (min-width: 768px) { .section-y { padding-block: 4.5rem; } }
+  @media (min-width: 1280px) { .section-y { padding-block: 5.5rem; } }
+
+  /* Small uppercase label above headings */
+  .eyebrow {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* Numeric/data alignment for tables, prices, counters */
+  .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+}
