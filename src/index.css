@@ -144,6 +144,16 @@ html,body{
     --shadow-lg: 0 12px 20px -4px hsl(0 0% 0% / 0.45), 0 4px 8px -4px hsl(0 0% 0% / 0.35);
     --shadow-xl: 0 24px 32px -8px hsl(0 0% 0% / 0.5), 0 8px 16px -6px hsl(0 0% 0% / 0.4);
     --shadow-cinema: 0 25px 50px -12px hsl(var(--primary) / 0.25), 0 12px 24px -8px hsl(0 0% 0% / 0.3);
+
+    /* Surfaces — layered elevation model */
+    --surface-1: 228 14% 8%;
+    --surface-2: 228 13% 11%;
+    --surface-3: 228 12% 14%;
+    --hairline: 228 12% 16%;
+    --hairline-strong: 228 12% 22%;
+    --overlay: 228 20% 2%;
+
+    --focus-ring: 4 90% 62%;
   }
 }
 
