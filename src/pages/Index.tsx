@@ -224,17 +224,17 @@ const Index = () => {
       <Header />
       
       <main id="main-content" className="flex-1">
-        {/* Hero — auto-rotating through top movies */}
+        {/* Bento showcase — hero, quick booking, genres, trending, membership */}
         {featuredMovie && (
-          <HeroSection 
-            movie={featuredMovie} 
-            movies={rotatedWindow(nowShowing.filter(m => m.backdrop_url), 6)}
-            autoRotateInterval={7000}
+          <BentoShowcase
+            featured={featuredMovie}
+            movies={rotatedWindow(nowShowing.filter((m) => m.backdrop_url), 6)}
           />
         )}
         
         {/* Cinema Ticker — film reel marquee */}
         <CinemaTicker />
+
 
         {/* Quick Rebook — slide up reveal */}
         <ScrollReveal direction="up" distance={30} duration={0.6}>
