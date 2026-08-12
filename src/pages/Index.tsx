@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { HeroSection } from '@/components/movies/HeroSection';
+import { BentoShowcase } from '@/components/home/BentoShowcase';
 import { MovieGrid } from '@/components/movies/MovieGrid';
 import { QuickRebook } from '@/components/booking/QuickRebook';
 import { MovieRecommendations } from '@/components/movies/MovieRecommendations';
@@ -224,17 +224,17 @@ const Index = () => {
       <Header />
       
       <main id="main-content" className="flex-1">
-        {/* Hero — auto-rotating through top movies */}
+        {/* Bento showcase — hero, quick booking, genres, trending, membership */}
         {featuredMovie && (
-          <HeroSection 
-            movie={featuredMovie} 
-            movies={rotatedWindow(nowShowing.filter(m => m.backdrop_url), 6)}
-            autoRotateInterval={7000}
+          <BentoShowcase
+            featured={featuredMovie}
+            movies={rotatedWindow(nowShowing.filter((m) => m.backdrop_url), 6)}
           />
         )}
         
         {/* Cinema Ticker — film reel marquee */}
         <CinemaTicker />
+
 
         {/* Quick Rebook — slide up reveal */}
         <ScrollReveal direction="up" distance={30} duration={0.6}>
