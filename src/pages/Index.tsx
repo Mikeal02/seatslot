@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { HeroSection } from '@/components/movies/HeroSection';
+import { BentoShowcase } from '@/components/home/BentoShowcase';
 import { MovieGrid } from '@/components/movies/MovieGrid';
 import { QuickRebook } from '@/components/booking/QuickRebook';
 import { MovieRecommendations } from '@/components/movies/MovieRecommendations';
