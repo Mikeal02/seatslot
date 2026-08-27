@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -67,17 +67,32 @@ body {
     --sidebar-border: 225 13% 91%;
     --sidebar-ring: 4 90% 58%;
 
-    --shadow-sm: 0 1px 2px hsl(0 0% 0% / 0.04);
-    --shadow-md:
-      0 4px 6px -1px hsl(0 0% 0% / 0.06), 0 2px 4px -2px hsl(0 0% 0% / 0.06);
-    --shadow-lg:
-      0 10px 15px -3px hsl(0 0% 0% / 0.08), 0 4px 6px -4px hsl(0 0% 0% / 0.08);
-    --shadow-xl:
-      0 20px 25px -5px hsl(0 0% 0% / 0.1), 0 8px 10px -6px hsl(0 0% 0% / 0.1);
-    --shadow-cinema:
-      0 25px 50px -12px hsl(var(--primary) / 0.15),
-      0 12px 24px -8px hsl(0 0% 0% / 0.08);
+    --shadow-sm: 0 1px 2px hsl(225 20% 8% / 0.05);
+    --shadow-md: 0 2px 4px -1px hsl(225 20% 8% / 0.05), 0 4px 12px -2px hsl(225 20% 8% / 0.06);
+    --shadow-lg: 0 8px 16px -4px hsl(225 20% 8% / 0.07), 0 16px 32px -8px hsl(225 20% 8% / 0.08);
+    --shadow-xl: 0 16px 32px -8px hsl(225 20% 8% / 0.09), 0 32px 64px -16px hsl(225 20% 8% / 0.1);
+    --shadow-cinema: 0 24px 48px -16px hsl(var(--primary) / 0.16), 0 8px 24px -12px hsl(225 20% 8% / 0.1);
+
+    /* Surfaces — layered elevation model */
+    --surface-1: 0 0% 100%;
+    --surface-2: 225 20% 98%;
+    --surface-3: 225 18% 96%;
+    --hairline: 225 13% 91%;
+    --hairline-strong: 225 13% 84%;
+    --overlay: 225 24% 12%;
+
+    /* Focus */
+    --focus-ring: 4 90% 58%;
+    --focus-ring-width: 2px;
+
+    /* Motion */
+    --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-emphasized: cubic-bezier(0.32, 0.72, 0, 1);
+    --dur-fast: 120ms;
+    --dur-base: 200ms;
+    --dur-slow: 340ms;
   }
+
 
   .dark {
     --background: 228 16% 4%;
@@ -133,15 +148,20 @@ body {
     --sidebar-ring: 4 90% 62%;
 
     --shadow-sm: 0 1px 2px hsl(0 0% 0% / 0.3);
-    --shadow-md:
-      0 4px 8px -1px hsl(0 0% 0% / 0.4), 0 2px 4px -2px hsl(0 0% 0% / 0.3);
-    --shadow-lg:
-      0 12px 20px -4px hsl(0 0% 0% / 0.45), 0 4px 8px -4px hsl(0 0% 0% / 0.35);
-    --shadow-xl:
-      0 24px 32px -8px hsl(0 0% 0% / 0.5), 0 8px 16px -6px hsl(0 0% 0% / 0.4);
-    --shadow-cinema:
-      0 25px 50px -12px hsl(var(--primary) / 0.25),
-      0 12px 24px -8px hsl(0 0% 0% / 0.3);
+    --shadow-md: 0 4px 8px -1px hsl(0 0% 0% / 0.4), 0 2px 4px -2px hsl(0 0% 0% / 0.3);
+    --shadow-lg: 0 12px 20px -4px hsl(0 0% 0% / 0.45), 0 4px 8px -4px hsl(0 0% 0% / 0.35);
+    --shadow-xl: 0 24px 32px -8px hsl(0 0% 0% / 0.5), 0 8px 16px -6px hsl(0 0% 0% / 0.4);
+    --shadow-cinema: 0 25px 50px -12px hsl(var(--primary) / 0.25), 0 12px 24px -8px hsl(0 0% 0% / 0.3);
+
+    /* Surfaces — layered elevation model */
+    --surface-1: 228 14% 8%;
+    --surface-2: 228 13% 11%;
+    --surface-3: 228 12% 14%;
+    --hairline: 228 12% 16%;
+    --hairline-strong: 228 12% 22%;
+    --overlay: 228 20% 2%;
+
+    --focus-ring: 4 90% 62%;
   }
 }
 
@@ -158,45 +178,36 @@ body {
 
   body {
     @apply bg-background text-foreground;
-    font-family:
-      "Inter",
-      system-ui,
-      -apple-system,
-      sans-serif;
-    font-feature-settings:
-      "rlig" 1,
-      "calt" 1,
-      "ss01" 1;
+    font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
     overflow-x: hidden;
     line-height: 1.65;
     letter-spacing: -0.01em;
   }
 
   h1 {
-    font-family: "Outfit", "Space Grotesk", sans-serif;
+    font-family: 'Sora', 'Manrope', sans-serif;
     font-weight: 900;
     letter-spacing: -0.045em;
     line-height: 1.05;
   }
 
   h2 {
-    font-family: "Outfit", "Space Grotesk", sans-serif;
+    font-family: 'Sora', 'Manrope', sans-serif;
     font-weight: 800;
     letter-spacing: -0.035em;
     line-height: 1.1;
   }
 
   h3 {
-    font-family: "Outfit", "Space Grotesk", sans-serif;
+    font-family: 'Sora', 'Manrope', sans-serif;
     font-weight: 700;
     letter-spacing: -0.025em;
     line-height: 1.15;
   }
 
-  h4,
-  h5,
-  h6 {
-    font-family: "Space Grotesk", "Inter", sans-serif;
+  h4, h5, h6 {
+    font-family: 'Sora', 'Manrope', sans-serif;
     font-weight: 600;
     letter-spacing: -0.02em;
   }
@@ -506,7 +517,7 @@ body {
   }
 
   .section-label {
-    font-family: "Space Grotesk", sans-serif;
+    font-family: 'Sora', sans-serif;
     font-size: 0.65rem;
     font-weight: 700;
     letter-spacing: 0.25em;
@@ -1386,4 +1397,65 @@ body {
   .shimmer::after {
     animation: none !important;
   }
+}
+
+/* ────────────────────────────────────────────────────────────
+   ELITE DESIGN SYSTEM — shared surfaces, focus, rhythm
+   Token-driven primitives reused by every redesigned component.
+──────────────────────────────────────────────────────────── */
+@layer components {
+  /* Layered surfaces */
+  .surface-1 { background-color: hsl(var(--surface-1)); }
+  .surface-2 { background-color: hsl(var(--surface-2)); }
+  .surface-3 { background-color: hsl(var(--surface-3)); }
+
+  .panel {
+    background-color: hsl(var(--surface-1));
+    border: 1px solid hsl(var(--hairline));
+    border-radius: calc(var(--radius) + 4px);
+    box-shadow: var(--shadow-sm);
+    transition: border-color var(--dur-base) var(--ease-out-quint),
+                box-shadow var(--dur-base) var(--ease-out-quint),
+                transform var(--dur-base) var(--ease-out-quint);
+  }
+
+  .panel-interactive:hover {
+    border-color: hsl(var(--hairline-strong));
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+
+  /* Consistent, visible, non-clipping focus treatment */
+  .focus-ring {
+    outline: none;
+  }
+  .focus-ring:focus-visible {
+    outline: var(--focus-ring-width, 2px) solid hsl(var(--focus-ring));
+    outline-offset: 2px;
+    border-radius: inherit;
+  }
+
+  /* Hairline divider that reads well in both themes */
+  .divider-soft {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, hsl(var(--hairline-strong)), transparent);
+  }
+
+  /* Section rhythm */
+  .section-y { padding-block: 3rem; }
+  @media (min-width: 768px) { .section-y { padding-block: 4.5rem; } }
+  @media (min-width: 1280px) { .section-y { padding-block: 5.5rem; } }
+
+  /* Small uppercase label above headings */
+  .eyebrow {
+    font-family: 'Sora', 'Manrope', sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* Numeric/data alignment for tables, prices, counters */
+  .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
 }
