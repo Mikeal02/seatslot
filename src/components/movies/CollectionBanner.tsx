@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { Layers, ChevronRight, Star } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { Layers, ChevronRight, Star } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface CollectionMovie {
   tmdb_id: number;
@@ -34,13 +34,18 @@ export function CollectionBanner({ collection }: CollectionBannerProps) {
     try {
       const res = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tmdb-movies?action=collection&collection_id=${collection.id}`,
-        { headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY } }
+        {
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+        },
       );
       if (!res.ok) return;
       const data = await res.json();
       setMovies(data.movies || []);
     } catch (err) {
-      console.error('Error fetching collection:', err);
+      console.error("Error fetching collection:", err);
     } finally {
       setLoading(false);
     }
@@ -69,7 +74,7 @@ export function CollectionBanner({ collection }: CollectionBannerProps) {
                 transition={{ delay: 0.1 + i * 0.08, duration: 0.6 }}
               >
                 <img
-                  src={m.backdrop_url || m.poster_url || '/placeholder.svg'}
+                  src={m.backdrop_url || m.poster_url || "/placeholder.svg"}
                   alt={m.title}
                   className="w-full h-full object-cover"
                 />
@@ -88,7 +93,11 @@ export function CollectionBanner({ collection }: CollectionBannerProps) {
           </div>
         ) : (
           <img
-            src={collection.backdrop_url || collection.poster_url || '/placeholder.svg'}
+            src={
+              collection.backdrop_url ||
+              collection.poster_url ||
+              "/placeholder.svg"
+            }
             alt={collection.name}
             className="w-full h-full object-cover"
           />
@@ -97,7 +106,7 @@ export function CollectionBanner({ collection }: CollectionBannerProps) {
         {/* Gradient overlays */}
         <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-card/30 via-transparent to-card/30" />
-        
+
         {/* Top vignette */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,hsl(var(--card))_100%)] opacity-40" />
 
@@ -123,7 +132,9 @@ export function CollectionBanner({ collection }: CollectionBannerProps) {
             Part of Collection
           </Badge>
           <div className="flex items-center justify-between gap-3">
-            <h3 className="font-black text-lg sm:text-xl tracking-tight">{collection.name}</h3>
+            <h3 className="font-black text-lg sm:text-xl tracking-tight">
+              {collection.name}
+            </h3>
             <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
           </div>
         </motion.div>
@@ -146,7 +157,7 @@ export function CollectionBanner({ collection }: CollectionBannerProps) {
               >
                 <div className="relative aspect-[2/3] rounded-lg overflow-hidden border border-border/20 group-hover/poster:border-primary/40 transition-colors">
                   <img
-                    src={m.poster_url || '/placeholder.svg'}
+                    src={m.poster_url || "/placeholder.svg"}
                     alt={m.title}
                     className="w-full h-full object-cover"
                   />
@@ -158,7 +169,7 @@ export function CollectionBanner({ collection }: CollectionBannerProps) {
                   )}
                 </div>
                 <p className="text-[8px] text-muted-foreground text-center mt-1 line-clamp-1 font-medium">
-                  {m.release_date?.split('-')[0]}
+                  {m.release_date?.split("-")[0]}
                 </p>
               </motion.div>
             ))}

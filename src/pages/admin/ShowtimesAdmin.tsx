@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { Plus, Trash2, Calendar } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useEffect, useState } from "react";
+import { Plus, Trash2, Calendar } from "lucide-react";
+import { format, parseISO } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -12,21 +12,21 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,10 +37,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
-import { Movie, Screen, Showtime } from '@/types/database';
+} from "@/components/ui/alert-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
+import { Movie, Screen, Showtime } from "@/types/database";
 
 export default function ShowtimesAdmin() {
   const { toast } = useToast();
@@ -52,10 +52,10 @@ export default function ShowtimesAdmin() {
   const [saving, setSaving] = useState(false);
 
   // Form state
-  const [movieId, setMovieId] = useState('');
-  const [screenId, setScreenId] = useState('');
-  const [showDate, setShowDate] = useState('');
-  const [showTime, setShowTime] = useState('');
+  const [movieId, setMovieId] = useState("");
+  const [screenId, setScreenId] = useState("");
+  const [showDate, setShowDate] = useState("");
+  const [showTime, setShowTime] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -65,17 +65,23 @@ export default function ShowtimesAdmin() {
     try {
       const [showtimesRes, moviesRes, screensRes] = await Promise.all([
         supabase
-          .from('showtimes')
-          .select(`
+          .from("showtimes")
+          .select(
+            `
             *,
             movie:movies(*),
             screen:screens(*, theatre:theatres(*))
-          `)
-          .gte('show_date', new Date().toISOString().split('T')[0])
-          .order('show_date')
-          .order('show_time'),
-        supabase.from('movies').select('*').eq('status', 'now_showing').order('title'),
-        supabase.from('screens').select('*, theatre:theatres(*)').order('name'),
+          `,
+          )
+          .gte("show_date", new Date().toISOString().split("T")[0])
+          .order("show_date")
+          .order("show_time"),
+        supabase
+          .from("movies")
+          .select("*")
+          .eq("status", "now_showing")
+          .order("title"),
+        supabase.from("screens").select("*, theatre:theatres(*)").order("name"),
       ]);
 
       if (showtimesRes.error) throw showtimesRes.error;
@@ -86,25 +92,25 @@ export default function ShowtimesAdmin() {
       setMovies(moviesRes.data as Movie[]);
       setScreens(screensRes.data as Screen[]);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const resetForm = () => {
-    setMovieId('');
-    setScreenId('');
-    setShowDate('');
-    setShowTime('');
+    setMovieId("");
+    setScreenId("");
+    setShowDate("");
+    setShowTime("");
   };
 
   const handleSave = async () => {
     if (!movieId || !screenId || !showDate || !showTime) {
       toast({
-        variant: 'destructive',
-        title: 'Missing fields',
-        description: 'Please fill in all fields.',
+        variant: "destructive",
+        title: "Missing fields",
+        description: "Please fill in all fields.",
       });
       return;
     }
@@ -112,7 +118,7 @@ export default function ShowtimesAdmin() {
     setSaving(true);
 
     try {
-      const { error } = await supabase.from('showtimes').insert({
+      const { error } = await supabase.from("showtimes").insert({
         movie_id: movieId,
         screen_id: screenId,
         show_date: showDate,
@@ -121,16 +127,16 @@ export default function ShowtimesAdmin() {
 
       if (error) throw error;
 
-      toast({ title: 'Showtime added successfully' });
+      toast({ title: "Showtime added successfully" });
       setDialogOpen(false);
       resetForm();
       fetchData();
     } catch (error: any) {
-      console.error('Error saving showtime:', error);
+      console.error("Error saving showtime:", error);
       toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: error.message || 'Failed to save showtime.',
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to save showtime.",
       });
     } finally {
       setSaving(false);
@@ -139,17 +145,20 @@ export default function ShowtimesAdmin() {
 
   const handleDelete = async (showtimeId: string) => {
     try {
-      const { error } = await supabase.from('showtimes').delete().eq('id', showtimeId);
+      const { error } = await supabase
+        .from("showtimes")
+        .delete()
+        .eq("id", showtimeId);
 
       if (error) throw error;
-      toast({ title: 'Showtime deleted successfully' });
+      toast({ title: "Showtime deleted successfully" });
       fetchData();
     } catch (error: any) {
-      console.error('Error deleting showtime:', error);
+      console.error("Error deleting showtime:", error);
       toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: error.message || 'Failed to delete showtime.',
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to delete showtime.",
       });
     }
   };
@@ -167,10 +176,13 @@ export default function ShowtimesAdmin() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold">Showtimes</h1>
-        <Dialog open={dialogOpen} onOpenChange={(open) => {
-          setDialogOpen(open);
-          if (!open) resetForm();
-        }}>
+        <Dialog
+          open={dialogOpen}
+          onOpenChange={(open) => {
+            setDialogOpen(open);
+            if (!open) resetForm();
+          }}
+        >
           <DialogTrigger asChild>
             <Button className="cinema-gradient">
               <Plus className="h-4 w-4 mr-2" />
@@ -222,7 +234,7 @@ export default function ShowtimesAdmin() {
                     type="date"
                     value={showDate}
                     onChange={(e) => setShowDate(e.target.value)}
-                    min={new Date().toISOString().split('T')[0]}
+                    min={new Date().toISOString().split("T")[0]}
                   />
                 </div>
                 <div className="space-y-2">
@@ -236,8 +248,12 @@ export default function ShowtimesAdmin() {
                 </div>
               </div>
 
-              <Button onClick={handleSave} disabled={saving} className="cinema-gradient">
-                {saving ? 'Saving...' : 'Add Showtime'}
+              <Button
+                onClick={handleSave}
+                disabled={saving}
+                className="cinema-gradient"
+              >
+                {saving ? "Saving..." : "Add Showtime"}
               </Button>
             </div>
           </DialogContent>
@@ -261,7 +277,7 @@ export default function ShowtimesAdmin() {
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <img
-                      src={showtime.movie?.poster_url || '/placeholder.svg'}
+                      src={showtime.movie?.poster_url || "/placeholder.svg"}
                       alt={showtime.movie?.title}
                       className="w-10 h-14 object-cover rounded"
                     />
@@ -270,18 +286,25 @@ export default function ShowtimesAdmin() {
                 </TableCell>
                 <TableCell>
                   <div>
-                    <p className="font-medium">{showtime.screen?.theatre?.name}</p>
-                    <p className="text-sm text-muted-foreground">{showtime.screen?.name}</p>
+                    <p className="font-medium">
+                      {showtime.screen?.theatre?.name}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {showtime.screen?.name}
+                    </p>
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                    {format(parseISO(showtime.show_date), 'MMM d, yyyy')}
+                    {format(parseISO(showtime.show_date), "MMM d, yyyy")}
                   </div>
                 </TableCell>
                 <TableCell>
-                  {format(parseISO(`2000-01-01T${showtime.show_time}`), 'h:mm a')}
+                  {format(
+                    parseISO(`2000-01-01T${showtime.show_time}`),
+                    "h:mm a",
+                  )}
                 </TableCell>
                 <TableCell className="text-right">
                   <AlertDialog>
@@ -294,7 +317,8 @@ export default function ShowtimesAdmin() {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete Showtime?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          This will permanently delete this showtime and all associated bookings.
+                          This will permanently delete this showtime and all
+                          associated bookings.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
@@ -313,7 +337,10 @@ export default function ShowtimesAdmin() {
             ))}
             {showtimes.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                <TableCell
+                  colSpan={5}
+                  className="text-center py-8 text-muted-foreground"
+                >
                   No showtimes found
                 </TableCell>
               </TableRow>

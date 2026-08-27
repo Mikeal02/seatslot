@@ -1,13 +1,13 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { Sparkles, ChevronRight, Star, Clock, ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Movie } from '@/types/database';
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { Link } from "react-router-dom";
+import { Sparkles, ChevronRight, Star, Clock, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Movie } from "@/types/database";
 
 interface MovieRecommendationsProps {
   currentMovieId?: string;
@@ -15,30 +15,30 @@ interface MovieRecommendationsProps {
   limit?: number;
 }
 
-export function MovieRecommendations({ 
-  currentMovieId, 
-  currentGenres = [], 
-  limit = 6 
+export function MovieRecommendations({
+  currentMovieId,
+  currentGenres = [],
+  limit = 6,
 }: MovieRecommendationsProps) {
   const { user } = useAuth();
   const [recommendations, setRecommendations] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
-  const [reason, setReason] = useState<string>('');
+  const [reason, setReason] = useState<string>("");
 
   // Memoize genres to prevent infinite loop from array reference changes
-  const genresKey = useMemo(() => currentGenres.join(','), [currentGenres]);
+  const genresKey = useMemo(() => currentGenres.join(","), [currentGenres]);
 
   const fetchRecommendations = useCallback(async () => {
     setLoading(true);
     try {
       let recommendedMovies: Movie[] = [];
-      let recommendationReason = '';
+      let recommendationReason = "";
 
       if (user) {
         const { data: bookings } = await supabase
-          .from('bookings')
+          .from("bookings")
           .select(`showtime:showtimes(movie:movies(genre))`)
-          .eq('user_id', user.id)
+          .eq("user_id", user.id)
           .limit(10);
 
         if (bookings && bookings.length > 0) {
@@ -50,10 +50,13 @@ export function MovieRecommendations({
           });
 
           if (bookedGenres.length > 0) {
-            const genreCounts = bookedGenres.reduce((acc, g) => {
-              acc[g] = (acc[g] || 0) + 1;
-              return acc;
-            }, {} as Record<string, number>);
+            const genreCounts = bookedGenres.reduce(
+              (acc, g) => {
+                acc[g] = (acc[g] || 0) + 1;
+                return acc;
+              },
+              {} as Record<string, number>,
+            );
 
             const topGenres = Object.entries(genreCounts)
               .sort((a, b) => b[1] - a[1])
@@ -61,15 +64,18 @@ export function MovieRecommendations({
               .map(([g]) => g);
 
             const { data: movies } = await supabase
-              .from('movies')
-              .select('*')
-              .overlaps('genre', topGenres)
-              .neq('id', currentMovieId || '00000000-0000-0000-0000-000000000000')
-              .order('rating', { ascending: false })
+              .from("movies")
+              .select("*")
+              .overlaps("genre", topGenres)
+              .neq(
+                "id",
+                currentMovieId || "00000000-0000-0000-0000-000000000000",
+              )
+              .order("rating", { ascending: false })
               .limit(limit);
             if (movies && movies.length > 0) {
               recommendedMovies = movies as Movie[];
-              recommendationReason = `Based on your love for ${topGenres.slice(0, 2).join(' & ')} movies`;
+              recommendationReason = `Based on your love for ${topGenres.slice(0, 2).join(" & ")} movies`;
             }
           }
         }
@@ -77,11 +83,11 @@ export function MovieRecommendations({
 
       if (recommendedMovies.length === 0 && currentGenres.length > 0) {
         const { data: movies } = await supabase
-          .from('movies')
-          .select('*')
-          .overlaps('genre', currentGenres)
-          .neq('id', currentMovieId || '00000000-0000-0000-0000-000000000000')
-          .order('rating', { ascending: false })
+          .from("movies")
+          .select("*")
+          .overlaps("genre", currentGenres)
+          .neq("id", currentMovieId || "00000000-0000-0000-0000-000000000000")
+          .order("rating", { ascending: false })
           .limit(limit);
         if (movies && movies.length > 0) {
           recommendedMovies = movies as Movie[];
@@ -91,21 +97,21 @@ export function MovieRecommendations({
 
       if (recommendedMovies.length === 0) {
         const { data: movies } = await supabase
-          .from('movies')
-          .select('*')
-          .neq('id', currentMovieId || '00000000-0000-0000-0000-000000000000')
-          .order('rating', { ascending: false })
+          .from("movies")
+          .select("*")
+          .neq("id", currentMovieId || "00000000-0000-0000-0000-000000000000")
+          .order("rating", { ascending: false })
           .limit(limit);
         if (movies && movies.length > 0) {
           recommendedMovies = movies as Movie[];
-          recommendationReason = 'Top rated movies you might enjoy';
+          recommendationReason = "Top rated movies you might enjoy";
         }
       }
 
       setRecommendations(recommendedMovies);
       setReason(recommendationReason);
     } catch (error) {
-      console.error('Error fetching recommendations:', error);
+      console.error("Error fetching recommendations:", error);
     } finally {
       setLoading(false);
     }
@@ -154,17 +160,21 @@ export function MovieRecommendations({
             <Sparkles className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h3 className="text-xl sm:text-2xl font-bold tracking-tight">Recommended for You</h3>
+            <h3 className="text-xl sm:text-2xl font-bold tracking-tight">
+              Recommended for You
+            </h3>
             {reason && (
-              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">{reason}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+                {reason}
+              </p>
             )}
           </div>
         </div>
-        <Link 
-          to="/movies" 
+        <Link
+          to="/movies"
           className="text-sm text-primary hover:text-primary/80 flex items-center gap-1.5 font-medium group"
         >
-          View All 
+          View All
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
         </Link>
       </div>
@@ -183,30 +193,32 @@ export function MovieRecommendations({
                 <Card className="overflow-hidden group hover:border-primary/30 transition-all duration-500 glow-card rounded-xl border-border/40">
                   <div className="relative aspect-[2/3] overflow-hidden">
                     <img
-                      src={movie.poster_url || '/placeholder.svg'}
+                      src={movie.poster_url || "/placeholder.svg"}
                       alt={movie.title}
                       loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-60" />
                     <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    
+
                     {movie.rating && movie.rating > 0 && (
                       <div className="absolute top-2 right-2 flex items-center gap-1 bg-card/90 backdrop-blur-md px-2 py-1 rounded-full border border-border/30">
                         <Star className="h-3 w-3 fill-accent text-accent" />
-                        <span className="text-[11px] font-bold">{movie.rating.toFixed(1)}</span>
+                        <span className="text-[11px] font-bold">
+                          {movie.rating.toFixed(1)}
+                        </span>
                       </div>
                     )}
 
                     <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <Badge 
+                      <Badge
                         className={`text-[10px] font-semibold rounded-full ${
-                          nowShowing 
-                            ? 'cinema-gradient text-primary-foreground' 
-                            : 'bg-secondary text-secondary-foreground'
+                          nowShowing
+                            ? "cinema-gradient text-primary-foreground"
+                            : "bg-secondary text-secondary-foreground"
                         }`}
                       >
-                        {nowShowing ? 'Book Now' : 'Coming Soon'}
+                        {nowShowing ? "Book Now" : "Coming Soon"}
                       </Badge>
                     </div>
                   </div>

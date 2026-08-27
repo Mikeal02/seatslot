@@ -6,27 +6,30 @@
  */
 export const qk = {
   stats: {
-    all: ['stats'] as const,
-    platform: () => [...qk.stats.all, 'platform'] as const,
+    all: ["stats"] as const,
+    platform: () => [...qk.stats.all, "platform"] as const,
   },
   seats: {
-    all: ['seats'] as const,
+    all: ["seats"] as const,
     availability: (showtimeId: string, screenId: string) =>
-      [...qk.seats.all, 'availability', showtimeId, screenId] as const,
+      [...qk.seats.all, "availability", showtimeId, screenId] as const,
   },
   bookings: {
-    all: ['bookings'] as const,
-    byUser: (userId: string | undefined) => [...qk.bookings.all, 'user', userId ?? 'anon'] as const,
+    all: ["bookings"] as const,
+    byUser: (userId: string | undefined) =>
+      [...qk.bookings.all, "user", userId ?? "anon"] as const,
   },
   loyalty: {
-    all: ['loyalty'] as const,
-    balance: (userId: string | undefined) => [...qk.loyalty.all, 'balance', userId ?? 'anon'] as const,
+    all: ["loyalty"] as const,
+    balance: (userId: string | undefined) =>
+      [...qk.loyalty.all, "balance", userId ?? "anon"] as const,
     transactions: (userId: string | undefined) =>
-      [...qk.loyalty.all, 'transactions', userId ?? 'anon'] as const,
+      [...qk.loyalty.all, "transactions", userId ?? "anon"] as const,
   },
   reviews: {
-    all: ['reviews'] as const,
-    byMovie: (movieId: string) => [...qk.reviews.all, 'movie', movieId] as const,
+    all: ["reviews"] as const,
+    byMovie: (movieId: string) =>
+      [...qk.reviews.all, "movie", movieId] as const,
   },
 } as const;
 

@@ -6,14 +6,12 @@ export function preloadImage(url?: string | null) {
 
   imageCache.add(url);
 
-  
-
   const img = new Image();
-  img.decoding = 'async';
-  img.loading = 'eager';
+  img.decoding = "async";
+  img.loading = "eager";
   img.src = url;
 }
 
 export function preloadImages(urls: (string | null | undefined)[]) {
   urls.forEach(preloadImage);
-} 
+}

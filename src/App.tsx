@@ -53,7 +53,7 @@ const queryClient = new QueryClient({
 
 function AnimatedRoutes() {
   const location = useLocation();
-  
+
   return (
     <ErrorBoundary>
       <ScrollManager />
@@ -67,12 +67,15 @@ function AnimatedRoutes() {
             <Route path="/movie/:id" element={<MovieDetails />} />
             <Route path="/person/:id" element={<PersonDetails />} />
             <Route path="/booking/:showtimeId" element={<Booking />} />
-            <Route path="/booking-confirmation/:bookingId" element={<BookingConfirmation />} />
+            <Route
+              path="/booking-confirmation/:bookingId"
+              element={<BookingConfirmation />}
+            />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/bookings" element={<MyBookings />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/wishlist" element={<Wishlist />} />
-            
+
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
@@ -80,12 +83,12 @@ function AnimatedRoutes() {
               <Route path="showtimes" element={<ShowtimesAdmin />} />
               <Route path="theatres" element={<TheatresAdmin />} />
             </Route>
-            
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </AnimatePresence>
-      
+
       {/* Mobile Bottom Navigation - always rendered, manages own visibility */}
       <MobileNavBar />
     </ErrorBoundary>
@@ -109,7 +112,7 @@ const App = () => {
             <ScrollProgressBeam />
 
             {!splashDone && <SplashScreen onComplete={handleSplashComplete} />}
-            
+
             <BrowserRouter>
               <AnimatedRoutes />
             </BrowserRouter>

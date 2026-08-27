@@ -1,7 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { qk, staleTime } from '@/data/queryKeys';
-import { bookingsRepository } from '@/data/repositories/bookings.repo';
-import type { Booking } from '@/types/database';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { qk, staleTime } from "@/data/queryKeys";
+import { bookingsRepository } from "@/data/repositories/bookings.repo";
+import type { Booking } from "@/types/database";
 
 export function useUserBookings(userId: string | undefined) {
   return useQuery<Booking[]>({

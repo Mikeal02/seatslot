@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Image, Play, X } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Image, Play, X } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface MediaGalleryProps {
   backdrops?: string[];
@@ -10,19 +10,27 @@ interface MediaGalleryProps {
   videos?: { key: string; name: string; type: string; official: boolean }[];
 }
 
-export function MediaGallery({ backdrops = [], posters = [], logos = [], videos = [] }: MediaGalleryProps) {
-  const [activeTab, setActiveTab] = useState<'backdrops' | 'posters' | 'videos'>('backdrops');
+export function MediaGallery({
+  backdrops = [],
+  posters = [],
+  logos = [],
+  videos = [],
+}: MediaGalleryProps) {
+  const [activeTab, setActiveTab] = useState<
+    "backdrops" | "posters" | "videos"
+  >("backdrops");
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
   const [videoKey, setVideoKey] = useState<string | null>(null);
 
-  const hasContent = backdrops.length > 0 || posters.length > 0 || videos.length > 0;
+  const hasContent =
+    backdrops.length > 0 || posters.length > 0 || videos.length > 0;
   if (!hasContent) return null;
 
   const tabs = [
-    { id: 'backdrops' as const, label: 'Backdrops', count: backdrops.length },
-    { id: 'posters' as const, label: 'Posters', count: posters.length },
-    { id: 'videos' as const, label: 'Videos', count: videos.length },
-  ].filter(t => t.count > 0);
+    { id: "backdrops" as const, label: "Backdrops", count: backdrops.length },
+    { id: "posters" as const, label: "Posters", count: posters.length },
+    { id: "videos" as const, label: "Videos", count: videos.length },
+  ].filter((t) => t.count > 0);
 
   return (
     <div className="space-y-5">
@@ -34,11 +42,11 @@ export function MediaGallery({ backdrops = [], posters = [], logos = [], videos 
           <h3 className="text-lg font-bold tracking-tight">Media Gallery</h3>
         </div>
         <div className="flex gap-1.5 bg-muted/50 p-1 rounded-lg border border-border/30">
-          {tabs.map(t => (
+          {tabs.map((t) => (
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === t.id ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === t.id ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               {t.label} ({t.count})
             </button>
@@ -47,8 +55,14 @@ export function MediaGallery({ backdrops = [], posters = [], logos = [], videos 
       </div>
 
       <AnimatePresence mode="wait">
-        {activeTab === 'backdrops' && (
-          <motion.div key="backdrops" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="grid grid-cols-2 md:grid-cols-3 gap-2">
+        {activeTab === "backdrops" && (
+          <motion.div
+            key="backdrops"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="grid grid-cols-2 md:grid-cols-3 gap-2"
+          >
             {backdrops.map((url, i) => (
               <motion.div
                 key={i}
@@ -58,15 +72,26 @@ export function MediaGallery({ backdrops = [], posters = [], logos = [], videos 
                 transition={{ delay: i * 0.05 }}
                 onClick={() => setLightboxImg(url)}
               >
-                <img src={url} alt={`Backdrop ${i + 1}`} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                <img
+                  src={url}
+                  alt={`Backdrop ${i + 1}`}
+                  loading="lazy"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
                 <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors" />
               </motion.div>
             ))}
           </motion.div>
         )}
 
-        {activeTab === 'posters' && (
-          <motion.div key="posters" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+        {activeTab === "posters" && (
+          <motion.div
+            key="posters"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2"
+          >
             {posters.map((url, i) => (
               <motion.div
                 key={i}
@@ -76,14 +101,25 @@ export function MediaGallery({ backdrops = [], posters = [], logos = [], videos 
                 transition={{ delay: i * 0.05 }}
                 onClick={() => setLightboxImg(url)}
               >
-                <img src={url} alt={`Poster ${i + 1}`} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                <img
+                  src={url}
+                  alt={`Poster ${i + 1}`}
+                  loading="lazy"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
               </motion.div>
             ))}
           </motion.div>
         )}
 
-        {activeTab === 'videos' && (
-          <motion.div key="videos" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {activeTab === "videos" && (
+          <motion.div
+            key="videos"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+          >
             {videos.map((v, i) => (
               <motion.div
                 key={v.key}
@@ -93,7 +129,12 @@ export function MediaGallery({ backdrops = [], posters = [], logos = [], videos 
                 transition={{ delay: i * 0.05 }}
                 onClick={() => setVideoKey(v.key)}
               >
-                <img src={`https://img.youtube.com/vi/${v.key}/mqdefault.jpg`} alt={v.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                <img
+                  src={`https://img.youtube.com/vi/${v.key}/mqdefault.jpg`}
+                  alt={v.name}
+                  loading="lazy"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
                 <div className="absolute inset-0 flex items-center justify-center bg-foreground/20 group-hover:bg-foreground/30 transition-colors">
                   <div className="w-12 h-12 rounded-full bg-card/90 backdrop-blur flex items-center justify-center shadow-lg">
                     <Play className="h-5 w-5 text-foreground ml-0.5" />
@@ -101,7 +142,10 @@ export function MediaGallery({ backdrops = [], posters = [], logos = [], videos 
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 p-2.5 bg-gradient-to-t from-card to-transparent">
                   <p className="text-xs font-semibold line-clamp-1">{v.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{v.type}{v.official ? ' • Official' : ''}</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {v.type}
+                    {v.official ? " • Official" : ""}
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -112,7 +156,13 @@ export function MediaGallery({ backdrops = [], posters = [], logos = [], videos 
       {/* Image Lightbox */}
       <Dialog open={!!lightboxImg} onOpenChange={() => setLightboxImg(null)}>
         <DialogContent className="max-w-4xl p-1 bg-card border-border/30">
-          {lightboxImg && <img src={lightboxImg} alt="Full size" className="w-full h-auto rounded-lg" />}
+          {lightboxImg && (
+            <img
+              src={lightboxImg}
+              alt="Full size"
+              className="w-full h-auto rounded-lg"
+            />
+          )}
         </DialogContent>
       </Dialog>
 

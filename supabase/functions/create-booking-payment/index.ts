@@ -8,7 +8,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -17,12 +18,12 @@ serve(async (req) => {
 
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    Deno.env.get("SUPABASE_ANON_KEY") ?? "",
   );
 
   const supabaseAdmin = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
   );
 
   try {
@@ -39,13 +40,17 @@ serve(async (req) => {
       ? body.selectedSeats.map((s: any) => (typeof s === "string" ? s : s?.id))
       : [];
     const clientOrigin: string | undefined = body.origin;
-    const concessionsIn: { id: string; quantity: number }[] = Array.isArray(body.concessions?.items)
+    const concessionsIn: { id: string; quantity: number }[] = Array.isArray(
+      body.concessions?.items,
+    )
       ? body.concessions.items
       : [];
 
     // ---- Input validation -------------------------------------------------
-    if (!showtimeId || !UUID_RE.test(showtimeId)) throw new Error("Invalid showtime");
-    if (seatIds.length === 0 || seatIds.length > 10) throw new Error("Select between 1 and 10 seats");
+    if (!showtimeId || !UUID_RE.test(showtimeId))
+      throw new Error("Invalid showtime");
+    if (seatIds.length === 0 || seatIds.length > 10)
+      throw new Error("Select between 1 and 10 seats");
     if (!seatIds.every((id) => typeof id === "string" && UUID_RE.test(id))) {
       throw new Error("Invalid seat selection");
     }
@@ -65,7 +70,8 @@ serve(async (req) => {
       .select("id, row_label, seat_number, seat_type, price, screen_id")
       .in("id", uniqueSeatIds);
     if (seatsErr) throw seatsErr;
-    if (!seats || seats.length !== uniqueSeatIds.length) throw new Error("Invalid seat selection");
+    if (!seats || seats.length !== uniqueSeatIds.length)
+      throw new Error("Invalid seat selection");
     if (seats.some((s) => s.screen_id !== showtime.screen_id)) {
       throw new Error("Seats do not belong to this showtime");
     }
@@ -89,16 +95,26 @@ serve(async (req) => {
     const now = Date.now();
     const heldByUser = new Set(
       (locks ?? [])
-        .filter((l) => l.user_id === user.id && new Date(l.expires_at).getTime() > now)
-        .map((l) => l.seat_id)
+        .filter(
+          (l) =>
+            l.user_id === user.id && new Date(l.expires_at).getTime() > now,
+        )
+        .map((l) => l.seat_id),
     );
     if (uniqueSeatIds.some((id) => !heldByUser.has(id))) {
-      throw new Error("Your seat reservation expired. Please reselect your seats.");
+      throw new Error(
+        "Your seat reservation expired. Please reselect your seats.",
+      );
     }
 
     // ---- Concessions priced from the database -----------------------------
     let concessionTotal = 0;
-    const concessionLines: { id: string; name: string; quantity: number; price: number }[] = [];
+    const concessionLines: {
+      id: string;
+      name: string;
+      quantity: number;
+      price: number;
+    }[] = [];
     if (concessionsIn.length > 0) {
       const ids = concessionsIn
         .map((c) => c.id)
@@ -113,7 +129,12 @@ serve(async (req) => {
         if (!item || !item.is_available) continue;
         if (!Number.isFinite(qty) || qty < 1 || qty > 20) continue;
         concessionTotal += Number(item.price) * qty;
-        concessionLines.push({ id: item.id, name: item.name, quantity: qty, price: Number(item.price) });
+        concessionLines.push({
+          id: item.id,
+          name: item.name,
+          quantity: qty,
+          price: Number(item.price),
+        });
       }
     }
 
@@ -130,8 +151,12 @@ serve(async (req) => {
       apiVersion: "2025-08-27.basil",
     });
 
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    const customerId = customers.data.length > 0 ? customers.data[0].id : undefined;
+    const customers = await stripe.customers.list({
+      email: user.email,
+      limit: 1,
+    });
+    const customerId =
+      customers.data.length > 0 ? customers.data[0].id : undefined;
 
     const lineItems: any[] = [
       {
@@ -153,7 +178,10 @@ serve(async (req) => {
           currency: "inr",
           product_data: {
             name: "Snacks & Drinks",
-            description: concessionLines.map((c) => `${c.name} x${c.quantity}`).join(", ").slice(0, 500),
+            description: concessionLines
+              .map((c) => `${c.name} x${c.quantity}`)
+              .join(", ")
+              .slice(0, 500),
           },
           unit_amount: Math.round(concessionTotal * 100),
         },
@@ -191,10 +219,13 @@ serve(async (req) => {
       },
     });
 
-    return new Response(JSON.stringify({ url: session.url, sessionId: session.id }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    });
+    return new Response(
+      JSON.stringify({ url: session.url, sessionId: session.id }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      },
+    );
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     console.error("create-booking-payment error:", msg);

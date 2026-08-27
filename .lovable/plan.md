@@ -1,4 +1,5 @@
 ## Goal
+
 Ship a production-grade seat reservation & booking system with race-safe locks, realtime updates, and lazy cleanup — no cron jobs.
 
 ## Architecture Overview
@@ -90,6 +91,7 @@ Client-side lock/release RPC could work too, but edge functions give clean serve
 ## Step 7 — Testing Scenarios
 
 Playwright script that:
+
 1. Opens seat page as user A, locks seat A1
 2. Opens second context as user B, verifies A1 shows as unavailable
 3. User B tries to lock A1 → expects toast error
@@ -99,6 +101,7 @@ Playwright script that:
 ## Files
 
 **New:**
+
 - `supabase/migrations/<ts>_seat_locks.sql`
 - `supabase/functions/lock-seats/index.ts`
 - `supabase/functions/release-seats/index.ts`
@@ -106,6 +109,7 @@ Playwright script that:
 - `src/hooks/useSeatReservation.ts`
 
 **Modified:**
+
 - `src/components/booking/SeatSelection.tsx` — 3-state colors, realtime, optimistic UI, timer wiring
 - `src/pages/Booking.tsx` — mark payment-initiated so unmount doesn't release
 - `supabase/functions/create-booking-payment/index.ts` — validate locks before session
@@ -113,7 +117,9 @@ Playwright script that:
 - `supabase/config.toml` — register new functions with `verify_jwt = false` (JWT validated in code)
 
 ## Note
+
 This is a big change. I'll ship it in this order across turns:
+
 1. Migration + RPCs (requires your approval)
 2. Edge functions + hooks
 3. UI wiring + timer

@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { format, addDays, isSameDay, parseISO, isToday,set } from 'date-fns';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Clock, MapPin } from 'lucide-react';
-import { SeatAvailabilityBadge } from '@/components/booking/SeatAvailabilityBadge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Showtime } from '@/types/database';
-import { cn } from '@/lib/utils';
+import { useState } from "react";
+import { format, addDays, isSameDay, parseISO, isToday, set } from "date-fns";
+import { motion, AnimatePresence } from "framer-motion";
+import { Calendar, Clock, MapPin } from "lucide-react";
+import { SeatAvailabilityBadge } from "@/components/booking/SeatAvailabilityBadge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Showtime } from "@/types/database";
+import { cn } from "@/lib/utils";
 
 interface ShowtimeSelectorProps {
   showtimes: Showtime[];
@@ -30,42 +30,45 @@ export function ShowtimeSelector({
 
   const filteredShowtimes = showtimes.filter((st) => {
     const showDate = parseISO(st.show_date);
-  
+
     // Only showtimes for the selected date
     if (!isSameDay(showDate, selectedDate)) {
       return false;
     }
-  
+
     // Future dates: show everything
     if (!isToday(showDate)) {
       return true;
     }
-  
+
     // Today's shows: hide past showtimes
-    const [hours, minutes] = st.show_time.split(':').map(Number);
-  
+    const [hours, minutes] = st.show_time.split(":").map(Number);
+
     const showDateTime = set(showDate, {
       hours,
       minutes,
       seconds: 0,
       milliseconds: 0,
     });
-  
+
     return showDateTime > now;
   });
 
   // Group showtimes by theatre
-  const groupedByTheatre = filteredShowtimes.reduce((acc, st) => {
-    const theatreName = st.screen?.theatre?.name || 'Unknown Theatre';
-    if (!acc[theatreName]) {
-      acc[theatreName] = {
-        theatre: st.screen?.theatre,
-        showtimes: [],
-      };
-    }
-    acc[theatreName].showtimes.push(st);
-    return acc;
-  }, {} as Record<string, { theatre: any; showtimes: Showtime[] }>);
+  const groupedByTheatre = filteredShowtimes.reduce(
+    (acc, st) => {
+      const theatreName = st.screen?.theatre?.name || "Unknown Theatre";
+      if (!acc[theatreName]) {
+        acc[theatreName] = {
+          theatre: st.screen?.theatre,
+          showtimes: [],
+        };
+      }
+      acc[theatreName].showtimes.push(st);
+      return acc;
+    },
+    {} as Record<string, { theatre: any; showtimes: Showtime[] }>,
+  );
 
   return (
     <div className="space-y-5 sm:space-y-6">
@@ -78,26 +81,32 @@ export function ShowtimeSelector({
         <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 scrollbar-thin -mx-1 px-1">
           {dates.map((date) => {
             const isSelected = isSameDay(date, selectedDate);
-            const hasShows = showtimes.some((st) => isSameDay(parseISO(st.show_date), date));
+            const hasShows = showtimes.some((st) =>
+              isSameDay(parseISO(st.show_date), date),
+            );
             return (
               <motion.button
                 key={date.toISOString()}
                 onClick={() => setSelectedDate(date)}
                 whileTap={{ scale: 0.95 }}
                 className={cn(
-                  'flex flex-col items-center min-w-[52px] sm:min-w-[68px] p-1.5 sm:p-3 rounded-lg border transition-all shrink-0',
+                  "flex flex-col items-center min-w-[52px] sm:min-w-[68px] p-1.5 sm:p-3 rounded-lg border transition-all shrink-0",
                   isSelected
-                    ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/25'
+                    ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/25"
                     : hasShows
-                    ? 'bg-card border-border hover:border-primary/50'
-                    : 'bg-card border-border/50 opacity-50'
+                      ? "bg-card border-border hover:border-primary/50"
+                      : "bg-card border-border/50 opacity-50",
                 )}
               >
                 <span className="text-[9px] sm:text-xs font-medium uppercase">
-                  {format(date, 'EEE')}
+                  {format(date, "EEE")}
                 </span>
-                <span className="text-sm sm:text-lg font-bold">{format(date, 'd')}</span>
-                <span className="text-[9px] sm:text-xs">{format(date, 'MMM')}</span>
+                <span className="text-sm sm:text-lg font-bold">
+                  {format(date, "d")}
+                </span>
+                <span className="text-[9px] sm:text-xs">
+                  {format(date, "MMM")}
+                </span>
               </motion.button>
             );
           })}
@@ -106,7 +115,7 @@ export function ShowtimeSelector({
 
       {/* Theatres and Showtimes */}
       <AnimatePresence mode="wait">
-        <motion.div 
+        <motion.div
           key={selectedDate.toISOString()}
           className="space-y-3 sm:space-y-4"
           initial={{ opacity: 0, y: 10 }}
@@ -122,63 +131,83 @@ export function ShowtimeSelector({
               </CardContent>
             </Card>
           ) : (
-            Object.entries(groupedByTheatre).map(([theatreName, { theatre, showtimes: theatreShowtimes }], idx) => (
-              <motion.div
-                key={theatreName}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-              >
-                <Card className="bg-card border-border glow-card overflow-visible">
-                  <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-5">
-                    <CardTitle className="text-sm sm:text-lg flex flex-col gap-0.5 sm:gap-1">
-                      <span className="line-clamp-1">{theatreName}</span>
-                      {theatre && (
-                        <div className="flex items-center gap-1 text-[10px] sm:text-sm font-normal text-muted-foreground">
-                          <MapPin className="h-3 w-3 shrink-0" />
-                          <span className="truncate">{theatre.location}, {theatre.city}</span>
-                        </div>
-                      )}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="px-3 sm:px-6 pb-3 sm:pb-5">
-                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                      {theatreShowtimes
-                        .sort((a, b) => a.show_time.localeCompare(b.show_time))
-                        .map((st) => {
-                          const isSelected = selectedShowtime?.id === st.id;
-                          const formattedTime = format(
-                            parseISO(`2000-01-01T${st.show_time}`),
-                            'h:mm a'
-                          );
-                          return (
-                            <motion.div key={st.id} whileTap={{ scale: 0.95 }} className="flex flex-col items-center gap-0.5">
-                              <Button
-                                variant={isSelected ? 'default' : 'outline'}
-                                size="sm"
-                                className={cn(
-                                  'min-w-[72px] sm:min-w-[100px] text-[11px] sm:text-sm h-8 sm:h-9 px-2 sm:px-3',
-                                  isSelected && 'cinema-gradient shadow-md shadow-primary/20'
-                                )}
-                                onClick={() => onSelect(st)}
+            Object.entries(groupedByTheatre).map(
+              (
+                [theatreName, { theatre, showtimes: theatreShowtimes }],
+                idx,
+              ) => (
+                <motion.div
+                  key={theatreName}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                >
+                  <Card className="bg-card border-border glow-card overflow-visible">
+                    <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-5">
+                      <CardTitle className="text-sm sm:text-lg flex flex-col gap-0.5 sm:gap-1">
+                        <span className="line-clamp-1">{theatreName}</span>
+                        {theatre && (
+                          <div className="flex items-center gap-1 text-[10px] sm:text-sm font-normal text-muted-foreground">
+                            <MapPin className="h-3 w-3 shrink-0" />
+                            <span className="truncate">
+                              {theatre.location}, {theatre.city}
+                            </span>
+                          </div>
+                        )}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="px-3 sm:px-6 pb-3 sm:pb-5">
+                      <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                        {theatreShowtimes
+                          .sort((a, b) =>
+                            a.show_time.localeCompare(b.show_time),
+                          )
+                          .map((st) => {
+                            const isSelected = selectedShowtime?.id === st.id;
+                            const formattedTime = format(
+                              parseISO(`2000-01-01T${st.show_time}`),
+                              "h:mm a",
+                            );
+                            return (
+                              <motion.div
+                                key={st.id}
+                                whileTap={{ scale: 0.95 }}
+                                className="flex flex-col items-center gap-0.5"
                               >
-                                <Clock className="h-3 w-3 mr-1 shrink-0" />
-                                {formattedTime}
-                              </Button>
-                              <SeatAvailabilityBadge showtimeId={st.id} screenId={st.screen_id} />
-                            </motion.div>
-                          );
-                        })}
-                    </div>
-                    {theatreShowtimes[0]?.screen && (
-                      <Badge variant="secondary" className="mt-2 sm:mt-3 text-[10px] sm:text-xs">
-                        {theatreShowtimes[0].screen.name}
-                      </Badge>
-                    )}
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))
+                                <Button
+                                  variant={isSelected ? "default" : "outline"}
+                                  size="sm"
+                                  className={cn(
+                                    "min-w-[72px] sm:min-w-[100px] text-[11px] sm:text-sm h-8 sm:h-9 px-2 sm:px-3",
+                                    isSelected &&
+                                      "cinema-gradient shadow-md shadow-primary/20",
+                                  )}
+                                  onClick={() => onSelect(st)}
+                                >
+                                  <Clock className="h-3 w-3 mr-1 shrink-0" />
+                                  {formattedTime}
+                                </Button>
+                                <SeatAvailabilityBadge
+                                  showtimeId={st.id}
+                                  screenId={st.screen_id}
+                                />
+                              </motion.div>
+                            );
+                          })}
+                      </div>
+                      {theatreShowtimes[0]?.screen && (
+                        <Badge
+                          variant="secondary"
+                          className="mt-2 sm:mt-3 text-[10px] sm:text-xs"
+                        >
+                          {theatreShowtimes[0].screen.name}
+                        </Badge>
+                      )}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ),
+            )
           )}
         </motion.div>
       </AnimatePresence>

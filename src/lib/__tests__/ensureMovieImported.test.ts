@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 const rpc = vi.fn();
-vi.mock("@/integrations/supabase/client", () => ({ supabase: { rpc: (...a: unknown[]) => rpc(...a) } }));
+vi.mock("@/integrations/supabase/client", () => ({
+  supabase: { rpc: (...a: unknown[]) => rpc(...a) },
+}));
 
 import { ensureMovieImported } from "@/lib/movieImport";
 
@@ -46,7 +48,7 @@ describe("ensureMovieImported", () => {
   it("fetches details when given a bare tmdb id and honors generateShowtimes: false", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue({ ok: true, json: async () => fullMovie })
+      vi.fn().mockResolvedValue({ ok: true, json: async () => fullMovie }),
     );
 
     await ensureMovieImported(55, { generateShowtimes: false });
@@ -61,10 +63,13 @@ describe("ensureMovieImported", () => {
       vi.fn().mockResolvedValue({
         ok: true,
         json: async () => ({ tmdb_id: 9, title: "Sparse" }),
-      })
+      }),
     );
 
-    await ensureMovieImported({ tmdb_id: 9, title: "Sparse" }, { status: "coming_soon" });
+    await ensureMovieImported(
+      { tmdb_id: 9, title: "Sparse" },
+      { status: "coming_soon" },
+    );
 
     expect(rpc.mock.calls[0][1]).toMatchObject({
       p_duration_minutes: 120,

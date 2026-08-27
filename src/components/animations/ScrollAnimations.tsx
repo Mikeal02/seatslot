@@ -1,11 +1,17 @@
-import { useRef, ReactNode } from 'react';
-import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
+import { useRef, ReactNode } from "react";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useSpring,
+  useInView,
+} from "framer-motion";
 
 /* ─── Scroll Reveal ─── */
 interface ScrollRevealProps {
   children: ReactNode;
   className?: string;
-  direction?: 'up' | 'down' | 'left' | 'right';
+  direction?: "up" | "down" | "left" | "right";
   distance?: number;
   delay?: number;
   duration?: number;
@@ -14,15 +20,15 @@ interface ScrollRevealProps {
 
 export function ScrollReveal({
   children,
-  className = '',
-  direction = 'up',
+  className = "",
+  direction = "up",
   distance = 40,
   delay = 0,
   duration = 0.7,
   once = true,
 }: ScrollRevealProps) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once, margin: '-80px' });
+  const isInView = useInView(ref, { once, margin: "-80px" });
 
   const dirMap = {
     up: { y: distance },
@@ -34,10 +40,11 @@ export function ScrollReveal({
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, filter: 'blur(4px)', ...dirMap[direction] }}
-      animate={isInView 
-        ? { opacity: 1, filter: 'blur(0px)', x: 0, y: 0 } 
-        : { opacity: 0, filter: 'blur(4px)', ...dirMap[direction] }
+      initial={{ opacity: 0, filter: "blur(4px)", ...dirMap[direction] }}
+      animate={
+        isInView
+          ? { opacity: 1, filter: "blur(0px)", x: 0, y: 0 }
+          : { opacity: 0, filter: "blur(4px)", ...dirMap[direction] }
       }
       transition={{
         duration,
@@ -61,9 +68,9 @@ interface ParallaxSectionProps {
 
 export function ParallaxSection({
   children,
-  className = '',
+  className = "",
   speed = 0.3,
-  offset = ['start end', 'end start'],
+  offset = ["start end", "end start"],
 }: ParallaxSectionProps) {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -76,9 +83,7 @@ export function ParallaxSection({
 
   return (
     <div ref={ref} className={`relative overflow-hidden ${className}`}>
-      <motion.div style={{ y: smoothY }}>
-        {children}
-      </motion.div>
+      <motion.div style={{ y: smoothY }}>{children}</motion.div>
     </div>
   );
 }
@@ -92,23 +97,24 @@ interface ParallaxBackgroundProps {
 
 export function ParallaxBackground({
   children,
-  className = '',
+  className = "",
   speed = 0.2,
 }: ParallaxBackgroundProps) {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ['start end', 'end start'],
+    offset: ["start end", "end start"],
   });
 
-  const y = useTransform(scrollYProgress, [0, 1], [`${speed * 50}%`, `-${speed * 50}%`]);
+  const y = useTransform(
+    scrollYProgress,
+    [0, 1],
+    [`${speed * 50}%`, `-${speed * 50}%`],
+  );
 
   return (
     <div ref={ref} className="relative overflow-hidden">
-      <motion.div
-        className={`absolute inset-0 ${className}`}
-        style={{ y }}
-      >
+      <motion.div className={`absolute inset-0 ${className}`} style={{ y }}>
         {children}
       </motion.div>
     </div>
@@ -124,27 +130,23 @@ interface ScrollScaleProps {
 
 export function ScrollScale({
   children,
-  className = '',
+  className = "",
   scaleRange = [0.92, 1],
 }: ScrollScaleProps) {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ['start end', 'center center'],
+    offset: ["start end", "center center"],
   });
 
-  const scale = useSpring(
-    useTransform(scrollYProgress, [0, 1], scaleRange),
-    { stiffness: 100, damping: 30 }
-  );
+  const scale = useSpring(useTransform(scrollYProgress, [0, 1], scaleRange), {
+    stiffness: 100,
+    damping: 30,
+  });
   const opacity = useTransform(scrollYProgress, [0, 0.3], [0, 1]);
 
   return (
-    <motion.div
-      ref={ref}
-      style={{ scale, opacity }}
-      className={className}
-    >
+    <motion.div ref={ref} style={{ scale, opacity }} className={className}>
       {children}
     </motion.div>
   );
@@ -159,17 +161,17 @@ interface StaggerRevealProps {
 
 export function StaggerReveal({
   children,
-  className = '',
+  className = "",
   staggerDelay = 0.08,
 }: StaggerRevealProps) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-60px' });
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
 
   return (
     <motion.div
       ref={ref}
       initial="hidden"
-      animate={isInView ? 'visible' : 'hidden'}
+      animate={isInView ? "visible" : "hidden"}
       variants={{
         hidden: {},
         visible: {
@@ -187,7 +189,7 @@ export function StaggerReveal({
 
 export function StaggerRevealItem({
   children,
-  className = '',
+  className = "",
 }: {
   children: ReactNode;
   className?: string;

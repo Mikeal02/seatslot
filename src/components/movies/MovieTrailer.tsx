@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { Play, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { useState } from "react";
+import { Play, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 interface MovieTrailerProps {
   trailerKey: string | null;

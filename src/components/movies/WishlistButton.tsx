@@ -1,22 +1,22 @@
-import { Heart } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useWishlist } from '@/hooks/useWishlist';
-import { cn } from '@/lib/utils';
+import { Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useWishlist } from "@/hooks/useWishlist";
+import { cn } from "@/lib/utils";
 
 interface WishlistButtonProps {
   movieId: string;
   movieTitle?: string;
-  size?: 'sm' | 'default' | 'lg' | 'icon';
-  variant?: 'default' | 'ghost' | 'outline';
+  size?: "sm" | "default" | "lg" | "icon";
+  variant?: "default" | "ghost" | "outline";
   className?: string;
 }
 
-export function WishlistButton({ 
-  movieId, 
-  movieTitle, 
-  size = 'icon', 
-  variant = 'ghost',
-  className 
+export function WishlistButton({
+  movieId,
+  movieTitle,
+  size = "icon",
+  variant = "ghost",
+  className,
 }: WishlistButtonProps) {
   const { isInWishlist, toggleWishlist, loading } = useWishlist();
   const inWishlist = isInWishlist(movieId);
@@ -34,17 +34,14 @@ export function WishlistButton({
       onClick={handleClick}
       disabled={loading}
       className={cn(
-        'transition-all',
-        inWishlist && 'text-red-500 hover:text-red-600',
-        className
+        "transition-all",
+        inWishlist && "text-red-500 hover:text-red-600",
+        className,
       )}
-      title={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+      title={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
     >
       <Heart
-        className={cn(
-          'h-5 w-5 transition-all',
-          inWishlist && 'fill-current'
-        )}
+        className={cn("h-5 w-5 transition-all", inWishlist && "fill-current")}
       />
     </Button>
   );

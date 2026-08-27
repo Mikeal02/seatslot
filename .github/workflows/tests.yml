@@ -26,7 +26,6 @@ jobs:
         if: always()
         run: node .github/scripts/coverage-summary.cjs
 
-
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@v4

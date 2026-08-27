@@ -1,12 +1,20 @@
-import { useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { Clock, Star, Play, Ticket, DollarSign, Flame, Zap } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Movie } from '@/types/database';
-import { prefetchMovie } from '@/lib/prefetchMovie';
+import { useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import {
+  Clock,
+  Star,
+  Play,
+  Ticket,
+  DollarSign,
+  Flame,
+  Zap,
+} from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Movie } from "@/types/database";
+import { prefetchMovie } from "@/lib/prefetchMovie";
 
 interface MovieCardProps {
   movie: Movie & { budget?: number; revenue?: number };
@@ -26,7 +34,8 @@ const isNewRelease = (releaseDate: string | null): boolean => {
   if (!releaseDate) return false;
   const today = new Date();
   const release = new Date(releaseDate);
-  const diffDays = (today.getTime() - release.getTime()) / (1000 * 60 * 60 * 24);
+  const diffDays =
+    (today.getTime() - release.getTime()) / (1000 * 60 * 60 * 24);
   return diffDays >= 0 && diffDays <= 30;
 };
 
@@ -47,13 +56,20 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
   // 3D tilt
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [10, -10]), { stiffness: 250, damping: 25 });
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-10, 10]), { stiffness: 250, damping: 25 });
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [10, -10]), {
+    stiffness: 250,
+    damping: 25,
+  });
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-10, 10]), {
+    stiffness: 250,
+    damping: 25,
+  });
   const glareX = useTransform(mouseX, [-0.5, 0.5], [0, 100]);
   const glareY = useTransform(mouseY, [-0.5, 0.5], [0, 100]);
   const glareBackground = useTransform(
     [glareX, glareY],
-    ([x, y]) => `radial-gradient(circle at ${x}% ${y}%, hsl(var(--primary) / 0.12) 0%, transparent 55%)`
+    ([x, y]) =>
+      `radial-gradient(circle at ${x}% ${y}%, hsl(var(--primary) / 0.12) 0%, transparent 55%)`,
   );
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -82,16 +98,16 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
       ref={cardRef}
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ 
-        duration: 0.6, 
+      transition={{
+        duration: 0.6,
         delay: index * 0.04,
-        ease: [0.25, 0.1, 0.25, 1]
+        ease: [0.25, 0.1, 0.25, 1],
       }}
       style={{
         rotateX,
         rotateY,
         transformPerspective: 800,
-        transformStyle: 'preserve-3d',
+        transformStyle: "preserve-3d",
       }}
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
@@ -99,18 +115,23 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
       onClick={() => navigate(`/movie/${movie.id}`)}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/movie/${movie.id}`); }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") navigate(`/movie/${movie.id}`);
+      }}
       className="cursor-pointer"
     >
       <Card className="group overflow-hidden bg-card border-border/20 hover:border-primary/25 transition-all duration-500 glow-card h-full flex flex-col rounded-2xl">
-        <div className="relative w-full overflow-hidden" style={{ paddingBottom: '150%' }}>
+        <div
+          className="relative w-full overflow-hidden"
+          style={{ paddingBottom: "150%" }}
+        >
           <img
-            src={movie.poster_url || '/placeholder.svg'}
+            src={movie.poster_url || "/placeholder.svg"}
             alt={`${movie.title} movie poster`}
             loading="lazy"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
           />
-          
+
           {/* Holographic glare on hover */}
           {isHovered && (
             <motion.div
@@ -121,18 +142,23 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
               transition={{ duration: 0.3 }}
             />
           )}
-          
+
           {/* Gradient overlays */}
           <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-80" />
           <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          
+
           {/* NEW RELEASE badge — animated pulse glow */}
           {nowShowing && newRelease && (
             <div className="absolute top-3 left-3 z-20">
               <motion.div
                 initial={{ scale: 0, rotate: -12 }}
                 animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 15, delay: index * 0.04 + 0.3 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 400,
+                  damping: 15,
+                  delay: index * 0.04 + 0.3,
+                }}
               >
                 <Badge className="new-release-badge text-[8px] font-black px-2.5 py-1.5 rounded-full border-0 uppercase tracking-[0.2em] shadow-lg gap-1">
                   <Zap className="h-2.5 w-2.5 fill-current" />
@@ -144,12 +170,14 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
 
           {/* Rating badge */}
           {nowShowing && movie.rating && movie.rating > 0 && (
-            <motion.div 
+            <motion.div
               className="absolute top-3 right-3 flex items-center gap-1.5 glass-card px-2.5 py-1.5 rounded-full shadow-xl z-20"
               whileHover={{ scale: 1.05 }}
             >
               <Star className="h-3 w-3 fill-accent text-accent" />
-              <span className="text-[11px] font-bold tracking-tight">{movie.rating}</span>
+              <span className="text-[11px] font-bold tracking-tight">
+                {movie.rating}
+              </span>
             </motion.div>
           )}
 
@@ -167,7 +195,9 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
             <div className="absolute bottom-14 left-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0 z-20">
               <div className="flex items-center gap-1.5 glass-card px-2.5 py-1.5 rounded-lg text-[10px]">
                 <DollarSign className="h-3 w-3 text-accent" />
-                <span className="font-semibold">{formatCompact(extMovie.revenue)}</span>
+                <span className="font-semibold">
+                  {formatCompact(extMovie.revenue)}
+                </span>
                 <span className="text-muted-foreground">box office</span>
               </div>
             </div>
@@ -176,24 +206,35 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
           {/* Genre tags on hover */}
           {movie.genre && movie.genre.length > 0 && !newRelease && (
             <div className="absolute top-3 left-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-              {nowShowing && movie.genre.slice(0, 2).map((g) => (
-                <span key={g} className="text-[9px] font-semibold glass-card px-2 py-0.5 rounded-full uppercase tracking-wider">
-                  {g}
-                </span>
-              ))}
+              {nowShowing &&
+                movie.genre.slice(0, 2).map((g) => (
+                  <span
+                    key={g}
+                    className="text-[9px] font-semibold glass-card px-2 py-0.5 rounded-full uppercase tracking-wider"
+                  >
+                    {g}
+                  </span>
+                ))}
             </div>
           )}
 
           {/* Hover action button — stable element, no re-mount */}
           <div className="absolute bottom-0 left-0 right-0 p-3 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-500 ease-out z-20">
-            <Button 
-              asChild 
+            <Button
+              asChild
               variant="cinema"
               className="w-full h-10 rounded-full text-sm font-bold"
             >
-              <Link to={`/movie/${movie.id}`} className="flex items-center justify-center gap-2">
-                {nowShowing ? <Ticket className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}
-                {nowShowing ? 'Book Now' : 'View Details'}
+              <Link
+                to={`/movie/${movie.id}`}
+                className="flex items-center justify-center gap-2"
+              >
+                {nowShowing ? (
+                  <Ticket className="h-4 w-4" />
+                ) : (
+                  <Play className="h-4 w-4 fill-current" />
+                )}
+                {nowShowing ? "Book Now" : "View Details"}
               </Link>
             </Button>
           </div>
@@ -217,7 +258,9 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
                 <span className="cinema-gradient-text">New Release</span>
               </span>
             ) : nowShowing ? (
-              <span className="text-[9px] font-bold text-primary uppercase tracking-[0.15em]">In Theatres</span>
+              <span className="text-[9px] font-bold text-primary uppercase tracking-[0.15em]">
+                In Theatres
+              </span>
             ) : null}
           </div>
         </CardContent>

@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from "@/integrations/supabase/client";
 
 export interface SeatAvailability {
   total: number;
@@ -12,13 +12,19 @@ export interface SeatAvailability {
  * intentionally lenient.
  */
 export const seatsRepository = {
-  async availability(showtimeId: string, screenId: string): Promise<SeatAvailability> {
+  async availability(
+    showtimeId: string,
+    screenId: string,
+  ): Promise<SeatAvailability> {
     const [seatsRes, bookedRes] = await Promise.all([
-      supabase.from('seats').select('id', { count: 'exact', head: true }).eq('screen_id', screenId),
       supabase
-        .from('booked_seats')
-        .select('id', { count: 'exact', head: true })
-        .eq('showtime_id', showtimeId),
+        .from("seats")
+        .select("id", { count: "exact", head: true })
+        .eq("screen_id", screenId),
+      supabase
+        .from("booked_seats")
+        .select("id", { count: "exact", head: true })
+        .eq("showtime_id", showtimeId),
     ]);
 
     const total = seatsRes.count || 0;

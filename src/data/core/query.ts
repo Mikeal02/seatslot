@@ -1,4 +1,4 @@
-import type { PostgrestError } from '@supabase/supabase-js';
+import type { PostgrestError } from "@supabase/supabase-js";
 
 /**
  * Domain-level error raised by the data layer. Repositories never leak raw
@@ -11,7 +11,7 @@ export class DataError extends Error {
 
   constructor(scope: string, message: string, cause?: PostgrestError | null) {
     super(message);
-    this.name = 'DataError';
+    this.name = "DataError";
     this.scope = scope;
     this.code = cause?.code;
     this.details = cause?.details;
@@ -19,7 +19,7 @@ export class DataError extends Error {
 }
 
 /** Postgrest "no rows returned" for `.single()`. Treated as `null`, not a failure. */
-export const NOT_FOUND = 'PGRST116';
+export const NOT_FOUND = "PGRST116";
 
 interface Envelope<T> {
   data: T | null;
@@ -28,7 +28,10 @@ interface Envelope<T> {
 }
 
 /** Unwrap a Supabase response, throwing a DataError on failure. */
-export async function unwrap<T>(scope: string, promise: PromiseLike<Envelope<T>>): Promise<T> {
+export async function unwrap<T>(
+  scope: string,
+  promise: PromiseLike<Envelope<T>>,
+): Promise<T> {
   const { data, error } = await promise;
   if (error) throw new DataError(scope, error.message, error);
   return data as T;
@@ -37,17 +40,18 @@ export async function unwrap<T>(scope: string, promise: PromiseLike<Envelope<T>>
 /** Unwrap a response that may legitimately return no row. */
 export async function unwrapMaybe<T>(
   scope: string,
-  promise: PromiseLike<Envelope<T>>
+  promise: PromiseLike<Envelope<T>>,
 ): Promise<T | null> {
   const { data, error } = await promise;
-  if (error && error.code !== NOT_FOUND) throw new DataError(scope, error.message, error);
+  if (error && error.code !== NOT_FOUND)
+    throw new DataError(scope, error.message, error);
   return (data as T) ?? null;
 }
 
 /** Unwrap a list response, always yielding an array. */
 export async function unwrapList<T>(
   scope: string,
-  promise: PromiseLike<Envelope<T[]>>
+  promise: PromiseLike<Envelope<T[]>>,
 ): Promise<T[]> {
   return (await unwrap<T[]>(scope, promise)) ?? [];
 }
@@ -55,7 +59,7 @@ export async function unwrapList<T>(
 /** Unwrap a `head: true, count: 'exact'` response. */
 export async function unwrapCount(
   scope: string,
-  promise: PromiseLike<Envelope<unknown>>
+  promise: PromiseLike<Envelope<unknown>>,
 ): Promise<number> {
   const { error, count } = await promise;
   if (error) throw new DataError(scope, error.message, error);
@@ -72,4 +76,4 @@ export async function unwrapCount(
 export const sel = (s: string): string => s;
 
 /** All-zero UUID — safe placeholder so filters never receive `undefined`. */
-export const NIL_UUID = '00000000-0000-0000-0000-000000000000';
+export const NIL_UUID = "00000000-0000-0000-0000-000000000000";

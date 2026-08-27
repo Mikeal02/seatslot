@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import { ChevronRight, Home } from 'lucide-react';
+import { Link } from "react-router-dom";
+import { ChevronRight, Home } from "lucide-react";
 
 export interface Crumb {
   label: string;
@@ -14,7 +14,7 @@ interface BreadcrumbsProps {
 /**
  * Compact, accessible breadcrumb trail. Last item renders as current page.
  */
-export function Breadcrumbs({ items, className = '' }: BreadcrumbsProps) {
+export function Breadcrumbs({ items, className = "" }: BreadcrumbsProps) {
   return (
     <nav aria-label="Breadcrumb" className={className}>
       <ol className="flex items-center flex-wrap gap-1 text-[11px] font-semibold text-muted-foreground">
@@ -32,11 +32,14 @@ export function Breadcrumbs({ items, className = '' }: BreadcrumbsProps) {
           const isLast = i === items.length - 1;
           return (
             <li key={i} className="flex items-center gap-1 min-w-0">
-              <ChevronRight className="h-3 w-3 shrink-0 opacity-60" aria-hidden />
+              <ChevronRight
+                className="h-3 w-3 shrink-0 opacity-60"
+                aria-hidden
+              />
               {isLast || !item.to ? (
                 <span
                   className="text-foreground/90 truncate max-w-[220px] sm:max-w-[360px] px-1"
-                  aria-current={isLast ? 'page' : undefined}
+                  aria-current={isLast ? "page" : undefined}
                 >
                   {item.label}
                 </span>

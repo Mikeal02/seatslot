@@ -32,9 +32,12 @@ describe("useBookingTimer", () => {
   });
 
   it("resets when it becomes inactive again", () => {
-    const { result, rerender } = renderHook(({ active }) => useBookingTimer(active), {
-      initialProps: { active: true },
-    });
+    const { result, rerender } = renderHook(
+      ({ active }) => useBookingTimer(active),
+      {
+        initialProps: { active: true },
+      },
+    );
     act(() => void vi.advanceTimersByTime(10_000));
     expect(result.current.timeLeft).toBe(590);
     rerender({ active: false });

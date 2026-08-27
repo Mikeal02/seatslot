@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
 
 interface StickyPageBarProps {
   title: string;
   subtitle?: string;
   imageUrl?: string | null;
   imageAlt?: string;
-  imageShape?: 'poster' | 'avatar';
+  imageShape?: "poster" | "avatar";
   action?: {
     label: string;
     onClick?: () => void;
@@ -27,7 +27,7 @@ export function StickyPageBar({
   subtitle,
   imageUrl,
   imageAlt,
-  imageShape = 'poster',
+  imageShape = "poster",
   action,
   threshold = 420,
 }: StickyPageBarProps) {
@@ -42,10 +42,10 @@ export function StickyPageBar({
         raf = 0;
       });
     };
-    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => {
-      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener("scroll", onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
   }, [threshold]);
@@ -55,9 +55,9 @@ export function StickyPageBar({
       src={imageUrl}
       alt={imageAlt || title}
       className={
-        imageShape === 'avatar'
-          ? 'h-9 w-9 rounded-full object-cover border border-border/40 shrink-0'
-          : 'h-11 w-8 rounded-md object-cover border border-border/40 shrink-0'
+        imageShape === "avatar"
+          ? "h-9 w-9 rounded-full object-cover border border-border/40 shrink-0"
+          : "h-11 w-8 rounded-md object-cover border border-border/40 shrink-0"
       }
     />
   ) : null;
@@ -70,7 +70,7 @@ export function StickyPageBar({
           initial={{ y: -60, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -60, opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 34 }}
+          transition={{ type: "spring", stiffness: 400, damping: 34 }}
           className="fixed top-[64px] inset-x-0 z-40 border-b border-border/30 bg-background/70 backdrop-blur-xl shadow-sm"
           role="region"
           aria-label={`${title} quick actions`}
@@ -78,13 +78,17 @@ export function StickyPageBar({
           <div className="container mx-auto px-3 sm:px-6 h-14 flex items-center gap-3">
             {ImageEl}
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-black tracking-tight truncate leading-tight">{title}</p>
+              <p className="text-sm font-black tracking-tight truncate leading-tight">
+                {title}
+              </p>
               {subtitle && (
-                <p className="text-[11px] text-muted-foreground truncate leading-tight">{subtitle}</p>
+                <p className="text-[11px] text-muted-foreground truncate leading-tight">
+                  {subtitle}
+                </p>
               )}
             </div>
-            {action && (
-              action.to ? (
+            {action &&
+              (action.to ? (
                 <Link
                   to={action.to}
                   className="shrink-0 inline-flex items-center justify-center h-9 px-4 rounded-lg cinema-gradient text-primary-foreground text-xs font-bold shadow-md hover:shadow-lg transition-shadow"
@@ -100,8 +104,7 @@ export function StickyPageBar({
                 >
                   {action.label}
                 </button>
-              )
-            )}
+              ))}
           </div>
         </motion.div>
       )}

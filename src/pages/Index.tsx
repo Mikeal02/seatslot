@@ -1,22 +1,25 @@
-import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
-import { HeroSection } from '@/components/movies/HeroSection';
-import { MovieGrid } from '@/components/movies/MovieGrid';
-import { QuickRebook } from '@/components/booking/QuickRebook';
-import { MovieRecommendations } from '@/components/movies/MovieRecommendations';
-import { StatsSection } from '@/components/home/StatsSection';
-import { TrendingCarousel } from '@/components/movies/TrendingCarousel';
-import { FeaturedSpotlight } from '@/components/movies/FeaturedSpotlight';
-import { GenreChips } from '@/components/home/GenreChips';
-import { CinemaTicker } from '@/components/effects/CinemaTicker';
-import { ScrollReveal, ScrollScale } from '@/components/animations/ScrollAnimations';
-import { Movie } from '@/types/database';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
-import { useMovieSync } from '@/hooks/useMovieSync';
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+import { HeroSection } from "@/components/movies/HeroSection";
+import { MovieGrid } from "@/components/movies/MovieGrid";
+import { QuickRebook } from "@/components/booking/QuickRebook";
+import { MovieRecommendations } from "@/components/movies/MovieRecommendations";
+import { StatsSection } from "@/components/home/StatsSection";
+import { TrendingCarousel } from "@/components/movies/TrendingCarousel";
+import { FeaturedSpotlight } from "@/components/movies/FeaturedSpotlight";
+import { GenreChips } from "@/components/home/GenreChips";
+import { CinemaTicker } from "@/components/effects/CinemaTicker";
+import {
+  ScrollReveal,
+  ScrollScale,
+} from "@/components/animations/ScrollAnimations";
+import { Movie } from "@/types/database";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
+import { useMovieSync } from "@/hooks/useMovieSync";
 
 /**
  * Show the freshest movies at the top: sort by release_date desc first,
@@ -32,7 +35,7 @@ const rotatedWindow = (movies: Movie[], size = 6) => {
   return sorted.slice(0, size);
 };
 
-const MOVIES_CACHE_KEY = 'cinebook_movies_cache_v2';
+const MOVIES_CACHE_KEY = "cinebook_movies_cache_v2";
 const MOVIES_CACHE_TTL_MS = 10 * 24 * 60 * 60 * 1000; // 10 days
 
 type CachedMovies = { movies: Movie[]; cachedAt: number };
@@ -47,7 +50,10 @@ const readMoviesCache = (): Movie[] | null => {
     const local = localStorage.getItem(MOVIES_CACHE_KEY);
     if (local) {
       const parsed: CachedMovies = JSON.parse(local);
-      if (parsed?.movies?.length && Date.now() - parsed.cachedAt < MOVIES_CACHE_TTL_MS) {
+      if (
+        parsed?.movies?.length &&
+        Date.now() - parsed.cachedAt < MOVIES_CACHE_TTL_MS
+      ) {
         return parsed.movies;
       }
     }
@@ -82,18 +88,25 @@ const Index = () => {
     const recentCutoff = new Date(today);
     recentCutoff.setDate(today.getDate() - 120);
 
-    const now = movies.filter((m) => {
-      if (!m.release_date) return true;
-      const release = new Date(m.release_date);
-      release.setHours(0, 0, 0, 0);
-      return release <= today;
-    }).sort((a, b) => {
-      const aDate = a.release_date ? new Date(a.release_date).getTime() : 0;
-      const bDate = b.release_date ? new Date(b.release_date).getTime() : 0;
-      const aRecentBoost = aDate >= recentCutoff.getTime() ? 10000 : 0;
-      const bRecentBoost = bDate >= recentCutoff.getTime() ? 10000 : 0;
-      return (bRecentBoost + bDate / 86_400_000 + Number(b.popularity || 0)) - (aRecentBoost + aDate / 86_400_000 + Number(a.popularity || 0));
-    });
+    const now = movies
+      .filter((m) => {
+        if (!m.release_date) return true;
+        const release = new Date(m.release_date);
+        release.setHours(0, 0, 0, 0);
+        return release <= today;
+      })
+      .sort((a, b) => {
+        const aDate = a.release_date ? new Date(a.release_date).getTime() : 0;
+        const bDate = b.release_date ? new Date(b.release_date).getTime() : 0;
+        const aRecentBoost = aDate >= recentCutoff.getTime() ? 10000 : 0;
+        const bRecentBoost = bDate >= recentCutoff.getTime() ? 10000 : 0;
+        return (
+          bRecentBoost +
+          bDate / 86_400_000 +
+          Number(b.popularity || 0) -
+          (aRecentBoost + aDate / 86_400_000 + Number(a.popularity || 0))
+        );
+      });
 
     const coming = movies.filter((m) => {
       if (!m.release_date) return false;
@@ -128,25 +141,25 @@ const Index = () => {
     } catch (error) {
       setLoading(false);
       toast({
-        variant: 'destructive',
-        title: 'Failed to load movies',
-        description: 'Please refresh the page to try again.',
+        variant: "destructive",
+        title: "Failed to load movies",
+        description: "Please refresh the page to try again.",
       });
     }
   };
 
   const fetchMoviesFromDB = async () => {
     const { data: movies, error } = await supabase
-      .from('movies')
-      .select('*')
-      .order('popularity', { ascending: false })
-      .order('release_date', { ascending: false });
+      .from("movies")
+      .select("*")
+      .order("popularity", { ascending: false })
+      .order("release_date", { ascending: false });
 
     if (error) {
       toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to fetch movies. Please try again later.',
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch movies. Please try again later.",
       });
       return;
     }
@@ -157,9 +170,9 @@ const Index = () => {
 
     if (movies?.length === 0) {
       toast({
-        title: 'No movies found',
-        description: 'Add a TMDB API key to import movies automatically.',
-        variant: 'default',
+        title: "No movies found",
+        description: "Add a TMDB API key to import movies automatically.",
+        variant: "default",
       });
     }
   };
@@ -214,25 +227,28 @@ const Index = () => {
   }
 
   return (
-    <motion.div 
+    <motion.div
       className="min-h-screen flex flex-col bg-background"
-      initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
-      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
+      initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
+      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
       transition={{ duration: 0.42, ease: [0.25, 0.1, 0.25, 1] }}
     >
       <Header />
-      
+
       <main id="main-content" className="flex-1">
         {/* Hero — auto-rotating through top movies */}
         {featuredMovie && (
-          <HeroSection 
-            movie={featuredMovie} 
-            movies={rotatedWindow(nowShowing.filter(m => m.backdrop_url), 6)}
+          <HeroSection
+            movie={featuredMovie}
+            movies={rotatedWindow(
+              nowShowing.filter((m) => m.backdrop_url),
+              6,
+            )}
             autoRotateInterval={7000}
           />
         )}
-        
+
         {/* Cinema Ticker — film reel marquee */}
         <CinemaTicker />
 
@@ -245,7 +261,7 @@ const Index = () => {
 
         {/* Genre Filter Chips */}
         <GenreChips />
-        
+
         {/* Trending Carousel — scale reveal */}
         {nowShowing.length > 0 && (
           <ScrollScale scaleRange={[0.95, 1]}>
@@ -281,14 +297,14 @@ const Index = () => {
         <ScrollScale scaleRange={[0.94, 1]}>
           <StatsSection />
         </ScrollScale>
-        
+
         {/* Personalized Recommendations */}
         <ScrollReveal direction="up" distance={35} duration={0.6}>
           <div className="container mx-auto px-4 py-10">
             <MovieRecommendations limit={6} />
           </div>
         </ScrollReveal>
-        
+
         {/* Coming Soon */}
         {comingSoon.length > 0 && (
           <ScrollReveal direction="up" distance={40} duration={0.7} delay={0.1}>
@@ -299,7 +315,7 @@ const Index = () => {
             />
           </ScrollReveal>
         )}
-        
+
         {nowShowing.length === 0 && comingSoon.length === 0 && (
           <ScrollReveal>
             <div className="container mx-auto px-4 py-24 text-center">

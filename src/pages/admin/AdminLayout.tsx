@@ -1,15 +1,22 @@
-import { useEffect } from 'react';
-import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { Film, LayoutDashboard, Clapperboard, Clock, Building2, LogOut } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
-import { cn } from '@/lib/utils';
+import { useEffect } from "react";
+import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
+import {
+  Film,
+  LayoutDashboard,
+  Clapperboard,
+  Clock,
+  Building2,
+  LogOut,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
 
 const navItems = [
-  { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { label: 'Movies', href: '/admin/movies', icon: Clapperboard },
-  { label: 'Showtimes', href: '/admin/showtimes', icon: Clock },
-  { label: 'Theatres', href: '/admin/theatres', icon: Building2 },
+  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Movies", href: "/admin/movies", icon: Clapperboard },
+  { label: "Showtimes", href: "/admin/showtimes", icon: Clock },
+  { label: "Theatres", href: "/admin/theatres", icon: Building2 },
 ];
 
 export default function AdminLayout() {
@@ -19,7 +26,7 @@ export default function AdminLayout() {
 
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) {
-      navigate('/');
+      navigate("/");
     }
   }, [user, isAdmin, loading, navigate]);
 
@@ -43,8 +50,12 @@ export default function AdminLayout() {
           <Link to="/admin" className="flex items-center gap-2">
             <Film className="h-8 w-8 text-primary" />
             <div>
-              <span className="text-lg font-bold cinema-gradient-text">CineBook</span>
-              <span className="block text-xs text-muted-foreground">Admin Panel</span>
+              <span className="text-lg font-bold cinema-gradient-text">
+                CineBook
+              </span>
+              <span className="block text-xs text-muted-foreground">
+                Admin Panel
+              </span>
             </div>
           </Link>
         </div>
@@ -57,10 +68,10 @@ export default function AdminLayout() {
                 key={item.href}
                 to={item.href}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary",
                 )}
               >
                 <item.icon className="h-4 w-4" />

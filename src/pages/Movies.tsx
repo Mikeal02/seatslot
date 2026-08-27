@@ -1,39 +1,61 @@
-import { useEffect, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Search, Filter, X, Loader2, Ticket } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
-import { MovieCard } from '@/components/movies/MovieCard';
-import { AdvancedFilters, FilterOptions, defaultFilters } from '@/components/movies/AdvancedFilters';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Movie } from '@/types/database';
-import { useTMDB } from '@/hooks/useTMDB';
-import { useToast } from '@/hooks/use-toast';
-import { ensureMovieImported } from '@/lib/movieImport';
+import { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Search, Filter, X, Loader2, Ticket } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+import { MovieCard } from "@/components/movies/MovieCard";
+import {
+  AdvancedFilters,
+  FilterOptions,
+  defaultFilters,
+} from "@/components/movies/AdvancedFilters";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Movie } from "@/types/database";
+import { useTMDB } from "@/hooks/useTMDB";
+import { useToast } from "@/hooks/use-toast";
+import { ensureMovieImported } from "@/lib/movieImport";
 
 const GENRE_LIST = [
-  'Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary',
-  'Drama', 'Family', 'Fantasy', 'History', 'Horror', 'Music', 'Mystery',
-  'Romance', 'Science Fiction', 'Thriller', 'War', 'Western'
+  "Action",
+  "Adventure",
+  "Animation",
+  "Comedy",
+  "Crime",
+  "Documentary",
+  "Drama",
+  "Family",
+  "Fantasy",
+  "History",
+  "Horror",
+  "Music",
+  "Mystery",
+  "Romance",
+  "Science Fiction",
+  "Thriller",
+  "War",
+  "Western",
 ];
 
 export default function Movies() {
   const navigate = useNavigate();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState(() => new URLSearchParams(window.location.search).get('search') || '');
+  const [search, setSearch] = useState(
+    () => new URLSearchParams(window.location.search).get("search") || "",
+  );
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [tmdbResults, setTmdbResults] = useState<any[]>([]);
   const [searchingTMDB, setSearchingTMDB] = useState(false);
   const [importingMovie, setImportingMovie] = useState<number | null>(null);
-  const [advancedFilters, setAdvancedFilters] = useState<FilterOptions>(defaultFilters);
+  const [advancedFilters, setAdvancedFilters] =
+    useState<FilterOptions>(defaultFilters);
   const { searchMovies } = useTMDB();
   const { toast } = useToast();
 
@@ -55,14 +77,14 @@ export default function Movies() {
   const fetchMovies = async () => {
     try {
       const { data, error } = await supabase
-        .from('movies')
-        .select('*')
-        .order('rating', { ascending: false });
+        .from("movies")
+        .select("*")
+        .order("rating", { ascending: false });
 
       if (error) throw error;
       setMovies(data as Movie[]);
     } catch (error) {
-      console.error('Error fetching movies:', error);
+      console.error("Error fetching movies:", error);
     } finally {
       setLoading(false);
     }
@@ -72,16 +94,17 @@ export default function Movies() {
     setSearchingTMDB(true);
     try {
       const result = await searchMovies(search);
-      if (result && 'movies' in result) {
+      if (result && "movies" in result) {
         // Filter out movies already in database
-        const existingTitles = movies.map(m => m.title.toLowerCase());
-        const newMovies = result.movies?.filter(
-          m => !existingTitles.includes(m.title.toLowerCase())
-        ) || [];
+        const existingTitles = movies.map((m) => m.title.toLowerCase());
+        const newMovies =
+          result.movies?.filter(
+            (m) => !existingTitles.includes(m.title.toLowerCase()),
+          ) || [];
         setTmdbResults(newMovies.slice(0, 6));
       }
     } catch (error) {
-      console.error('TMDB search error:', error);
+      console.error("TMDB search error:", error);
     } finally {
       setSearchingTMDB(false);
     }
@@ -90,21 +113,23 @@ export default function Movies() {
   const importAndBookMovie = async (tmdbMovie: any) => {
     setImportingMovie(tmdbMovie.tmdb_id);
     try {
-      const movieId = await ensureMovieImported(tmdbMovie, { status: 'now_showing' });
+      const movieId = await ensureMovieImported(tmdbMovie, {
+        status: "now_showing",
+      });
 
       toast({
-        title: 'Movie imported!',
+        title: "Movie imported!",
         description: `${tmdbMovie.title} is now available for booking.`,
       });
 
       // Navigate to booking page
       navigate(`/movie/${movieId}`);
     } catch (error) {
-      console.error('Import error:', error);
+      console.error("Import error:", error);
       toast({
-        title: 'Import failed',
-        description: 'Could not import movie. Please try again.',
-        variant: 'destructive',
+        title: "Import failed",
+        description: "Could not import movie. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setImportingMovie(null);
@@ -112,31 +137,32 @@ export default function Movies() {
   };
 
   const handleGenreToggle = (genre: string) => {
-    setSelectedGenres(prev =>
-      prev.includes(genre)
-        ? prev.filter(g => g !== genre)
-        : [...prev, genre]
+    setSelectedGenres((prev) =>
+      prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre],
     );
   };
 
   const clearFilters = () => {
     setSelectedGenres([]);
-    setSearch('');
+    setSearch("");
     setAdvancedFilters(defaultFilters);
   };
 
   // Calculate search relevance score
-  const calculateRelevanceScore = (movie: Movie, searchTerm: string): number => {
+  const calculateRelevanceScore = (
+    movie: Movie,
+    searchTerm: string,
+  ): number => {
     if (!searchTerm) return 0;
-    
+
     const searchLower = searchTerm.toLowerCase().trim();
     const titleLower = movie.title.toLowerCase();
-    const descriptionLower = (movie.description || '').toLowerCase();
-    const genreLower = movie.genre.map(g => g.toLowerCase()).join(' ');
-    const directorLower = (movie.director || '').toLowerCase();
-    
+    const descriptionLower = (movie.description || "").toLowerCase();
+    const genreLower = movie.genre.map((g) => g.toLowerCase()).join(" ");
+    const directorLower = (movie.director || "").toLowerCase();
+
     let score = 0;
-    
+
     // Exact title match gets highest score
     if (titleLower === searchLower) {
       score += 1000;
@@ -155,58 +181,83 @@ export default function Movies() {
       const searchWords = searchLower.split(/\s+/);
       for (const searchWord of searchWords) {
         for (const titleWord of titleWords) {
-          if (titleWord.startsWith(searchWord) || searchWord.startsWith(titleWord)) {
+          if (
+            titleWord.startsWith(searchWord) ||
+            searchWord.startsWith(titleWord)
+          ) {
             score += 200;
             break;
           }
         }
       }
     }
-    
+
     // Genre matches
     if (genreLower.includes(searchLower)) {
       score += 100;
     }
-    
+
     // Director matches
     if (directorLower.includes(searchLower)) {
       score += 50;
     }
-    
+
     // Description matches (lower weight)
     if (descriptionLower.includes(searchLower)) {
       score += 25;
     }
-    
+
     return score;
   };
 
   // Apply all filters including advanced
   const filteredMovies = useMemo(() => {
     const searchTerm = search.trim().toLowerCase();
-    
+
     let result = movies.filter((movie) => {
       // Search filter - supports partial matches and is case-insensitive
-      const matchesSearch = !searchTerm || 
+      const matchesSearch =
+        !searchTerm ||
         movie.title.toLowerCase().includes(searchTerm) ||
         movie.genre.some((g) => g.toLowerCase().includes(searchTerm)) ||
-        (movie.description || '').toLowerCase().includes(searchTerm) ||
-        (movie.director || '').toLowerCase().includes(searchTerm) ||
+        (movie.description || "").toLowerCase().includes(searchTerm) ||
+        (movie.director || "").toLowerCase().includes(searchTerm) ||
         // Partial word matching (e.g., "Aveng" matches "Avengers")
-        movie.title.toLowerCase().split(/\s+/).some(word => 
-          word.startsWith(searchTerm) || searchTerm.startsWith(word)
+        movie.title
+          .toLowerCase()
+          .split(/\s+/)
+          .some(
+            (word) =>
+              word.startsWith(searchTerm) || searchTerm.startsWith(word),
+          );
+
+      const matchesGenre =
+        selectedGenres.length === 0 ||
+        movie.genre.some((g) =>
+          selectedGenres.some((sg) =>
+            g.toLowerCase().includes(sg.toLowerCase()),
+          ),
         );
-      
-      const matchesGenre = selectedGenres.length === 0 ||
-        movie.genre.some(g => selectedGenres.some(sg => g.toLowerCase().includes(sg.toLowerCase())));
 
       // Advanced filters
       const matchesRating = (movie.rating || 0) >= advancedFilters.minRating;
-      const matchesDuration = movie.duration_minutes <= advancedFilters.maxDuration;
-      const matchesAdvancedGenre = advancedFilters.genres.length === 0 ||
-        movie.genre.some(g => advancedFilters.genres.some(ag => g.toLowerCase().includes(ag.toLowerCase())));
+      const matchesDuration =
+        movie.duration_minutes <= advancedFilters.maxDuration;
+      const matchesAdvancedGenre =
+        advancedFilters.genres.length === 0 ||
+        movie.genre.some((g) =>
+          advancedFilters.genres.some((ag) =>
+            g.toLowerCase().includes(ag.toLowerCase()),
+          ),
+        );
 
-      return matchesSearch && matchesGenre && matchesRating && matchesDuration && matchesAdvancedGenre;
+      return (
+        matchesSearch &&
+        matchesGenre &&
+        matchesRating &&
+        matchesDuration &&
+        matchesAdvancedGenre
+      );
     });
 
     // Sort by relevance if search term exists, otherwise by advanced filters
@@ -215,56 +266,60 @@ export default function Movies() {
       result.sort((a, b) => {
         const scoreA = calculateRelevanceScore(a, searchTerm);
         const scoreB = calculateRelevanceScore(b, searchTerm);
-        
+
         if (scoreB !== scoreA) {
           return scoreB - scoreA; // Higher relevance first
         }
-        
+
         // If relevance is same, use advanced filter sorting
         let comparison = 0;
         switch (advancedFilters.sortBy) {
-          case 'rating':
+          case "rating":
             comparison = (b.rating || 0) - (a.rating || 0);
             break;
-          case 'release_date':
-            comparison = new Date(b.release_date || 0).getTime() - new Date(a.release_date || 0).getTime();
+          case "release_date":
+            comparison =
+              new Date(b.release_date || 0).getTime() -
+              new Date(a.release_date || 0).getTime();
             break;
-          case 'title':
+          case "title":
             comparison = a.title.localeCompare(b.title);
             break;
-          case 'duration':
+          case "duration":
             comparison = a.duration_minutes - b.duration_minutes;
             break;
         }
-        return advancedFilters.sortOrder === 'asc' ? -comparison : comparison;
+        return advancedFilters.sortOrder === "asc" ? -comparison : comparison;
       });
     } else {
       // No search term - sort by advanced filters only
       result.sort((a, b) => {
         let comparison = 0;
         switch (advancedFilters.sortBy) {
-          case 'rating':
+          case "rating":
             comparison = (b.rating || 0) - (a.rating || 0);
             break;
-          case 'release_date':
-            comparison = new Date(b.release_date || 0).getTime() - new Date(a.release_date || 0).getTime();
+          case "release_date":
+            comparison =
+              new Date(b.release_date || 0).getTime() -
+              new Date(a.release_date || 0).getTime();
             break;
-          case 'title':
+          case "title":
             comparison = a.title.localeCompare(b.title);
             break;
-          case 'duration':
+          case "duration":
             comparison = a.duration_minutes - b.duration_minutes;
             break;
         }
-        return advancedFilters.sortOrder === 'asc' ? -comparison : comparison;
+        return advancedFilters.sortOrder === "asc" ? -comparison : comparison;
       });
     }
 
     return result;
   }, [movies, search, selectedGenres, advancedFilters]);
 
-  const nowShowing = filteredMovies.filter((m) => m.status === 'now_showing');
-  const comingSoon = filteredMovies.filter((m) => m.status === 'coming_soon');
+  const nowShowing = filteredMovies.filter((m) => m.status === "now_showing");
+  const comingSoon = filteredMovies.filter((m) => m.status === "coming_soon");
 
   if (loading) {
     return (
@@ -284,7 +339,7 @@ export default function Movies() {
   }
 
   return (
-    <motion.div 
+    <motion.div
       className="min-h-screen flex flex-col bg-background"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -296,7 +351,7 @@ export default function Movies() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h1 className="text-2xl sm:text-3xl font-bold">All Movies</h1>
             <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-            <div className="relative w-full sm:flex-1 sm:w-60 md:w-80">
+              <div className="relative w-full sm:flex-1 sm:w-60 md:w-80">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search movies..."
@@ -315,7 +370,7 @@ export default function Movies() {
                 genres={GENRE_LIST}
               />
               <Button
-                variant={showFilters ? 'default' : 'outline'}
+                variant={showFilters ? "default" : "outline"}
                 size="icon"
                 onClick={() => setShowFilters(!showFilters)}
                 className="shrink-0"
@@ -338,10 +393,12 @@ export default function Movies() {
               )}
             </div>
             <div className="flex flex-wrap gap-2">
-              {GENRE_LIST.map(genre => (
+              {GENRE_LIST.map((genre) => (
                 <Badge
                   key={genre}
-                  variant={selectedGenres.includes(genre) ? 'default' : 'outline'}
+                  variant={
+                    selectedGenres.includes(genre) ? "default" : "outline"
+                  }
                   className="cursor-pointer hover:bg-primary/80"
                   onClick={() => handleGenreToggle(genre)}
                 >
@@ -356,7 +413,7 @@ export default function Movies() {
         {selectedGenres.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
             <span className="text-sm text-muted-foreground">Filters:</span>
-            {selectedGenres.map(genre => (
+            {selectedGenres.map((genre) => (
               <Badge key={genre} variant="secondary" className="gap-1">
                 {genre}
                 <X
@@ -382,13 +439,17 @@ export default function Movies() {
                   onClick={() => importAndBookMovie(movie)}
                 >
                   <img
-                    src={movie.poster_url || '/placeholder.svg'}
+                    src={movie.poster_url || "/placeholder.svg"}
                     alt={movie.title}
                     className="w-full aspect-[2/3] object-cover rounded-lg opacity-70 group-hover:opacity-100 transition-opacity"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent rounded-lg flex flex-col justify-end p-2">
-                    <p className="text-xs font-medium text-white line-clamp-2">{movie.title}</p>
-                    <p className="text-xs text-white/60">{movie.release_date?.split('-')[0]}</p>
+                    <p className="text-xs font-medium text-white line-clamp-2">
+                      {movie.title}
+                    </p>
+                    <p className="text-xs text-white/60">
+                      {movie.release_date?.split("-")[0]}
+                    </p>
                     <Button
                       size="sm"
                       className="mt-2 h-7 text-xs cinema-gradient"
@@ -409,28 +470,25 @@ export default function Movies() {
         )}
 
         <Tabs defaultValue="now_showing" className="w-full">
-        <TabsList className="w-full  grid grid-cols-3 gap-2">
-  <TabsTrigger
-    value="now_showing"
-    className="px-4 py-2 text-xs sm:text-sm"
-  >
-    Now Showing ({nowShowing.length})
-  </TabsTrigger>
+          <TabsList className="w-full  grid grid-cols-3 gap-2">
+            <TabsTrigger
+              value="now_showing"
+              className="px-4 py-2 text-xs sm:text-sm"
+            >
+              Now Showing ({nowShowing.length})
+            </TabsTrigger>
 
-  <TabsTrigger
-    value="coming_soon"
-    className="px-4 py-2 text-xs sm:text-sm"
-  >
-    Coming Soon ({comingSoon.length})
-  </TabsTrigger>
+            <TabsTrigger
+              value="coming_soon"
+              className="px-4 py-2 text-xs sm:text-sm"
+            >
+              Coming Soon ({comingSoon.length})
+            </TabsTrigger>
 
-  <TabsTrigger
-    value="all"
-    className="px-4 py-2 text-xs sm:text-sm"
-  >
-    All ({filteredMovies.length})
-  </TabsTrigger>
-</TabsList>
+            <TabsTrigger value="all" className="px-4 py-2 text-xs sm:text-sm">
+              All ({filteredMovies.length})
+            </TabsTrigger>
+          </TabsList>
 
           <TabsContent value="now_showing" className="mt-6">
             {nowShowing.length === 0 ? (

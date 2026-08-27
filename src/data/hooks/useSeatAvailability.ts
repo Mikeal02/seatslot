@@ -1,6 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
-import { qk, staleTime } from '@/data/queryKeys';
-import { seatsRepository, type SeatAvailability } from '@/data/repositories/seats.repo';
+import { useQuery } from "@tanstack/react-query";
+import { qk, staleTime } from "@/data/queryKeys";
+import {
+  seatsRepository,
+  type SeatAvailability,
+} from "@/data/repositories/seats.repo";
 
 export function useSeatAvailability(showtimeId: string, screenId: string) {
   return useQuery<SeatAvailability>({

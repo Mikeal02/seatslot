@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigationType } from 'react-router-dom';
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigationType } from "react-router-dom";
 
 /**
  * Accessibility manager for client-side navigation.
@@ -20,7 +20,7 @@ import { useLocation, useNavigationType } from 'react-router-dom';
 export function RouteFocusManager() {
   const location = useLocation();
   const navigationType = useNavigationType();
-  const [announcement, setAnnouncement] = useState('');
+  const [announcement, setAnnouncement] = useState("");
   const isFirstRender = useRef(true);
 
   useEffect(() => {
@@ -32,39 +32,40 @@ export function RouteFocusManager() {
     }
 
     // Respect the browser's natural focus behavior on back/forward.
-    if (navigationType === 'POP') return;
+    if (navigationType === "POP") return;
 
     // Wait for the new page (and its exit-animation swap) to mount.
     // 420ms matches the shared page transition duration in App.tsx.
     const timer = window.setTimeout(() => {
       // Prefer an explicit focus target if the page provides one.
-      const explicit = document.querySelector<HTMLElement>('[data-route-focus]');
-      const main = document.getElementById('main-content');
-      const heading = main?.querySelector<HTMLElement>('h1, h2') ?? null;
+      const explicit =
+        document.querySelector<HTMLElement>("[data-route-focus]");
+      const main = document.getElementById("main-content");
+      const heading = main?.querySelector<HTMLElement>("h1, h2") ?? null;
 
       const target = explicit ?? heading ?? main;
 
       if (target) {
         // Make non-interactive landmarks keyboard-focusable just for this
         // programmatic focus, then release so normal Tab order is preserved.
-        const hadTabIndex = target.hasAttribute('tabindex');
-        if (!hadTabIndex) target.setAttribute('tabindex', '-1');
+        const hadTabIndex = target.hasAttribute("tabindex");
+        if (!hadTabIndex) target.setAttribute("tabindex", "-1");
 
         target.focus({ preventScroll: true });
 
         // Clean up the temporary tabindex on blur so we don't pollute the DOM.
         const cleanup = () => {
-          if (!hadTabIndex) target.removeAttribute('tabindex');
-          target.removeEventListener('blur', cleanup);
+          if (!hadTabIndex) target.removeAttribute("tabindex");
+          target.removeEventListener("blur", cleanup);
         };
-        target.addEventListener('blur', cleanup);
+        target.addEventListener("blur", cleanup);
       }
 
       // Build a friendly announcement from <title> or heading text.
       const pageName =
         heading?.textContent?.trim() ||
-        document.title.replace(/\s*[|·-]\s*.*$/, '').trim() ||
-        'New page';
+        document.title.replace(/\s*[|·-]\s*.*$/, "").trim() ||
+        "New page";
       setAnnouncement(`Navigated to ${pageName}`);
     }, 480);
 

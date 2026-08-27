@@ -1,19 +1,37 @@
-import { useEffect, useState, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { ArrowLeft, Calendar, MapPin, Star, Film, Tv, Award, TrendingUp, ExternalLink, Users, BarChart3, Clock } from 'lucide-react';
-import { Header } from '@/components/layout/Header';
-import { BackButton } from '@/components/nav/BackButton';
-import { StickyPageBar } from '@/components/nav/StickyPageBar';
-import { Breadcrumbs } from '@/components/nav/Breadcrumbs';
-import { ReadingProgressBeam } from '@/components/nav/ReadingProgressBeam';
-import { Footer } from '@/components/layout/Footer';
-import { MetaTags } from '@/components/MetaTags';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState, useRef } from "react";
+import { useParams, Link } from "react-router-dom";
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useTransform,
+} from "framer-motion";
+import {
+  ArrowLeft,
+  Calendar,
+  MapPin,
+  Star,
+  Film,
+  Tv,
+  Award,
+  TrendingUp,
+  ExternalLink,
+  Users,
+  BarChart3,
+  Clock,
+} from "lucide-react";
+import { Header } from "@/components/layout/Header";
+import { BackButton } from "@/components/nav/BackButton";
+import { StickyPageBar } from "@/components/nav/StickyPageBar";
+import { Breadcrumbs } from "@/components/nav/Breadcrumbs";
+import { ReadingProgressBeam } from "@/components/nav/ReadingProgressBeam";
+import { Footer } from "@/components/layout/Footer";
+import { MetaTags } from "@/components/MetaTags";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FilmCredit {
   tmdb_id: number;
@@ -28,7 +46,7 @@ interface FilmCredit {
   vote_count: number;
   popularity: number;
   overview?: string;
-  credit_type: 'cast' | 'crew';
+  credit_type: "cast" | "crew";
 }
 
 interface TVCredit {
@@ -89,17 +107,31 @@ interface PersonData {
 function calculateAge(birthday: string, deathday?: string | null) {
   const birth = new Date(birthday);
   const end = deathday ? new Date(deathday) : new Date();
-  return Math.floor((end.getTime() - birth.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+  return Math.floor(
+    (end.getTime() - birth.getTime()) / (365.25 * 24 * 60 * 60 * 1000),
+  );
 }
 
-function StatCard({ icon: Icon, label, value, sub, accent }: { icon: any; label: string; value: string | number; sub?: string; accent?: boolean }) {
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  accent,
+}: {
+  icon: any;
+  label: string;
+  value: string | number;
+  sub?: string;
+  accent?: boolean;
+}) {
   return (
     <motion.div
       className="relative overflow-hidden rounded-2xl bg-card border border-border/20 p-5 group hover:border-primary/30 transition-all duration-300"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2, scale: 1.01 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
     >
       {/* Top gradient line */}
       <div className="absolute top-0 left-0 right-0 h-0.5 cinema-gradient opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -112,24 +144,40 @@ function StatCard({ icon: Icon, label, value, sub, accent }: { icon: any; label:
           </div>
           <span className="uppercase tracking-[0.15em] font-bold">{label}</span>
         </div>
-        <p className={`text-3xl font-black tracking-tighter ${accent ? 'bg-clip-text text-transparent cinema-gradient' : ''}`}>{value}</p>
-        {sub && <p className="text-[11px] text-muted-foreground mt-1 font-medium">{sub}</p>}
+        <p
+          className={`text-3xl font-black tracking-tighter ${accent ? "bg-clip-text text-transparent cinema-gradient" : ""}`}
+        >
+          {value}
+        </p>
+        {sub && (
+          <p className="text-[11px] text-muted-foreground mt-1 font-medium">
+            {sub}
+          </p>
+        )}
       </div>
     </motion.div>
   );
 }
 
-function FilmCard({ film, type = 'cast' }: { film: FilmCredit; type?: 'cast' | 'crew' }) {
+function FilmCard({
+  film,
+  type = "cast",
+}: {
+  film: FilmCredit;
+  type?: "cast" | "crew";
+}) {
   // Try to find movie in local DB to link
   const [localId, setLocalId] = useState<string | null>(null);
 
   useEffect(() => {
     supabase
-      .from('movies')
-      .select('id')
-      .eq('tmdb_id', film.tmdb_id)
+      .from("movies")
+      .select("id")
+      .eq("tmdb_id", film.tmdb_id)
       .maybeSingle()
-      .then(({ data }) => { if (data) setLocalId(data.id); });
+      .then(({ data }) => {
+        if (data) setLocalId(data.id);
+      });
   }, [film.tmdb_id]);
 
   const content = (
@@ -139,7 +187,7 @@ function FilmCard({ film, type = 'cast' }: { film: FilmCredit; type?: 'cast' | '
     >
       <div className="relative aspect-[2/3] overflow-hidden">
         <img
-          src={film.poster_url || '/placeholder.svg'}
+          src={film.poster_url || "/placeholder.svg"}
           alt={film.title}
           loading="lazy"
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -152,21 +200,36 @@ function FilmCard({ film, type = 'cast' }: { film: FilmCredit; type?: 'cast' | '
           </div>
         )}
         <div className="absolute bottom-0 left-0 right-0 p-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <p className="text-[10px] text-foreground/80 line-clamp-2">{film.overview}</p>
+          <p className="text-[10px] text-foreground/80 line-clamp-2">
+            {film.overview}
+          </p>
         </div>
       </div>
       <div className="p-3">
-        <h4 className="text-sm font-bold line-clamp-1 group-hover:text-primary transition-colors">{film.title}</h4>
-        {type === 'cast' && film.character && (
-          <p className="text-[11px] text-muted-foreground italic line-clamp-1 mt-0.5">as {film.character}</p>
+        <h4 className="text-sm font-bold line-clamp-1 group-hover:text-primary transition-colors">
+          {film.title}
+        </h4>
+        {type === "cast" && film.character && (
+          <p className="text-[11px] text-muted-foreground italic line-clamp-1 mt-0.5">
+            as {film.character}
+          </p>
         )}
-        {type === 'crew' && film.job && (
-          <p className="text-[11px] text-primary/80 font-medium line-clamp-1 mt-0.5">{film.job}</p>
+        {type === "crew" && film.job && (
+          <p className="text-[11px] text-primary/80 font-medium line-clamp-1 mt-0.5">
+            {film.job}
+          </p>
         )}
         <div className="flex items-center justify-between mt-1.5">
-          <p className="text-[11px] text-muted-foreground">{film.release_date?.split('-')[0] || 'TBA'}</p>
+          <p className="text-[11px] text-muted-foreground">
+            {film.release_date?.split("-")[0] || "TBA"}
+          </p>
           {film.vote_count > 0 && (
-            <p className="text-[10px] text-muted-foreground">{film.vote_count > 1000 ? `${(film.vote_count / 1000).toFixed(1)}K` : film.vote_count} votes</p>
+            <p className="text-[10px] text-muted-foreground">
+              {film.vote_count > 1000
+                ? `${(film.vote_count / 1000).toFixed(1)}K`
+                : film.vote_count}{" "}
+              votes
+            </p>
           )}
         </div>
       </div>
@@ -186,8 +249,11 @@ export default function PersonDetails() {
   const [bioExpanded, setBioExpanded] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const heroRef = useRef<HTMLElement | null>(null);
-  const { scrollYProgress: heroProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
-  const heroY = useTransform(heroProgress, [0, 1], ['0%', '20%']);
+  const { scrollYProgress: heroProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroY = useTransform(heroProgress, [0, 1], ["0%", "20%"]);
   const heroScale = useTransform(heroProgress, [0, 1], [1, 1.1]);
   const heroOpacity = useTransform(heroProgress, [0, 1], [1, 0.4]);
 
@@ -200,13 +266,18 @@ export default function PersonDetails() {
     try {
       const res = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tmdb-movies?action=person&person_id=${personId}`,
-        { headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY } }
+        {
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+        },
       );
-      if (!res.ok) throw new Error('Failed to fetch person');
+      if (!res.ok) throw new Error("Failed to fetch person");
       const data = await res.json();
       setPerson(data);
     } catch (err) {
-      console.error('Error fetching person:', err);
+      console.error("Error fetching person:", err);
     } finally {
       setLoading(false);
     }
@@ -227,10 +298,14 @@ export default function PersonDetails() {
             </div>
           </div>
           <div className="grid grid-cols-4 gap-3 mt-8">
-            {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-24 rounded-xl" />
+            ))}
           </div>
           <div className="grid grid-cols-5 gap-3 mt-8">
-            {[...Array(5)].map((_, i) => <Skeleton key={i} className="aspect-[2/3] rounded-xl" />)}
+            {[...Array(5)].map((_, i) => (
+              <Skeleton key={i} className="aspect-[2/3] rounded-xl" />
+            ))}
           </div>
         </main>
         <Footer />
@@ -245,7 +320,9 @@ export default function PersonDetails() {
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Person not found</h1>
-            <Button asChild><Link to="/">Go back home</Link></Button>
+            <Button asChild>
+              <Link to="/">Go back home</Link>
+            </Button>
           </div>
         </main>
         <Footer />
@@ -253,15 +330,25 @@ export default function PersonDetails() {
     );
   }
 
-  const genderLabel = person.gender === 1 ? 'Female' : person.gender === 2 ? 'Male' : 'Other';
-  const careerStats = person.career_stats || { total_movies: 0, total_crew_credits: 0, average_rating: 0, highest_rated: null, decade_breakdown: {}, active_years: null };
+  const genderLabel =
+    person.gender === 1 ? "Female" : person.gender === 2 ? "Male" : "Other";
+  const careerStats = person.career_stats || {
+    total_movies: 0,
+    total_crew_credits: 0,
+    average_rating: 0,
+    highest_rated: null,
+    decade_breakdown: {},
+    active_years: null,
+  };
   const knownFor = person.known_for || [];
   const filmographyCast = person.filmography_cast || [];
   const filmographyCrew = person.filmography_crew || [];
   const tvCredits = person.tv_credits || [];
   const personPhotos = person.photos || [];
-  const externalIds = (person.external_ids || {}) as PersonData['external_ids'];
-  const sortedDecades = Object.entries(careerStats.decade_breakdown || {}).sort((a, b) => a[0].localeCompare(b[0]));
+  const externalIds = (person.external_ids || {}) as PersonData["external_ids"];
+  const sortedDecades = Object.entries(careerStats.decade_breakdown || {}).sort(
+    (a, b) => a[0].localeCompare(b[0]),
+  );
   const maxDecadeCount = Math.max(...sortedDecades.map(([, c]) => c), 1);
 
   return (
@@ -273,18 +360,20 @@ export default function PersonDetails() {
     >
       <MetaTags
         title={`${person.name} - CineBook`}
-        description={person.biography?.slice(0, 155) || `Learn about ${person.name}`}
+        description={
+          person.biography?.slice(0, 155) || `Learn about ${person.name}`
+        }
         image={person.photo || undefined}
       />
       <Header />
       <StickyPageBar
         title={person.name}
-        subtitle={
-          [
-            person.known_for_department,
-            careerStats.total_movies ? `${careerStats.total_movies} films` : null,
-          ].filter(Boolean).join(' • ')
-        }
+        subtitle={[
+          person.known_for_department,
+          careerStats.total_movies ? `${careerStats.total_movies} films` : null,
+        ]
+          .filter(Boolean)
+          .join(" • ")}
         imageUrl={person.photo}
         imageAlt={person.name}
         imageShape="avatar"
@@ -316,14 +405,9 @@ export default function PersonDetails() {
             <div className="mb-4 flex items-center gap-3 flex-wrap">
               <BackButton />
               <Breadcrumbs
-                items={[
-                  { label: 'People' },
-                  { label: person.name },
-                ]}
+                items={[{ label: "People" }, { label: person.name }]}
               />
             </div>
-
-
 
             <div className="flex flex-col md:flex-row gap-6 md:gap-10">
               {/* Photo */}
@@ -359,11 +443,17 @@ export default function PersonDetails() {
                 transition={{ delay: 0.3 }}
               >
                 <div>
-                  <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[0.95]">{person.name}</h1>
+                  <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[0.95]">
+                    {person.name}
+                  </h1>
                   <div className="flex flex-wrap items-center gap-2 mt-2">
-                    <Badge className="cinema-gradient text-primary-foreground border-0 font-bold">{person.known_for_department}</Badge>
+                    <Badge className="cinema-gradient text-primary-foreground border-0 font-bold">
+                      {person.known_for_department}
+                    </Badge>
                     {careerStats.active_years && (
-                      <Badge variant="outline" className="text-xs">{careerStats.active_years}</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {careerStats.active_years}
+                      </Badge>
                     )}
                   </div>
                 </div>
@@ -373,15 +463,31 @@ export default function PersonDetails() {
                   {person.birthday && (
                     <div className="flex items-center gap-1.5 bg-background/40 backdrop-blur-sm rounded-full px-3 py-1.5 border border-border/20">
                       <Calendar className="h-3.5 w-3.5 text-primary" />
-                      <span>{new Date(person.birthday).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                      {!person.deathday && <span className="text-muted-foreground">(age {calculateAge(person.birthday)})</span>}
+                      <span>
+                        {new Date(person.birthday).toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </span>
+                      {!person.deathday && (
+                        <span className="text-muted-foreground">
+                          (age {calculateAge(person.birthday)})
+                        </span>
+                      )}
                     </div>
                   )}
                   {person.deathday && (
                     <div className="flex items-center gap-1.5 bg-destructive/10 backdrop-blur-sm rounded-full px-3 py-1.5 border border-destructive/20">
                       <span className="text-destructive font-medium">
-                        † {new Date(person.deathday).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                        {person.birthday && ` (age ${calculateAge(person.birthday, person.deathday)})`}
+                        †{" "}
+                        {new Date(person.deathday).toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                        {person.birthday &&
+                          ` (age ${calculateAge(person.birthday, person.deathday)})`}
                       </span>
                     </div>
                   )}
@@ -396,33 +502,53 @@ export default function PersonDetails() {
                 {/* External links */}
                 <div className="flex flex-wrap gap-2">
                   {externalIds.imdb_id && (
-                    <a href={`https://www.imdb.com/name/${externalIds.imdb_id}`} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/30 text-xs font-bold hover:bg-accent/20 transition-colors">
+                    <a
+                      href={`https://www.imdb.com/name/${externalIds.imdb_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/30 text-xs font-bold hover:bg-accent/20 transition-colors"
+                    >
                       <span className="text-accent font-black">IMDb</span>
                       <ExternalLink className="h-3 w-3 text-accent" />
                     </a>
                   )}
                   {externalIds.instagram_id && (
-                    <a href={`https://instagram.com/${externalIds.instagram_id}`} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/30 text-xs font-bold hover:bg-primary/20 transition-colors text-primary">
+                    <a
+                      href={`https://instagram.com/${externalIds.instagram_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/30 text-xs font-bold hover:bg-primary/20 transition-colors text-primary"
+                    >
                       Instagram
                     </a>
                   )}
                   {externalIds.twitter_id && (
-                    <a href={`https://twitter.com/${externalIds.twitter_id}`} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted border border-border/30 text-xs font-bold hover:bg-muted/80 transition-colors">
+                    <a
+                      href={`https://twitter.com/${externalIds.twitter_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted border border-border/30 text-xs font-bold hover:bg-muted/80 transition-colors"
+                    >
                       Twitter/X
                     </a>
                   )}
                   {externalIds.tiktok_id && (
-                    <a href={`https://tiktok.com/@${externalIds.tiktok_id}`} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted border border-border/30 text-xs font-bold hover:bg-muted/80 transition-colors">
+                    <a
+                      href={`https://tiktok.com/@${externalIds.tiktok_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted border border-border/30 text-xs font-bold hover:bg-muted/80 transition-colors"
+                    >
                       TikTok
                     </a>
                   )}
                   {person.homepage && (
-                    <a href={person.homepage} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/30 text-xs font-bold hover:bg-primary/20 transition-colors text-primary">
+                    <a
+                      href={person.homepage}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/30 text-xs font-bold hover:bg-primary/20 transition-colors text-primary"
+                    >
                       Website <ExternalLink className="h-3 w-3" />
                     </a>
                   )}
@@ -431,7 +557,9 @@ export default function PersonDetails() {
                 {/* Biography */}
                 {person.biography && (
                   <div>
-                    <p className={`text-muted-foreground leading-relaxed text-sm ${!bioExpanded ? 'line-clamp-4' : ''}`}>
+                    <p
+                      className={`text-muted-foreground leading-relaxed text-sm ${!bioExpanded ? "line-clamp-4" : ""}`}
+                    >
                       {person.biography}
                     </p>
                     {person.biography.length > 300 && (
@@ -439,7 +567,7 @@ export default function PersonDetails() {
                         onClick={() => setBioExpanded(!bioExpanded)}
                         className="text-primary text-xs font-semibold mt-1 hover:underline"
                       >
-                        {bioExpanded ? 'Show less' : 'Read more'}
+                        {bioExpanded ? "Show less" : "Read more"}
                       </button>
                     )}
                   </div>
@@ -448,9 +576,17 @@ export default function PersonDetails() {
                 {/* Also known as */}
                 {(person.also_known_as || []).length > 0 && (
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs text-muted-foreground">Also known as:</span>
-                    {(person.also_known_as || []).map(name => (
-                      <Badge key={name} variant="outline" className="text-[10px]">{name}</Badge>
+                    <span className="text-xs text-muted-foreground">
+                      Also known as:
+                    </span>
+                    {(person.also_known_as || []).map((name) => (
+                      <Badge
+                        key={name}
+                        variant="outline"
+                        className="text-[10px]"
+                      >
+                        {name}
+                      </Badge>
                     ))}
                   </div>
                 )}
@@ -467,11 +603,36 @@ export default function PersonDetails() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <StatCard icon={Film} label="Total Films" value={careerStats.total_movies} sub={careerStats.total_crew_credits > 0 ? `+ ${careerStats.total_crew_credits} crew credits` : undefined} accent />
-            <StatCard icon={Star} label="Avg Rating" value={careerStats.average_rating} sub="across all films" />
-            <StatCard icon={TrendingUp} label="Popularity" value={Math.round(person.popularity)} sub="TMDB score" />
+            <StatCard
+              icon={Film}
+              label="Total Films"
+              value={careerStats.total_movies}
+              sub={
+                careerStats.total_crew_credits > 0
+                  ? `+ ${careerStats.total_crew_credits} crew credits`
+                  : undefined
+              }
+              accent
+            />
+            <StatCard
+              icon={Star}
+              label="Avg Rating"
+              value={careerStats.average_rating}
+              sub="across all films"
+            />
+            <StatCard
+              icon={TrendingUp}
+              label="Popularity"
+              value={Math.round(person.popularity)}
+              sub="TMDB score"
+            />
             {careerStats.highest_rated && (
-              <StatCard icon={Award} label="Highest Rated" value={careerStats.highest_rated.rating} sub={careerStats.highest_rated.title} />
+              <StatCard
+                icon={Award}
+                label="Highest Rated"
+                value={careerStats.highest_rated.rating}
+                sub={careerStats.highest_rated.title}
+              />
             )}
           </motion.div>
 
@@ -489,14 +650,23 @@ export default function PersonDetails() {
               </h3>
               <div className="flex items-end gap-2 h-24">
                 {sortedDecades.map(([decade, count], i) => (
-                  <div key={decade} className="flex-1 flex flex-col items-center gap-1">
+                  <div
+                    key={decade}
+                    className="flex-1 flex flex-col items-center gap-1"
+                  >
                     <motion.div
                       className="w-full rounded-t-md cinema-gradient"
                       initial={{ height: 0 }}
                       animate={{ height: `${(count / maxDecadeCount) * 100}%` }}
-                      transition={{ delay: 0.6 + i * 0.08, duration: 0.5, ease: 'easeOut' }}
+                      transition={{
+                        delay: 0.6 + i * 0.08,
+                        duration: 0.5,
+                        ease: "easeOut",
+                      }}
                     />
-                    <span className="text-[9px] text-muted-foreground font-medium">{decade}</span>
+                    <span className="text-[9px] text-muted-foreground font-medium">
+                      {decade}
+                    </span>
                     <span className="text-[10px] font-bold">{count}</span>
                   </div>
                 ))}
@@ -508,23 +678,40 @@ export default function PersonDetails() {
         {/* Content Tabs */}
         <section className="container mx-auto px-4 py-6">
           <Tabs defaultValue="known_for" className="space-y-6">
-             <TabsList className="bg-card/80 backdrop-blur-xl border border-border/30 p-1.5 rounded-2xl w-full sm:w-auto flex-wrap shadow-lg">
-              <TabsTrigger value="known_for" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Known For</TabsTrigger>
-              <TabsTrigger value="filmography" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
+            <TabsList className="bg-card/80 backdrop-blur-xl border border-border/30 p-1.5 rounded-2xl w-full sm:w-auto flex-wrap shadow-lg">
+              <TabsTrigger
+                value="known_for"
+                className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+              >
+                Known For
+              </TabsTrigger>
+              <TabsTrigger
+                value="filmography"
+                className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+              >
                 Filmography ({filmographyCast.length})
               </TabsTrigger>
               {filmographyCrew.length > 0 && (
-                <TabsTrigger value="crew" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
+                <TabsTrigger
+                  value="crew"
+                  className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+                >
                   Behind Camera ({filmographyCrew.length})
                 </TabsTrigger>
               )}
               {tvCredits.length > 0 && (
-                <TabsTrigger value="tv" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
+                <TabsTrigger
+                  value="tv"
+                  className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+                >
                   TV ({tvCredits.length})
                 </TabsTrigger>
               )}
               {personPhotos.length > 0 && (
-                <TabsTrigger value="photos" className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
+                <TabsTrigger
+                  value="photos"
+                  className="rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:cinema-gradient data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+                >
                   Photos ({personPhotos.length})
                 </TabsTrigger>
               )}
@@ -534,7 +721,12 @@ export default function PersonDetails() {
             <TabsContent value="known_for">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {knownFor.map((film, i) => (
-                  <motion.div key={film.tmdb_id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                  <motion.div
+                    key={film.tmdb_id}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                  >
                     <FilmCard film={film} type="cast" />
                   </motion.div>
                 ))}
@@ -545,7 +737,12 @@ export default function PersonDetails() {
             <TabsContent value="filmography">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                 {filmographyCast.map((film, i) => (
-                  <motion.div key={`${film.tmdb_id}-${i}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i * 0.02, 0.5) }}>
+                  <motion.div
+                    key={`${film.tmdb_id}-${i}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: Math.min(i * 0.02, 0.5) }}
+                  >
                     <FilmCard film={film} type="cast" />
                   </motion.div>
                 ))}
@@ -557,7 +754,12 @@ export default function PersonDetails() {
               <TabsContent value="crew">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                   {filmographyCrew.map((film, i) => (
-                    <motion.div key={`crew-${film.tmdb_id}-${i}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i * 0.02, 0.5) }}>
+                    <motion.div
+                      key={`crew-${film.tmdb_id}-${i}`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: Math.min(i * 0.02, 0.5) }}
+                    >
                       <FilmCard film={film} type="crew" />
                     </motion.div>
                   ))}
@@ -578,20 +780,39 @@ export default function PersonDetails() {
                       transition={{ delay: i * 0.04 }}
                     >
                       <div className="relative aspect-[2/3] overflow-hidden">
-                        <img src={show.poster_url || '/placeholder.svg'} alt={show.name} loading="lazy" className="w-full h-full object-cover" />
+                        <img
+                          src={show.poster_url || "/placeholder.svg"}
+                          alt={show.name}
+                          loading="lazy"
+                          className="w-full h-full object-cover"
+                        />
                         {show.rating > 0 && (
                           <div className="absolute top-2 right-2 flex items-center gap-1 bg-card/90 backdrop-blur px-2 py-0.5 rounded-full text-[10px] font-bold">
-                            <Star className="h-2.5 w-2.5 fill-accent text-accent" />{show.rating}
+                            <Star className="h-2.5 w-2.5 fill-accent text-accent" />
+                            {show.rating}
                           </div>
                         )}
                       </div>
                       <div className="p-3">
-                        <h4 className="text-sm font-bold line-clamp-1">{show.name}</h4>
-                        {show.character && <p className="text-[11px] text-muted-foreground italic line-clamp-1">as {show.character}</p>}
+                        <h4 className="text-sm font-bold line-clamp-1">
+                          {show.name}
+                        </h4>
+                        {show.character && (
+                          <p className="text-[11px] text-muted-foreground italic line-clamp-1">
+                            as {show.character}
+                          </p>
+                        )}
                         <div className="flex items-center justify-between mt-1.5">
-                          <p className="text-[11px] text-muted-foreground">{show.first_air_date?.split('-')[0] || 'TBA'}</p>
+                          <p className="text-[11px] text-muted-foreground">
+                            {show.first_air_date?.split("-")[0] || "TBA"}
+                          </p>
                           {show.episode_count > 0 && (
-                            <Badge variant="secondary" className="text-[9px] py-0 px-1.5">{show.episode_count} ep</Badge>
+                            <Badge
+                              variant="secondary"
+                              className="text-[9px] py-0 px-1.5"
+                            >
+                              {show.episode_count} ep
+                            </Badge>
                           )}
                         </div>
                       </div>
@@ -614,7 +835,12 @@ export default function PersonDetails() {
                       transition={{ delay: i * 0.04 }}
                       onClick={() => setSelectedPhoto(photo.url)}
                     >
-                      <img src={photo.url} alt={`${person.name} photo`} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <img
+                        src={photo.url}
+                        alt={`${person.name} photo`}
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
                       <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors" />
                     </motion.div>
                   ))}

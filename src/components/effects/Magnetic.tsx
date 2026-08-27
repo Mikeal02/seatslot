@@ -1,5 +1,5 @@
-import { useRef, MouseEvent, ReactNode } from 'react';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { useRef, MouseEvent, ReactNode } from "react";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 
 interface MagneticProps {
   children: ReactNode;
@@ -11,7 +11,11 @@ interface MagneticProps {
  * Magnetic wrapper — element gently attracts toward cursor on hover.
  * Subtle, premium micro-interaction for CTAs and icon buttons.
  */
-export function Magnetic({ children, strength = 0.35, className }: MagneticProps) {
+export function Magnetic({
+  children,
+  strength = 0.35,
+  className,
+}: MagneticProps) {
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -39,7 +43,7 @@ export function Magnetic({ children, strength = 0.35, className }: MagneticProps
       onMouseMove={handleMove}
       onMouseLeave={reset}
       className={className}
-      style={{ display: 'inline-block' }}
+      style={{ display: "inline-block" }}
     >
       <motion.div style={{ x: sx, y: sy }}>{children}</motion.div>
     </div>

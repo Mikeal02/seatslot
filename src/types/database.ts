@@ -11,7 +11,7 @@ export interface Movie {
   cast_members: string[];
   director: string | null;
   release_date: string | null;
-  status: 'now_showing' | 'coming_soon';
+  status: "now_showing" | "coming_soon";
   trailer_key?: string | null;
   budget?: number | null;
   revenue?: number | null;
@@ -44,7 +44,7 @@ export interface Seat {
   screen_id: string;
   row_label: string;
   seat_number: number;
-  seat_type: 'regular' | 'premium' | 'vip';
+  seat_type: "regular" | "premium" | "vip";
   price: number;
   created_at: string;
 }
@@ -65,7 +65,7 @@ export interface Booking {
   user_id: string;
   showtime_id: string;
   total_amount: number;
-  booking_status: 'confirmed' | 'cancelled';
+  booking_status: "confirmed" | "cancelled";
   created_at: string;
   showtime?: Showtime;
   booked_seats?: BookedSeat[];
@@ -93,6 +93,6 @@ export interface Profile {
 export interface UserRole {
   id: string;
   user_id: string;
-  role: 'admin' | 'user';
+  role: "admin" | "user";
   created_at: string;
 }

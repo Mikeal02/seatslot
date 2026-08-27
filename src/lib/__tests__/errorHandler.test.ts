@@ -13,7 +13,9 @@ describe("getErrorMessage", () => {
   });
 
   it("falls back for unknown shapes", () => {
-    expect(getErrorMessage({ weird: true })).toBe("An unexpected error occurred");
+    expect(getErrorMessage({ weird: true })).toBe(
+      "An unexpected error occurred",
+    );
   });
 });
 

@@ -1,13 +1,16 @@
-import { Badge } from '@/components/ui/badge';
-import { Users } from 'lucide-react';
-import { useSeatAvailability } from '@/data';
+import { Badge } from "@/components/ui/badge";
+import { Users } from "lucide-react";
+import { useSeatAvailability } from "@/data";
 
 interface SeatAvailabilityBadgeProps {
   showtimeId: string;
   screenId: string;
 }
 
-export function SeatAvailabilityBadge({ showtimeId, screenId }: SeatAvailabilityBadgeProps) {
+export function SeatAvailabilityBadge({
+  showtimeId,
+  screenId,
+}: SeatAvailabilityBadgeProps) {
   const { data } = useSeatAvailability(showtimeId, screenId);
 
   if (!data) return null;
@@ -20,7 +23,10 @@ export function SeatAvailabilityBadge({ showtimeId, screenId }: SeatAvailability
 
   if (isSoldOut) {
     return (
-      <Badge variant="destructive" className="text-[9px] sm:text-[10px] h-4 sm:h-5 px-1.5">
+      <Badge
+        variant="destructive"
+        className="text-[9px] sm:text-[10px] h-4 sm:h-5 px-1.5"
+      >
         Sold Out
       </Badge>
     );
@@ -30,7 +36,9 @@ export function SeatAvailabilityBadge({ showtimeId, screenId }: SeatAvailability
     <Badge
       variant="outline"
       className={`text-[9px] sm:text-[10px] h-4 sm:h-5 px-1.5 gap-0.5 ${
-        isLow ? 'border-destructive/50 text-destructive' : 'border-accent/50 text-accent-foreground'
+        isLow
+          ? "border-destructive/50 text-destructive"
+          : "border-accent/50 text-accent-foreground"
       }`}
     >
       <Users className="h-2.5 w-2.5" />

@@ -1,10 +1,18 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Clock, Star, Sparkles, Ticket, ChevronRight, ChevronLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Movie } from '@/types/database';
+import { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Play,
+  Clock,
+  Star,
+  Sparkles,
+  Ticket,
+  ChevronRight,
+  ChevronLeft,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Movie } from "@/types/database";
 
 interface HeroSectionProps {
   movie: Movie;
@@ -12,11 +20,16 @@ interface HeroSectionProps {
   autoRotateInterval?: number;
 }
 
-export function HeroSection({ movie, movies, autoRotateInterval = 10000 }: HeroSectionProps) {
-  const heroMovies = (movies && movies.length > 1)
-    ? movies.filter(m => m.backdrop_url).slice(0, 6)
-    : [movie];
-  
+export function HeroSection({
+  movie,
+  movies,
+  autoRotateInterval = 10000,
+}: HeroSectionProps) {
+  const heroMovies =
+    movies && movies.length > 1
+      ? movies.filter((m) => m.backdrop_url).slice(0, 6)
+      : [movie];
+
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const currentMovie = heroMovies[activeIndex] || movie;
@@ -25,16 +38,24 @@ export function HeroSection({ movie, movies, autoRotateInterval = 10000 }: HeroS
   useEffect(() => {
     if (heroMovies.length <= 1 || isPaused) return;
     const timer = setInterval(() => {
-      setActiveIndex(prev => (prev + 1) % heroMovies.length);
+      setActiveIndex((prev) => (prev + 1) % heroMovies.length);
     }, autoRotateInterval);
     return () => clearInterval(timer);
   }, [heroMovies.length, autoRotateInterval, isPaused]);
 
   // Preload all hero backdrops + posters once so transitions are instant
   useEffect(() => {
-    heroMovies.forEach(m => {
-      if (m.backdrop_url) { const i = new Image(); i.decoding = 'async'; i.src = m.backdrop_url; }
-      if (m.poster_url) { const i = new Image(); i.decoding = 'async'; i.src = m.poster_url; }
+    heroMovies.forEach((m) => {
+      if (m.backdrop_url) {
+        const i = new Image();
+        i.decoding = "async";
+        i.src = m.backdrop_url;
+      }
+      if (m.poster_url) {
+        const i = new Image();
+        i.decoding = "async";
+        i.src = m.poster_url;
+      }
     });
   }, [heroMovies]);
 
@@ -43,15 +64,17 @@ export function HeroSection({ movie, movies, autoRotateInterval = 10000 }: HeroS
   }, []);
 
   const goPrev = useCallback(() => {
-    setActiveIndex(prev => (prev - 1 + heroMovies.length) % heroMovies.length);
+    setActiveIndex(
+      (prev) => (prev - 1 + heroMovies.length) % heroMovies.length,
+    );
   }, [heroMovies.length]);
 
   const goNext = useCallback(() => {
-    setActiveIndex(prev => (prev + 1) % heroMovies.length);
+    setActiveIndex((prev) => (prev + 1) % heroMovies.length);
   }, [heroMovies.length]);
 
   return (
-    <section 
+    <section
       className="relative h-[78vh] min-h-[560px] sm:h-[88vh] sm:min-h-[680px] overflow-hidden"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
@@ -66,11 +89,15 @@ export function HeroSection({ movie, movies, autoRotateInterval = 10000 }: HeroS
           exit={{ opacity: 0, scale: 1.02 }}
           transition={{
             duration: 1.5,
-            ease: "easeInOut"
-        }}
+            ease: "easeInOut",
+          }}
         >
           <img
-            src={currentMovie.backdrop_url || currentMovie.poster_url || '/placeholder.svg'}
+            src={
+              currentMovie.backdrop_url ||
+              currentMovie.poster_url ||
+              "/placeholder.svg"
+            }
             alt={currentMovie.title}
             className="w-full h-[120%] object-cover object-top brightness-95 contrast-105"
           />
@@ -81,18 +108,18 @@ export function HeroSection({ movie, movies, autoRotateInterval = 10000 }: HeroS
       <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/65 to-background/10" />
       <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-background/20" />
       <div className="absolute bottom-0 left-0 right-0 h-80 bg-gradient-to-t from-background/90 via-background/70 to-transparent" />
-      
+
       {/* Animated cinematic light leak */}
-      <motion.div 
+      <motion.div
         className="absolute inset-0 pointer-events-none"
         animate={{
           background: [
-            'radial-gradient(ellipse at 0% 100%, hsl(var(--primary) / 0.08) 0%, transparent 50%)',
-            'radial-gradient(ellipse at 20% 70%, hsl(var(--accent) / 0.05) 0%, transparent 50%)',
-            'radial-gradient(ellipse at 10% 90%, hsl(var(--primary) / 0.08) 0%, transparent 50%)',
+            "radial-gradient(ellipse at 0% 100%, hsl(var(--primary) / 0.08) 0%, transparent 50%)",
+            "radial-gradient(ellipse at 20% 70%, hsl(var(--accent) / 0.05) 0%, transparent 50%)",
+            "radial-gradient(ellipse at 10% 90%, hsl(var(--primary) / 0.08) 0%, transparent 50%)",
           ],
         }}
-        transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
       />
 
       {/* Film grain overlay */}
@@ -108,9 +135,9 @@ export function HeroSection({ movie, movies, autoRotateInterval = 10000 }: HeroS
             <motion.div
               key={currentMovie.id}
               className="space-y-4 sm:space-y-6"
-              initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -20, filter: 'blur(4px)' }}
+              initial={{ opacity: 0, y: 30, filter: "blur(6px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -20, filter: "blur(4px)" }}
               transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
             >
               {/* Featured Badge */}
@@ -133,25 +160,31 @@ export function HeroSection({ movie, movies, autoRotateInterval = 10000 }: HeroS
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <div className="flex items-center gap-1.5 sm:gap-2 glass-card px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm">
                   <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                  <span className="font-semibold">{currentMovie.duration_minutes} min</span>
+                  <span className="font-semibold">
+                    {currentMovie.duration_minutes} min
+                  </span>
                 </div>
                 {currentMovie.rating && currentMovie.rating > 0 && (
                   <div className="flex items-center gap-1.5 sm:gap-2 glass-card px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm">
                     <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-accent text-accent" />
-                    <span className="font-semibold">{currentMovie.rating}/10</span>
+                    <span className="font-semibold">
+                      {currentMovie.rating}/10
+                    </span>
                   </div>
                 )}
                 {currentMovie.genre && currentMovie.genre.length > 0 && (
                   <div className="hidden xs:flex items-center gap-2 glass-card px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm">
-                    <span className="font-semibold">{(currentMovie.genre as string[]).slice(0, 2).join(' · ')}</span>
+                    <span className="font-semibold">
+                      {(currentMovie.genre as string[]).slice(0, 2).join(" · ")}
+                    </span>
                   </div>
                 )}
               </div>
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <Button 
-                  asChild 
+                <Button
+                  asChild
                   variant="cinema"
                   size="xl"
                   className="rounded-full group"
@@ -162,10 +195,10 @@ export function HeroSection({ movie, movies, autoRotateInterval = 10000 }: HeroS
                     <ChevronRight className="h-4 w-4 ml-1 transition-transform duration-300 group-hover:translate-x-1" />
                   </Link>
                 </Button>
-                <Button 
-                  asChild 
+                <Button
+                  asChild
                   size="xl"
-                  variant="outline" 
+                  variant="outline"
                   className="bg-card/15 backdrop-blur-xl border-border/20 hover:bg-card/40 rounded-full"
                 >
                   <Link to={`/movie/${currentMovie.id}`}>
@@ -179,7 +212,7 @@ export function HeroSection({ movie, movies, autoRotateInterval = 10000 }: HeroS
 
           {/* Navigation dots + arrows */}
           {heroMovies.length > 1 && (
-            <motion.div 
+            <motion.div
               className="hidden sm:flex items-center gap-4 pt-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -204,15 +237,22 @@ export function HeroSection({ movie, movies, autoRotateInterval = 10000 }: HeroS
                     style={{ width: i === activeIndex ? 32 : 8 }}
                     aria-label={`Go to ${m.title}`}
                   >
-                    <div className={`absolute inset-0 rounded-full transition-colors duration-300 ${
-                      i === activeIndex ? 'bg-muted/40' : 'bg-muted-foreground/20 hover:bg-muted-foreground/40'
-                    }`} />
+                    <div
+                      className={`absolute inset-0 rounded-full transition-colors duration-300 ${
+                        i === activeIndex
+                          ? "bg-muted/40"
+                          : "bg-muted-foreground/20 hover:bg-muted-foreground/40"
+                      }`}
+                    />
                     {i === activeIndex && !isPaused && (
                       <motion.div
                         className="absolute inset-y-0 left-0 rounded-full cinema-gradient"
-                        initial={{ width: '0%' }}
-                        animate={{ width: '100%' }}
-                        transition={{ duration: autoRotateInterval / 1000, ease: 'linear' }}
+                        initial={{ width: "0%" }}
+                        animate={{ width: "100%" }}
+                        transition={{
+                          duration: autoRotateInterval / 1000,
+                          ease: "linear",
+                        }}
                         key={`progress-${activeIndex}-${Date.now()}`}
                       />
                     )}
@@ -233,11 +273,10 @@ export function HeroSection({ movie, movies, autoRotateInterval = 10000 }: HeroS
 
               {/* Movie counter */}
               <span className="text-[11px] text-muted-foreground font-semibold tracking-wider ml-2">
-                {String(activeIndex + 1).padStart(2, '0')} / {String(heroMovies.length).padStart(2, '0')}
+                {String(activeIndex + 1).padStart(2, "0")} /{" "}
+                {String(heroMovies.length).padStart(2, "0")}
               </span>
             </motion.div>
-
-            
           )}
         </div>
       </div>
@@ -250,9 +289,9 @@ export function HeroSection({ movie, movies, autoRotateInterval = 10000 }: HeroS
               key={m.id}
               onClick={() => goTo(i)}
               className={`relative w-14 aspect-[2/3] rounded-lg overflow-hidden border-2 transition-all duration-500 ${
-                i === activeIndex 
-                  ? 'border-primary/80 shadow-lg shadow-primary/20 scale-110 z-10' 
-                  : 'border-border/20 opacity-50 hover:opacity-80 hover:border-border/40'
+                i === activeIndex
+                  ? "border-primary/80 shadow-lg shadow-primary/20 scale-110 z-10"
+                  : "border-border/20 opacity-50 hover:opacity-80 hover:border-border/40"
               }`}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -260,15 +299,15 @@ export function HeroSection({ movie, movies, autoRotateInterval = 10000 }: HeroS
               whileHover={{ scale: i === activeIndex ? 1.1 : 1.05 }}
             >
               <img
-                src={m.poster_url || '/placeholder.svg'}
+                src={m.poster_url || "/placeholder.svg"}
                 alt={m.title}
-               className="w-full h-[120%] object-cover object-top brightness-95 contrast-105"
+                className="w-full h-[120%] object-cover object-top brightness-95 contrast-105"
               />
               {i === activeIndex && (
                 <motion.div
                   className="absolute inset-0 border-2 border-primary rounded-lg"
                   layoutId="hero-poster-ring"
-                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
                 />
               )}
             </motion.button>

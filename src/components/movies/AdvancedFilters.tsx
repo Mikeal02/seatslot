@@ -1,16 +1,23 @@
-import { useState } from 'react';
-import { SlidersHorizontal, X, Star, Clock, Calendar, ArrowUpDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
+import { useState } from "react";
+import {
+  SlidersHorizontal,
+  X,
+  Star,
+  Clock,
+  Calendar,
+  ArrowUpDown,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Sheet,
   SheetContent,
@@ -18,13 +25,13 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet';
+} from "@/components/ui/sheet";
 
 export interface FilterOptions {
   minRating: number;
   maxDuration: number;
-  sortBy: 'rating' | 'release_date' | 'title' | 'duration';
-  sortOrder: 'asc' | 'desc';
+  sortBy: "rating" | "release_date" | "title" | "duration";
+  sortOrder: "asc" | "desc";
   genres: string[];
 }
 
@@ -38,29 +45,29 @@ interface AdvancedFiltersProps {
 export const defaultFilters: FilterOptions = {
   minRating: 0,
   maxDuration: 300,
-  sortBy: 'rating',
-  sortOrder: 'desc',
+  sortBy: "rating",
+  sortOrder: "desc",
   genres: [],
 };
 
-export function AdvancedFilters({ 
-  filters, 
-  onFiltersChange, 
+export function AdvancedFilters({
+  filters,
+  onFiltersChange,
   onReset,
-  genres 
+  genres,
 }: AdvancedFiltersProps) {
   const [open, setOpen] = useState(false);
 
-  const hasActiveFilters = 
-    filters.minRating > 0 || 
-    filters.maxDuration < 300 || 
+  const hasActiveFilters =
+    filters.minRating > 0 ||
+    filters.maxDuration < 300 ||
     filters.genres.length > 0 ||
-    filters.sortBy !== 'rating' ||
-    filters.sortOrder !== 'desc';
+    filters.sortBy !== "rating" ||
+    filters.sortOrder !== "desc";
 
   const handleGenreToggle = (genre: string) => {
     const newGenres = filters.genres.includes(genre)
-      ? filters.genres.filter(g => g !== genre)
+      ? filters.genres.filter((g) => g !== genre)
       : [...filters.genres, genre];
     onFiltersChange({ ...filters, genres: newGenres });
   };
@@ -78,8 +85,8 @@ export function AdvancedFilters({
           <SlidersHorizontal className="h-4 w-4 mr-2" />
           Advanced Filters
           {activeFilterCount > 0 && (
-            <Badge 
-              variant="default" 
+            <Badge
+              variant="default"
               className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs"
             >
               {activeFilterCount}
@@ -97,9 +104,7 @@ export function AdvancedFilters({
               </Button>
             )}
           </SheetTitle>
-          <SheetDescription>
-            Fine-tune your movie search
-          </SheetDescription>
+          <SheetDescription>Fine-tune your movie search</SheetDescription>
         </SheetHeader>
 
         <div className="space-y-6 py-6">
@@ -114,7 +119,7 @@ export function AdvancedFilters({
               min={0}
               max={10}
               step={0.5}
-              onValueChange={([value]) => 
+              onValueChange={([value]) =>
                 onFiltersChange({ ...filters, minRating: value })
               }
             />
@@ -135,7 +140,7 @@ export function AdvancedFilters({
               min={60}
               max={300}
               step={15}
-              onValueChange={([value]) => 
+              onValueChange={([value]) =>
                 onFiltersChange({ ...filters, maxDuration: value })
               }
             />
@@ -154,7 +159,7 @@ export function AdvancedFilters({
             <div className="flex gap-2">
               <Select
                 value={filters.sortBy}
-                onValueChange={(value: FilterOptions['sortBy']) => 
+                onValueChange={(value: FilterOptions["sortBy"]) =>
                   onFiltersChange({ ...filters, sortBy: value })
                 }
               >
@@ -170,7 +175,7 @@ export function AdvancedFilters({
               </Select>
               <Select
                 value={filters.sortOrder}
-                onValueChange={(value: 'asc' | 'desc') => 
+                onValueChange={(value: "asc" | "desc") =>
                   onFiltersChange({ ...filters, sortOrder: value })
                 }
               >
@@ -192,10 +197,12 @@ export function AdvancedFilters({
               Genres
             </Label>
             <div className="flex flex-wrap gap-2">
-              {genres.map(genre => (
+              {genres.map((genre) => (
                 <Badge
                   key={genre}
-                  variant={filters.genres.includes(genre) ? 'default' : 'outline'}
+                  variant={
+                    filters.genres.includes(genre) ? "default" : "outline"
+                  }
                   className="cursor-pointer hover:bg-primary/80 transition-colors"
                   onClick={() => handleGenreToggle(genre)}
                 >
@@ -210,8 +217,8 @@ export function AdvancedFilters({
         </div>
 
         <div className="flex gap-2 pt-4 border-t">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="flex-1"
             onClick={() => {
               onReset();
@@ -220,10 +227,7 @@ export function AdvancedFilters({
           >
             Reset All
           </Button>
-          <Button 
-            className="flex-1"
-            onClick={() => setOpen(false)}
-          >
+          <Button className="flex-1" onClick={() => setOpen(false)}>
             Apply Filters
           </Button>
         </div>

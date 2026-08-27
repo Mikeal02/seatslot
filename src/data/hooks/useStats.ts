@@ -1,6 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
-import { qk, staleTime } from '@/data/queryKeys';
-import { statsRepository, type PlatformCounts } from '@/data/repositories/stats.repo';
+import { useQuery } from "@tanstack/react-query";
+import { qk, staleTime } from "@/data/queryKeys";
+import {
+  statsRepository,
+  type PlatformCounts,
+} from "@/data/repositories/stats.repo";
 
 export function usePlatformStats() {
   return useQuery<PlatformCounts>({

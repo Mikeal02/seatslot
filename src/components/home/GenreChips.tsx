@@ -1,19 +1,19 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Sparkles, ChevronRight } from 'lucide-react';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Sparkles, ChevronRight } from "lucide-react";
 
 const GENRES = [
-  { name: 'Action', emoji: '💥' },
-  { name: 'Comedy', emoji: '😂' },
-  { name: 'Drama', emoji: '🎭' },
-  { name: 'Horror', emoji: '👻' },
-  { name: 'Romance', emoji: '💕' },
-  { name: 'Sci-Fi', emoji: '🚀' },
-  { name: 'Thriller', emoji: '🔪' },
-  { name: 'Animation', emoji: '✨' },
-  { name: 'Adventure', emoji: '🗺️' },
-  { name: 'Fantasy', emoji: '🧙' },
+  { name: "Action", emoji: "💥" },
+  { name: "Comedy", emoji: "😂" },
+  { name: "Drama", emoji: "🎭" },
+  { name: "Horror", emoji: "👻" },
+  { name: "Romance", emoji: "💕" },
+  { name: "Sci-Fi", emoji: "🚀" },
+  { name: "Thriller", emoji: "🔪" },
+  { name: "Animation", emoji: "✨" },
+  { name: "Adventure", emoji: "🗺️" },
+  { name: "Fantasy", emoji: "🧙" },
 ];
 
 export function GenreChips() {
@@ -29,7 +29,7 @@ export function GenreChips() {
     <section className="py-8 sm:py-12 relative overflow-hidden">
       {/* Subtle background */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-muted/20 to-transparent pointer-events-none" />
-      
+
       <div className="container mx-auto px-4 relative">
         <motion.div
           className="flex items-center gap-3 mb-6"
@@ -42,11 +42,13 @@ export function GenreChips() {
           </div>
           <div>
             <h3 className="text-sm font-bold">Browse by Genre</h3>
-            <p className="text-xs text-muted-foreground">Find your perfect movie</p>
+            <p className="text-xs text-muted-foreground">
+              Find your perfect movie
+            </p>
           </div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -71,10 +73,10 @@ export function GenreChips() {
                 <motion.div
                   className="absolute inset-0 rounded-full cinema-gradient opacity-10"
                   layoutId="genre-hover"
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
-              
+
               <span className="text-base">{genre.emoji}</span>
               <span className="text-sm font-semibold text-foreground/90 group-hover:text-foreground transition-colors">
                 {genre.name}

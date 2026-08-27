@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, Building2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useEffect, useState } from "react";
+import { Plus, Pencil, Trash2, Building2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -11,14 +11,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,12 +29,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
-import { Theatre, Screen } from '@/types/database';
+} from "@/components/ui/alert-dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
+import { Theatre, Screen } from "@/types/database";
 
 interface TheatreWithScreens extends Theatre {
   screens: Screen[];
@@ -47,18 +47,20 @@ export default function TheatresAdmin() {
   const [theatreDialogOpen, setTheatreDialogOpen] = useState(false);
   const [screenDialogOpen, setScreenDialogOpen] = useState(false);
   const [editingTheatre, setEditingTheatre] = useState<Theatre | null>(null);
-  const [selectedTheatreId, setSelectedTheatreId] = useState<string | null>(null);
+  const [selectedTheatreId, setSelectedTheatreId] = useState<string | null>(
+    null,
+  );
   const [saving, setSaving] = useState(false);
 
   // Theatre form
-  const [theatreName, setTheatreName] = useState('');
-  const [theatreLocation, setTheatreLocation] = useState('');
-  const [theatreCity, setTheatreCity] = useState('');
+  const [theatreName, setTheatreName] = useState("");
+  const [theatreLocation, setTheatreLocation] = useState("");
+  const [theatreCity, setTheatreCity] = useState("");
 
   // Screen form
-  const [screenName, setScreenName] = useState('');
-  const [totalRows, setTotalRows] = useState('10');
-  const [seatsPerRow, setSeatsPerRow] = useState('15');
+  const [screenName, setScreenName] = useState("");
+  const [totalRows, setTotalRows] = useState("10");
+  const [seatsPerRow, setSeatsPerRow] = useState("15");
 
   useEffect(() => {
     fetchTheatres();
@@ -67,30 +69,30 @@ export default function TheatresAdmin() {
   const fetchTheatres = async () => {
     try {
       const { data, error } = await supabase
-        .from('theatres')
-        .select('*, screens(*)')
-        .order('name');
+        .from("theatres")
+        .select("*, screens(*)")
+        .order("name");
 
       if (error) throw error;
       setTheatres(data as TheatreWithScreens[]);
     } catch (error) {
-      console.error('Error fetching theatres:', error);
+      console.error("Error fetching theatres:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const resetTheatreForm = () => {
-    setTheatreName('');
-    setTheatreLocation('');
-    setTheatreCity('');
+    setTheatreName("");
+    setTheatreLocation("");
+    setTheatreCity("");
     setEditingTheatre(null);
   };
 
   const resetScreenForm = () => {
-    setScreenName('');
-    setTotalRows('10');
-    setSeatsPerRow('15');
+    setScreenName("");
+    setTotalRows("10");
+    setSeatsPerRow("15");
     setSelectedTheatreId(null);
   };
 
@@ -105,9 +107,9 @@ export default function TheatresAdmin() {
   const handleSaveTheatre = async () => {
     if (!theatreName.trim() || !theatreLocation.trim() || !theatreCity.trim()) {
       toast({
-        variant: 'destructive',
-        title: 'Missing fields',
-        description: 'Please fill in all fields.',
+        variant: "destructive",
+        title: "Missing fields",
+        description: "Please fill in all fields.",
       });
       return;
     }
@@ -123,28 +125,28 @@ export default function TheatresAdmin() {
     try {
       if (editingTheatre) {
         const { error } = await supabase
-          .from('theatres')
+          .from("theatres")
           .update(theatreData)
-          .eq('id', editingTheatre.id);
+          .eq("id", editingTheatre.id);
 
         if (error) throw error;
-        toast({ title: 'Theatre updated successfully' });
+        toast({ title: "Theatre updated successfully" });
       } else {
-        const { error } = await supabase.from('theatres').insert(theatreData);
+        const { error } = await supabase.from("theatres").insert(theatreData);
 
         if (error) throw error;
-        toast({ title: 'Theatre added successfully' });
+        toast({ title: "Theatre added successfully" });
       }
 
       setTheatreDialogOpen(false);
       resetTheatreForm();
       fetchTheatres();
     } catch (error: any) {
-      console.error('Error saving theatre:', error);
+      console.error("Error saving theatre:", error);
       toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: error.message || 'Failed to save theatre.',
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to save theatre.",
       });
     } finally {
       setSaving(false);
@@ -153,17 +155,20 @@ export default function TheatresAdmin() {
 
   const handleDeleteTheatre = async (theatreId: string) => {
     try {
-      const { error } = await supabase.from('theatres').delete().eq('id', theatreId);
+      const { error } = await supabase
+        .from("theatres")
+        .delete()
+        .eq("id", theatreId);
 
       if (error) throw error;
-      toast({ title: 'Theatre deleted successfully' });
+      toast({ title: "Theatre deleted successfully" });
       fetchTheatres();
     } catch (error: any) {
-      console.error('Error deleting theatre:', error);
+      console.error("Error deleting theatre:", error);
       toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: error.message || 'Failed to delete theatre.',
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to delete theatre.",
       });
     }
   };
@@ -171,9 +176,9 @@ export default function TheatresAdmin() {
   const handleAddScreen = async () => {
     if (!screenName.trim() || !selectedTheatreId) {
       toast({
-        variant: 'destructive',
-        title: 'Missing fields',
-        description: 'Please fill in all fields.',
+        variant: "destructive",
+        title: "Missing fields",
+        description: "Please fill in all fields.",
       });
       return;
     }
@@ -183,7 +188,7 @@ export default function TheatresAdmin() {
     try {
       // Create screen
       const { data: screenData, error: screenError } = await supabase
-        .from('screens')
+        .from("screens")
         .insert({
           theatre_id: selectedTheatreId,
           name: screenName.trim(),
@@ -203,17 +208,17 @@ export default function TheatresAdmin() {
       for (let row = 1; row <= rows; row++) {
         for (let seat = 1; seat <= seatsCount; seat++) {
           const rowLabel = String.fromCharCode(64 + row); // A, B, C, etc.
-          let seatType: 'regular' | 'premium' | 'vip' = 'regular';
+          let seatType: "regular" | "premium" | "vip" = "regular";
           let price = 150;
 
           if (row <= 3) {
-            seatType = 'regular';
+            seatType = "regular";
             price = 150;
           } else if (row <= Math.floor(rows * 0.7)) {
-            seatType = 'premium';
+            seatType = "premium";
             price = 250;
           } else {
-            seatType = 'vip';
+            seatType = "vip";
             price = 400;
           }
 
@@ -227,20 +232,20 @@ export default function TheatresAdmin() {
         }
       }
 
-      const { error: seatsError } = await supabase.from('seats').insert(seats);
+      const { error: seatsError } = await supabase.from("seats").insert(seats);
 
       if (seatsError) throw seatsError;
 
-      toast({ title: 'Screen added successfully with seats' });
+      toast({ title: "Screen added successfully with seats" });
       setScreenDialogOpen(false);
       resetScreenForm();
       fetchTheatres();
     } catch (error: any) {
-      console.error('Error adding screen:', error);
+      console.error("Error adding screen:", error);
       toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: error.message || 'Failed to add screen.',
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to add screen.",
       });
     } finally {
       setSaving(false);
@@ -249,17 +254,20 @@ export default function TheatresAdmin() {
 
   const handleDeleteScreen = async (screenId: string) => {
     try {
-      const { error } = await supabase.from('screens').delete().eq('id', screenId);
+      const { error } = await supabase
+        .from("screens")
+        .delete()
+        .eq("id", screenId);
 
       if (error) throw error;
-      toast({ title: 'Screen deleted successfully' });
+      toast({ title: "Screen deleted successfully" });
       fetchTheatres();
     } catch (error: any) {
-      console.error('Error deleting screen:', error);
+      console.error("Error deleting screen:", error);
       toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: error.message || 'Failed to delete screen.',
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to delete screen.",
       });
     }
   };
@@ -281,10 +289,13 @@ export default function TheatresAdmin() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold">Theatres & Screens</h1>
-        <Dialog open={theatreDialogOpen} onOpenChange={(open) => {
-          setTheatreDialogOpen(open);
-          if (!open) resetTheatreForm();
-        }}>
+        <Dialog
+          open={theatreDialogOpen}
+          onOpenChange={(open) => {
+            setTheatreDialogOpen(open);
+            if (!open) resetTheatreForm();
+          }}
+        >
           <DialogTrigger asChild>
             <Button className="cinema-gradient">
               <Plus className="h-4 w-4 mr-2" />
@@ -293,7 +304,9 @@ export default function TheatresAdmin() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingTheatre ? 'Edit Theatre' : 'Add New Theatre'}</DialogTitle>
+              <DialogTitle>
+                {editingTheatre ? "Edit Theatre" : "Add New Theatre"}
+              </DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="space-y-2">
@@ -323,8 +336,16 @@ export default function TheatresAdmin() {
                   placeholder="e.g., Mumbai"
                 />
               </div>
-              <Button onClick={handleSaveTheatre} disabled={saving} className="cinema-gradient">
-                {saving ? 'Saving...' : editingTheatre ? 'Update Theatre' : 'Add Theatre'}
+              <Button
+                onClick={handleSaveTheatre}
+                disabled={saving}
+                className="cinema-gradient"
+              >
+                {saving
+                  ? "Saving..."
+                  : editingTheatre
+                    ? "Update Theatre"
+                    : "Add Theatre"}
               </Button>
             </div>
           </DialogContent>
@@ -332,10 +353,13 @@ export default function TheatresAdmin() {
       </div>
 
       {/* Screen Dialog */}
-      <Dialog open={screenDialogOpen} onOpenChange={(open) => {
-        setScreenDialogOpen(open);
-        if (!open) resetScreenForm();
-      }}>
+      <Dialog
+        open={screenDialogOpen}
+        onOpenChange={(open) => {
+          setScreenDialogOpen(open);
+          if (!open) resetScreenForm();
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add New Screen</DialogTitle>
@@ -375,10 +399,15 @@ export default function TheatresAdmin() {
               </div>
             </div>
             <p className="text-sm text-muted-foreground">
-              Seats will be automatically generated with Regular, Premium, and VIP sections.
+              Seats will be automatically generated with Regular, Premium, and
+              VIP sections.
             </p>
-            <Button onClick={handleAddScreen} disabled={saving} className="cinema-gradient">
-              {saving ? 'Saving...' : 'Add Screen'}
+            <Button
+              onClick={handleAddScreen}
+              disabled={saving}
+              className="cinema-gradient"
+            >
+              {saving ? "Saving..." : "Add Screen"}
             </Button>
           </div>
         </DialogContent>
@@ -435,7 +464,8 @@ export default function TheatresAdmin() {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete Theatre?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          This will permanently delete "{theatre.name}" and all its screens.
+                          This will permanently delete "{theatre.name}" and all
+                          its screens.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
@@ -453,7 +483,9 @@ export default function TheatresAdmin() {
               </CardHeader>
               <CardContent>
                 {theatre.screens.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No screens added yet</p>
+                  <p className="text-sm text-muted-foreground">
+                    No screens added yet
+                  </p>
                 ) : (
                   <Table>
                     <TableHeader>
@@ -468,7 +500,9 @@ export default function TheatresAdmin() {
                     <TableBody>
                       {theatre.screens.map((screen) => (
                         <TableRow key={screen.id}>
-                          <TableCell className="font-medium">{screen.name}</TableCell>
+                          <TableCell className="font-medium">
+                            {screen.name}
+                          </TableCell>
                           <TableCell>{screen.total_rows}</TableCell>
                           <TableCell>{screen.seats_per_row}</TableCell>
                           <TableCell>
@@ -485,15 +519,20 @@ export default function TheatresAdmin() {
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete Screen?</AlertDialogTitle>
+                                  <AlertDialogTitle>
+                                    Delete Screen?
+                                  </AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    This will permanently delete "{screen.name}" and all its seats.
+                                    This will permanently delete "{screen.name}"
+                                    and all its seats.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                                   <AlertDialogAction
-                                    onClick={() => handleDeleteScreen(screen.id)}
+                                    onClick={() =>
+                                      handleDeleteScreen(screen.id)
+                                    }
                                     className="bg-destructive text-destructive-foreground"
                                   >
                                     Delete

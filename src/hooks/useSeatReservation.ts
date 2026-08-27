@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AcquireRow {
   seat_id: string;
@@ -20,7 +20,9 @@ export interface ReserveResult {
 export function useSeatReservation(showtimeId: string | undefined) {
   const heldSeatsRef = useRef<Set<string>>(new Set());
   const paymentInitiatedRef = useRef(false);
-  const [earliestExpiry, setEarliestExpiryState] = useState<number | null>(null);
+  const [earliestExpiry, setEarliestExpiryState] = useState<number | null>(
+    null,
+  );
   const expiryMapRef = useRef<Map<string, number>>(new Map());
 
   const recomputeEarliest = useCallback(() => {
@@ -34,13 +36,16 @@ export function useSeatReservation(showtimeId: string | undefined) {
   const reserve = useCallback(
     async (seatIds: string[]): Promise<ReserveResult> => {
       if (!showtimeId || seatIds.length === 0) return { ok: true, failed: [] };
-      const { data, error } = await supabase.rpc('acquire_seat_locks', {
+      const { data, error } = await supabase.rpc("acquire_seat_locks", {
         p_showtime_id: showtimeId,
         p_seat_ids: seatIds,
       });
       if (error) {
-        console.error('[useSeatReservation] acquire_seat_locks failed:', error);
-        return { ok: false, failed: seatIds.map((id) => ({ seatId: id, reason: error.message })) };
+        console.error("[useSeatReservation] acquire_seat_locks failed:", error);
+        return {
+          ok: false,
+          failed: seatIds.map((id) => ({ seatId: id, reason: error.message })),
+        };
       }
       const rows = (data ?? []) as AcquireRow[];
       const failed: { seatId: string; reason: string | null }[] = [];
@@ -48,7 +53,10 @@ export function useSeatReservation(showtimeId: string | undefined) {
         if (r.success) {
           heldSeatsRef.current.add(r.seat_id);
           if (r.expires_at) {
-            expiryMapRef.current.set(r.seat_id, new Date(r.expires_at).getTime());
+            expiryMapRef.current.set(
+              r.seat_id,
+              new Date(r.expires_at).getTime(),
+            );
           }
         } else {
           failed.push({ seatId: r.seat_id, reason: r.reason });
@@ -57,13 +65,13 @@ export function useSeatReservation(showtimeId: string | undefined) {
       recomputeEarliest();
       return { ok: failed.length === 0, failed };
     },
-    [showtimeId, recomputeEarliest]
+    [showtimeId, recomputeEarliest],
   );
 
   const release = useCallback(
     async (seatIds: string[]) => {
       if (!showtimeId || seatIds.length === 0) return;
-      await supabase.rpc('release_seat_locks', {
+      await supabase.rpc("release_seat_locks", {
         p_showtime_id: showtimeId,
         p_seat_ids: seatIds,
       });
@@ -73,7 +81,7 @@ export function useSeatReservation(showtimeId: string | undefined) {
       });
       recomputeEarliest();
     },
-    [showtimeId, recomputeEarliest]
+    [showtimeId, recomputeEarliest],
   );
 
   const releaseAll = useCallback(async () => {
@@ -99,10 +107,10 @@ export function useSeatReservation(showtimeId: string | undefined) {
       supabase.auth.getSession().then(({ data }) => {
         const jwt = data.session?.access_token ?? key;
         fetch(url, {
-          method: 'POST',
+          method: "POST",
           keepalive: true,
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             apikey: key,
             Authorization: `Bearer ${jwt}`,
           },
@@ -110,11 +118,11 @@ export function useSeatReservation(showtimeId: string | undefined) {
         }).catch(() => {});
       });
     };
-    window.addEventListener('pagehide', handler);
-    window.addEventListener('beforeunload', handler);
+    window.addEventListener("pagehide", handler);
+    window.addEventListener("beforeunload", handler);
     return () => {
-      window.removeEventListener('pagehide', handler);
-      window.removeEventListener('beforeunload', handler);
+      window.removeEventListener("pagehide", handler);
+      window.removeEventListener("beforeunload", handler);
     };
   }, [showtimeId]);
 
@@ -124,7 +132,7 @@ export function useSeatReservation(showtimeId: string | undefined) {
       if (paymentInitiatedRef.current) return;
       const ids = Array.from(heldSeatsRef.current);
       if (ids.length > 0 && showtimeId) {
-        supabase.rpc('release_seat_locks', {
+        supabase.rpc("release_seat_locks", {
           p_showtime_id: showtimeId,
           p_seat_ids: ids,
         });

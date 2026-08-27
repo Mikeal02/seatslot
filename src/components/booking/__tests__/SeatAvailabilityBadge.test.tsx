@@ -8,15 +8,19 @@ const counts: Record<string, number> = { seats: 100, booked: 0 };
 vi.mock("@/integrations/supabase/client", () => {
   const builder = (table: string) => ({
     select: () => ({
-      eq: () => Promise.resolve({ count: table === "seats" ? counts.seats : counts.booked }),
+      eq: () =>
+        Promise.resolve({
+          count: table === "seats" ? counts.seats : counts.booked,
+        }),
     }),
   });
   return { supabase: { from: (table: string) => builder(table) } };
 });
 
 const renderBadge = () =>
-  renderWithProviders(<SeatAvailabilityBadge showtimeId="show-1" screenId="screen-1" />);
-
+  renderWithProviders(
+    <SeatAvailabilityBadge showtimeId="show-1" screenId="screen-1" />,
+  );
 
 beforeEach(() => {
   counts.seats = 100;

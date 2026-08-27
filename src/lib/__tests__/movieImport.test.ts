@@ -57,11 +57,16 @@ describe("determineMovieStatus", () => {
 describe("fetchTMDBDetails", () => {
   it("returns parsed json on success", async () => {
     vi.stubGlobal("fetch", mockFetch({ tmdb_id: 42, title: "Dune" }));
-    await expect(fetchTMDBDetails(42)).resolves.toEqual({ tmdb_id: 42, title: "Dune" });
+    await expect(fetchTMDBDetails(42)).resolves.toEqual({
+      tmdb_id: 42,
+      title: "Dune",
+    });
   });
   it("throws on a failed response", async () => {
     vi.stubGlobal("fetch", mockFetch({}, false));
-    await expect(fetchTMDBDetails(1)).rejects.toThrow("Failed to fetch TMDB details");
+    await expect(fetchTMDBDetails(1)).rejects.toThrow(
+      "Failed to fetch TMDB details",
+    );
   });
 });
 
@@ -69,7 +74,9 @@ describe("resolveTMDBMovieId", () => {
   it("short-circuits when a tmdbId is already known", async () => {
     const spy = vi.fn();
     vi.stubGlobal("fetch", spy);
-    await expect(resolveTMDBMovieId({ tmdbId: 7, title: "X" })).resolves.toBe(7);
+    await expect(resolveTMDBMovieId({ tmdbId: 7, title: "X" })).resolves.toBe(
+      7,
+    );
     expect(spy).not.toHaveBeenCalled();
   });
 
@@ -91,10 +98,10 @@ describe("resolveTMDBMovieId", () => {
           { tmdb_id: 1, title: "Other", poster_url: "b.jpg" },
           { tmdb_id: 2, title: "Wrong", poster_url: "a.jpg" },
         ],
-      })
+      }),
     );
     await expect(
-      resolveTMDBMovieId({ title: "Whatever", posterUrl: "a.jpg" })
+      resolveTMDBMovieId({ title: "Whatever", posterUrl: "a.jpg" }),
     ).resolves.toBe(2);
   });
 
@@ -105,12 +112,12 @@ describe("resolveTMDBMovieId", () => {
     ];
     vi.stubGlobal("fetch", mockFetch({ movies }));
     await expect(
-      resolveTMDBMovieId({ title: "the batman!", releaseDate: "2022-03-04" })
+      resolveTMDBMovieId({ title: "the batman!", releaseDate: "2022-03-04" }),
     ).resolves.toBe(11);
 
     vi.stubGlobal("fetch", mockFetch({ movies }));
     await expect(
-      resolveTMDBMovieId({ title: "The Batman", releaseDate: "2022-01-01" })
+      resolveTMDBMovieId({ title: "The Batman", releaseDate: "2022-01-01" }),
     ).resolves.toBe(11);
 
     vi.stubGlobal("fetch", mockFetch({ movies }));
@@ -118,7 +125,10 @@ describe("resolveTMDBMovieId", () => {
   });
 
   it("falls back to the first result when nothing matches", async () => {
-    vi.stubGlobal("fetch", mockFetch({ movies: [{ tmdb_id: 99, title: "Zzz" }] }));
+    vi.stubGlobal(
+      "fetch",
+      mockFetch({ movies: [{ tmdb_id: 99, title: "Zzz" }] }),
+    );
     await expect(resolveTMDBMovieId({ title: "Nope" })).resolves.toBe(99);
   });
 });

@@ -19,5 +19,6 @@ class ResizeObserverStub {
   unobserve() {}
   disconnect() {}
 }
-window.ResizeObserver = window.ResizeObserver || (ResizeObserverStub as unknown as typeof ResizeObserver);
-
+window.ResizeObserver =
+  window.ResizeObserver ||
+  (ResizeObserverStub as unknown as typeof ResizeObserver);

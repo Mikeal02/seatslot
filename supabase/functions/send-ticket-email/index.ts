@@ -5,10 +5,12 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const esc = (v: unknown) =>
   String(v ?? "")
@@ -27,24 +29,30 @@ const handler = async (req: Request): Promise<Response> => {
     // ---- Auth required: this endpoint must never be an open email relay ----
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ success: false, error: "Unauthorized" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
+      return new Response(
+        JSON.stringify({ success: false, error: "Unauthorized" }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        },
+      );
     }
     const token = authHeader.replace("Bearer ", "");
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
     );
     const { data: userData } = await supabaseClient.auth.getUser(token);
     const user = userData.user;
     if (!user?.email) {
-      return new Response(JSON.stringify({ success: false, error: "Unauthorized" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
+      return new Response(
+        JSON.stringify({ success: false, error: "Unauthorized" }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        },
+      );
     }
 
     const { bookingId } = await req.json();
@@ -55,7 +63,7 @@ const handler = async (req: Request): Promise<Response> => {
     // ---- All content is derived server-side from the caller's own booking ----
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     const { data: booking, error } = await supabaseAdmin
@@ -63,7 +71,7 @@ const handler = async (req: Request): Promise<Response> => {
       .select(
         `id, user_id, total_amount,
          showtime:showtimes(show_date, show_time, movie:movies(title), screen:screens(name, theatre:theatres(name))),
-         booked_seats(seat:seats(row_label, seat_number))`
+         booked_seats(seat:seats(row_label, seat_number))`,
       )
       .eq("id", bookingId)
       .eq("user_id", user.id)
@@ -71,10 +79,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (error) throw error;
     if (!booking) {
-      return new Response(JSON.stringify({ success: false, error: "Booking not found" }), {
-        status: 404,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
+      return new Response(
+        JSON.stringify({ success: false, error: "Booking not found" }),
+        {
+          status: 404,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        },
+      );
     }
 
     const st: any = booking.showtime;
@@ -164,14 +175,21 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (!emailResponse.ok) {
       console.error("Resend API error:", data);
-      if (data.name === "validation_error" && data.message?.includes("only send testing emails")) {
+      if (
+        data.name === "validation_error" &&
+        data.message?.includes("only send testing emails")
+      ) {
         return new Response(
           JSON.stringify({
             success: true,
-            warning: "Email delivery limited in test mode. Verify a domain for production.",
+            warning:
+              "Email delivery limited in test mode. Verify a domain for production.",
             testMode: true,
           }),
-          { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          },
         );
       }
       throw new Error("Failed to send email");
@@ -184,8 +202,15 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: unknown) {
     console.error("Error sending ticket email:", error);
     return new Response(
-      JSON.stringify({ success: false, error: "Failed to send email", emailFailed: true }),
-      { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      JSON.stringify({
+        success: false,
+        error: "Failed to send email",
+        emailFailed: true,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      },
     );
   }
 };

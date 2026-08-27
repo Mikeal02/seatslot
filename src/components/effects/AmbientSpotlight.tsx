@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 
 /**
  * Cursor-following ambient spotlight.
@@ -12,28 +12,28 @@ export function AmbientSpotlight() {
   const raf = useRef<number | null>(null);
 
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const onMove = (e: MouseEvent) => {
       target.current.x = e.clientX / window.innerWidth;
       target.current.y = e.clientY / window.innerHeight;
     };
-    window.addEventListener('mousemove', onMove, { passive: true });
+    window.addEventListener("mousemove", onMove, { passive: true });
 
     const tick = () => {
       current.current.x += (target.current.x - current.current.x) * 0.08;
       current.current.y += (target.current.y - current.current.y) * 0.08;
       const el = ref.current;
       if (el) {
-        el.style.setProperty('--sx', `${current.current.x * 100}%`);
-        el.style.setProperty('--sy', `${current.current.y * 100}%`);
+        el.style.setProperty("--sx", `${current.current.x * 100}%`);
+        el.style.setProperty("--sy", `${current.current.y * 100}%`);
       }
       raf.current = requestAnimationFrame(tick);
     };
     raf.current = requestAnimationFrame(tick);
 
     return () => {
-      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener("mousemove", onMove);
       if (raf.current) cancelAnimationFrame(raf.current);
     };
   }, []);

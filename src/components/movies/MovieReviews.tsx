@@ -1,13 +1,18 @@
-import { useState, useEffect } from 'react';
-import { Star, User, Edit2, Trash2 } from 'lucide-react';
-import { reviewsRepository, useMovieReviews, useInvalidateMovieReviews, type MovieReview } from '@/data';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
-import { format, parseISO } from 'date-fns';
+import { useState, useEffect } from "react";
+import { Star, User, Edit2, Trash2 } from "lucide-react";
+import {
+  reviewsRepository,
+  useMovieReviews,
+  useInvalidateMovieReviews,
+  type MovieReview,
+} from "@/data";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { format, parseISO } from "date-fns";
 
 type Review = MovieReview;
 
@@ -22,7 +27,7 @@ export function MovieReviews({ movieId }: MovieReviewsProps) {
   const [submitting, setSubmitting] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
-  const [reviewText, setReviewText] = useState('');
+  const [reviewText, setReviewText] = useState("");
 
   const { data, isLoading } = useMovieReviews(movieId);
   const refreshReviews = useInvalidateMovieReviews(movieId);
@@ -33,26 +38,28 @@ export function MovieReviews({ movieId }: MovieReviewsProps) {
   useEffect(() => {
     if (userReview) {
       setRating(userReview.rating);
-      setReviewText(userReview.review_text || '');
+      setReviewText(userReview.review_text || "");
     }
   }, [userReview?.id]);
 
-  const fetchReviews = () => { refreshReviews(); };
+  const fetchReviews = () => {
+    refreshReviews();
+  };
 
   const handleSubmit = async () => {
     if (!user) {
       toast({
-        title: 'Sign in required',
-        description: 'Please sign in to leave a review.',
+        title: "Sign in required",
+        description: "Please sign in to leave a review.",
       });
       return;
     }
 
     if (rating === 0) {
       toast({
-        variant: 'destructive',
-        title: 'Rating required',
-        description: 'Please select a star rating.',
+        variant: "destructive",
+        title: "Rating required",
+        description: "Please select a star rating.",
       });
       return;
     }
@@ -60,8 +67,11 @@ export function MovieReviews({ movieId }: MovieReviewsProps) {
     setSubmitting(true);
     try {
       if (userReview) {
-        await reviewsRepository.update(userReview.id, { rating, text: reviewText || null });
-        toast({ title: 'Review updated' });
+        await reviewsRepository.update(userReview.id, {
+          rating,
+          text: reviewText || null,
+        });
+        toast({ title: "Review updated" });
       } else {
         await reviewsRepository.create({
           userId: user.id,
@@ -69,17 +79,17 @@ export function MovieReviews({ movieId }: MovieReviewsProps) {
           rating,
           text: reviewText || null,
         });
-        toast({ title: 'Review submitted' });
+        toast({ title: "Review submitted" });
       }
 
       setIsEditing(false);
       fetchReviews();
     } catch (error) {
-      console.error('Error submitting review:', error);
+      console.error("Error submitting review:", error);
       toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to submit review.',
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to submit review.",
       });
     } finally {
       setSubmitting(false);
@@ -93,25 +103,34 @@ export function MovieReviews({ movieId }: MovieReviewsProps) {
       await reviewsRepository.remove(userReview.id);
 
       setRating(0);
-      setReviewText('');
+      setReviewText("");
       setIsEditing(false);
-      toast({ title: 'Review deleted' });
+      toast({ title: "Review deleted" });
       fetchReviews();
     } catch (error) {
-      console.error('Error deleting review:', error);
+      console.error("Error deleting review:", error);
       toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to delete review.',
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete review.",
       });
     }
   };
 
-  const averageRating = reviews.length > 0
-    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
-    : null;
+  const averageRating =
+    reviews.length > 0
+      ? (
+          reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+        ).toFixed(1)
+      : null;
 
-  const StarRating = ({ value, interactive = false }: { value: number; interactive?: boolean }) => (
+  const StarRating = ({
+    value,
+    interactive = false,
+  }: {
+    value: number;
+    interactive?: boolean;
+  }) => (
     <div className="flex gap-1">
       {[1, 2, 3, 4, 5].map((star) => (
         <button
@@ -121,13 +140,13 @@ export function MovieReviews({ movieId }: MovieReviewsProps) {
           onClick={() => interactive && setRating(star)}
           onMouseEnter={() => interactive && setHoverRating(star)}
           onMouseLeave={() => interactive && setHoverRating(0)}
-          className={interactive ? 'cursor-pointer' : 'cursor-default'}
+          className={interactive ? "cursor-pointer" : "cursor-default"}
         >
           <Star
             className={`h-5 w-5 transition-colors ${
-              star <= (interactive ? (hoverRating || value) : value)
-                ? 'fill-accent text-accent'
-                : 'text-muted-foreground'
+              star <= (interactive ? hoverRating || value : value)
+                ? "fill-accent text-accent"
+                : "text-muted-foreground"
             }`}
           />
         </button>
@@ -154,7 +173,7 @@ export function MovieReviews({ movieId }: MovieReviewsProps) {
         {user && (isEditing || !userReview) && (
           <div className="p-4 rounded-lg bg-muted/50 border border-border space-y-4">
             <h4 className="font-medium">
-              {userReview ? 'Edit Your Review' : 'Write a Review'}
+              {userReview ? "Edit Your Review" : "Write a Review"}
             </h4>
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">Your rating</p>
@@ -168,7 +187,11 @@ export function MovieReviews({ movieId }: MovieReviewsProps) {
             />
             <div className="flex gap-2">
               <Button onClick={handleSubmit} disabled={submitting}>
-                {submitting ? 'Submitting...' : userReview ? 'Update Review' : 'Submit Review'}
+                {submitting
+                  ? "Submitting..."
+                  : userReview
+                    ? "Update Review"
+                    : "Submit Review"}
               </Button>
               {userReview && (
                 <>
@@ -192,27 +215,36 @@ export function MovieReviews({ movieId }: MovieReviewsProps) {
                 <span className="text-sm font-medium">Your Review</span>
                 <StarRating value={userReview.rating} />
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsEditing(true)}
+              >
                 <Edit2 className="h-4 w-4 mr-1" /> Edit
               </Button>
             </div>
             {userReview.review_text && (
-              <p className="text-sm text-muted-foreground">{userReview.review_text}</p>
+              <p className="text-sm text-muted-foreground">
+                {userReview.review_text}
+              </p>
             )}
           </div>
         )}
 
         {/* Reviews List */}
-        {reviews.filter(r => !r.is_mine).length === 0 && !userReview ? (
+        {reviews.filter((r) => !r.is_mine).length === 0 && !userReview ? (
           <p className="text-center text-muted-foreground py-8">
             No reviews yet. Be the first to review!
           </p>
         ) : (
           <div className="space-y-4">
             {reviews
-              .filter(r => !r.is_mine)
+              .filter((r) => !r.is_mine)
               .map((review) => (
-                <div key={review.id} className="flex gap-3 p-3 rounded-lg bg-muted/30">
+                <div
+                  key={review.id}
+                  className="flex gap-3 p-3 rounded-lg bg-muted/30"
+                >
                   <Avatar className="h-10 w-10">
                     <AvatarFallback>
                       {review.author_name?.[0] || <User className="h-4 w-4" />}
@@ -221,10 +253,10 @@ export function MovieReviews({ movieId }: MovieReviewsProps) {
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-medium">
-                        {review.author_name || 'Anonymous'}
+                        {review.author_name || "Anonymous"}
                       </p>
                       <span className="text-xs text-muted-foreground">
-                        {format(parseISO(review.created_at), 'MMM d, yyyy')}
+                        {format(parseISO(review.created_at), "MMM d, yyyy")}
                       </span>
                     </div>
                     <StarRating value={review.rating} />

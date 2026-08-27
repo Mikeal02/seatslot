@@ -1,9 +1,15 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
+import React, { Component, ErrorInfo, ReactNode } from "react";
+import { AlertTriangle, Home, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 
 interface Props {
   children: ReactNode;
@@ -37,9 +43,9 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log error to console in development
     if (import.meta.env.DEV) {
-      console.error('ErrorBoundary caught an error:', error, errorInfo);
+      console.error("ErrorBoundary caught an error:", error, errorInfo);
     }
-    
+
     this.setState({
       error,
       errorInfo,
@@ -70,11 +76,15 @@ export class ErrorBoundary extends Component<Props, State> {
             <Card className="w-full max-w-lg">
               <CardHeader className="text-center">
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
-                  <AlertTriangle className="h-8 w-8 text-destructive" aria-hidden="true" />
+                  <AlertTriangle
+                    className="h-8 w-8 text-destructive"
+                    aria-hidden="true"
+                  />
                 </div>
                 <CardTitle className="text-2xl">Something went wrong</CardTitle>
                 <CardDescription>
-                  We encountered an unexpected error. Please try refreshing the page.
+                  We encountered an unexpected error. Please try refreshing the
+                  page.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -104,10 +114,7 @@ export class ErrorBoundary extends Component<Props, State> {
                     <RefreshCw className="mr-2 h-4 w-4" />
                     Try Again
                   </Button>
-                  <Button
-                    asChild
-                    className="flex-1"
-                  >
+                  <Button asChild className="flex-1">
                     <a href="/">
                       <Home className="mr-2 h-4 w-4" />
                       Go Home

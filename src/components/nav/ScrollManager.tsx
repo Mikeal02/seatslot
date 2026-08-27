@@ -1,5 +1,5 @@
-import { useEffect, useLayoutEffect, useRef } from 'react';
-import { useLocation, useNavigationType } from 'react-router-dom';
+import { useEffect, useLayoutEffect, useRef } from "react";
+import { useLocation, useNavigationType } from "react-router-dom";
 
 /**
  * Netflix / IMDb style scroll restoration for React Router BrowserRouter.
@@ -32,21 +32,21 @@ export function ScrollManager() {
     // Ignore hash links — let the browser handle them.
     if (location.hash) return;
 
-    if (navigationType === 'POP') {
+    if (navigationType === "POP") {
       const saved = positions.current.get(location.key);
       // Wait a frame so the page has rendered its content.
       requestAnimationFrame(() => {
-        window.scrollTo({ top: saved ?? 0, left: 0, behavior: 'auto' });
+        window.scrollTo({ top: saved ?? 0, left: 0, behavior: "auto" });
       });
     } else {
-      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     }
   }, [location.key, location.hash, navigationType]);
 
   // Persist scroll on unload so a refresh preserves position for the current entry.
   useEffect(() => {
-    if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual';
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
     }
   }, []);
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 
 const SESSION_DURATION = 10 * 60; // 10 minutes in seconds
 
@@ -44,7 +44,7 @@ export function useBookingTimer(isActive: boolean) {
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
-  const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  const formattedTime = `${minutes}:${seconds.toString().padStart(2, "0")}`;
 
   return { timeLeft, formattedTime, isExpired };
 }

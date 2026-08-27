@@ -1,8 +1,8 @@
-import { motion } from 'framer-motion';
-import { Film, TrendingUp, Sparkles } from 'lucide-react';
-import { MovieCard } from './MovieCard';
-import { Movie } from '@/types/database';
-import { KineticCounter } from '@/components/effects/KineticCounter';
+import { motion } from "framer-motion";
+import { Film, TrendingUp, Sparkles } from "lucide-react";
+import { MovieCard } from "./MovieCard";
+import { Movie } from "@/types/database";
+import { KineticCounter } from "@/components/effects/KineticCounter";
 
 interface MovieGridProps {
   movies: Movie[];
@@ -15,7 +15,7 @@ export function MovieGrid({ movies, title, subtitle }: MovieGridProps) {
     return null;
   }
 
-  const isNowShowing = title.toLowerCase().includes('now');
+  const isNowShowing = title.toLowerCase().includes("now");
 
   return (
     <section className="py-16 sm:py-24 relative">
@@ -26,7 +26,7 @@ export function MovieGrid({ movies, title, subtitle }: MovieGridProps) {
       </div>
 
       <div className="container mx-auto px-4 relative">
-        <motion.div 
+        <motion.div
           className="mb-12 sm:mb-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -34,16 +34,20 @@ export function MovieGrid({ movies, title, subtitle }: MovieGridProps) {
           transition={{ duration: 0.5 }}
         >
           <p className="section-label mb-4">
-            {isNowShowing ? 'In theatres' : 'Coming up'}
+            {isNowShowing ? "In theatres" : "Coming up"}
           </p>
           <div className="flex items-center gap-4">
             <div className="section-header-icon">
               {isNowShowing ? <Film /> : <TrendingUp />}
             </div>
             <div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black">{title}</h2>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black">
+                {title}
+              </h2>
               {subtitle && (
-                <p className="text-muted-foreground text-sm sm:text-base mt-1.5 leading-relaxed max-w-lg">{subtitle}</p>
+                <p className="text-muted-foreground text-sm sm:text-base mt-1.5 leading-relaxed max-w-lg">
+                  {subtitle}
+                </p>
               )}
             </div>
           </div>
@@ -52,7 +56,7 @@ export function MovieGrid({ movies, title, subtitle }: MovieGridProps) {
         </motion.div>
 
         {/* Movie count pill */}
-        <motion.div 
+        <motion.div
           className="flex items-center gap-2 mb-8"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -61,11 +65,14 @@ export function MovieGrid({ movies, title, subtitle }: MovieGridProps) {
         >
           <div className="flex items-center gap-1.5 glass-card px-3 py-1.5 rounded-full text-[11px] font-semibold text-muted-foreground tabular-nums">
             <Sparkles className="h-3 w-3 text-primary" />
-            <KineticCounter to={movies.length} className="cinema-gradient-text font-bold" />
-            <span>{isNowShowing ? 'movies showing' : 'upcoming titles'}</span>
+            <KineticCounter
+              to={movies.length}
+              className="cinema-gradient-text font-bold"
+            />
+            <span>{isNowShowing ? "movies showing" : "upcoming titles"}</span>
           </div>
         </motion.div>
-        
+
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-5">
           {movies.map((movie, index) => (
             <MovieCard key={movie.id} movie={movie} index={index} />

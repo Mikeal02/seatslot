@@ -1,22 +1,22 @@
-import { Crown, Gift, TrendingUp, Sparkles } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { useLoyaltyPoints } from '@/hooks/useLoyaltyPoints';
-import { cn } from '@/lib/utils';
+import { Crown, Gift, TrendingUp, Sparkles } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { useLoyaltyPoints } from "@/hooks/useLoyaltyPoints";
+import { cn } from "@/lib/utils";
 
 const TIER_COLORS = {
-  bronze: 'from-amber-700 to-amber-500',
-  silver: 'from-gray-400 to-gray-300',
-  gold: 'from-yellow-500 to-amber-300',
-  platinum: 'from-slate-600 to-slate-400',
+  bronze: "from-amber-700 to-amber-500",
+  silver: "from-gray-400 to-gray-300",
+  gold: "from-yellow-500 to-amber-300",
+  platinum: "from-slate-600 to-slate-400",
 };
 
 const TIER_ICONS = {
-  bronze: '🥉',
-  silver: '🥈',
-  gold: '🥇',
-  platinum: '💎',
+  bronze: "🥉",
+  silver: "🥈",
+  gold: "🥇",
+  platinum: "💎",
 };
 
 export function LoyaltyCard() {
@@ -43,7 +43,10 @@ export function LoyaltyCard() {
   let progress = 100;
   if (nextTier) {
     const currentThreshold = TIER_THRESHOLDS[tier];
-    const nextThreshold = TIER_THRESHOLDS[nextTier.tier.toLowerCase() as keyof typeof TIER_THRESHOLDS];
+    const nextThreshold =
+      TIER_THRESHOLDS[
+        nextTier.tier.toLowerCase() as keyof typeof TIER_THRESHOLDS
+      ];
     const range = nextThreshold - currentThreshold;
     const current = points.lifetime_points - currentThreshold;
     progress = Math.min((current / range) * 100, 100);
@@ -52,7 +55,7 @@ export function LoyaltyCard() {
   return (
     <Card className="overflow-hidden">
       {/* Gradient Header */}
-      <div className={cn('p-4 bg-gradient-to-r text-white', tierColor)}>
+      <div className={cn("p-4 bg-gradient-to-r text-white", tierColor)}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-2xl">{TIER_ICONS[tier]}</span>
@@ -70,15 +73,21 @@ export function LoyaltyCard() {
         <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            <span className="text-sm text-muted-foreground">Available Points</span>
+            <span className="text-sm text-muted-foreground">
+              Available Points
+            </span>
           </div>
-          <span className="text-2xl font-bold text-primary">{points.total_points}</span>
+          <span className="text-2xl font-bold text-primary">
+            {points.total_points}
+          </span>
         </div>
 
         {/* Points Value */}
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">Points Value</span>
-          <span className="font-medium">₹{Math.floor(points.total_points / 10)} discount available</span>
+          <span className="font-medium">
+            ₹{Math.floor(points.total_points / 10)} discount available
+          </span>
         </div>
 
         {/* Lifetime Points */}
@@ -95,7 +104,9 @@ export function LoyaltyCard() {
                 <TrendingUp className="h-4 w-4" />
                 Next: {nextTier.tier}
               </span>
-              <span className="font-medium">{nextTier.pointsNeeded} points to go</span>
+              <span className="font-medium">
+                {nextTier.pointsNeeded} points to go
+              </span>
             </div>
             <Progress value={progress} className="h-2" />
           </div>
@@ -109,17 +120,17 @@ export function LoyaltyCard() {
               <Gift className="h-3 w-3 mr-1" />
               1pt per ₹1 spent
             </Badge>
-            {tier !== 'bronze' && (
+            {tier !== "bronze" && (
               <Badge variant="secondary" className="text-xs">
                 Priority Booking
               </Badge>
             )}
-            {(tier === 'gold' || tier === 'platinum') && (
+            {(tier === "gold" || tier === "platinum") && (
               <Badge variant="secondary" className="text-xs">
                 Free Upgrades
               </Badge>
             )}
-            {tier === 'platinum' && (
+            {tier === "platinum" && (
               <Badge variant="secondary" className="text-xs">
                 Exclusive Previews
               </Badge>

@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { TrendingUp, Star, Clock, Ticket, Zap } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Movie } from '@/types/database';
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { TrendingUp, Star, Clock, Ticket, Zap } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Movie } from "@/types/database";
 
 interface TrendingCarouselProps {
   movies: Movie[];
@@ -13,7 +13,8 @@ const isNewRelease = (releaseDate: string | null): boolean => {
   if (!releaseDate) return false;
   const today = new Date();
   const release = new Date(releaseDate);
-  const diffDays = (today.getTime() - release.getTime()) / (1000 * 60 * 60 * 24);
+  const diffDays =
+    (today.getTime() - release.getTime()) / (1000 * 60 * 60 * 24);
   return diffDays >= 0 && diffDays <= 30;
 };
 
@@ -29,9 +30,9 @@ export function TrendingCarousel({ movies }: TrendingCarouselProps) {
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ['start end', 'end start'],
+    offset: ["start end", "end start"],
   });
-  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
 
   useEffect(() => {
@@ -61,7 +62,10 @@ export function TrendingCarousel({ movies }: TrendingCarouselProps) {
   if (trending.length === 0) return null;
 
   return (
-    <section ref={containerRef} className="relative py-16 sm:py-24 overflow-hidden">
+    <section
+      ref={containerRef}
+      className="relative py-16 sm:py-24 overflow-hidden"
+    >
       {/* Parallax background */}
       <motion.div
         className="absolute inset-0 pointer-events-none"
@@ -112,7 +116,11 @@ export function TrendingCarousel({ movies }: TrendingCarouselProps) {
           onTouchEnd={() => setIsPaused(false)}
         >
           {duplicated.map((movie, idx) => (
-            <TrendingCard key={`${movie.id}-${idx}`} movie={movie} index={idx % trending.length} />
+            <TrendingCard
+              key={`${movie.id}-${idx}`}
+              movie={movie}
+              index={idx % trending.length}
+            />
           ))}
         </div>
 
@@ -136,7 +144,7 @@ function TrendingCard({ movie, index }: { movie: Movie; index: number }) {
         {/* Poster */}
         <div className="relative aspect-[16/10] overflow-hidden">
           <img
-            src={movie.backdrop_url || movie.poster_url || '/placeholder.svg'}
+            src={movie.backdrop_url || movie.poster_url || "/placeholder.svg"}
             alt={movie.title}
             loading="lazy"
             className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
@@ -182,7 +190,9 @@ function TrendingCard({ movie, index }: { movie: Movie; index: number }) {
                 {movie.duration_minutes}m
               </span>
               {movie.genre && movie.genre.length > 0 && (
-                <span className="text-muted-foreground/70">{movie.genre[0]}</span>
+                <span className="text-muted-foreground/70">
+                  {movie.genre[0]}
+                </span>
               )}
             </div>
             <Badge className="cinema-gradient text-primary-foreground text-[9px] font-bold px-2.5 py-0.5 rounded-full border-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-lg shadow-primary/20">

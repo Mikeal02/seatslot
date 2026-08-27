@@ -1,21 +1,35 @@
-import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { CheckCircle, Calendar, Clock, MapPin, Ticket, Share2, Star, Download, Film, Sparkles, Copy, Check, MessageCircle } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
-import { QRCodeSVG } from 'qrcode.react';
-import { supabase } from '@/integrations/supabase/client';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ConfettiEffect } from '@/components/booking/ConfettiEffect';
-import { generateTicketPDF } from '@/components/booking/TicketPDF';
-import { Booking } from '@/types/database';
-import { useToast } from '@/hooks/use-toast';
+import { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  CheckCircle,
+  Calendar,
+  Clock,
+  MapPin,
+  Ticket,
+  Share2,
+  Star,
+  Download,
+  Film,
+  Sparkles,
+  Copy,
+  Check,
+  MessageCircle,
+} from "lucide-react";
+import { format, parseISO } from "date-fns";
+import { QRCodeSVG } from "qrcode.react";
+import { supabase } from "@/integrations/supabase/client";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ConfettiEffect } from "@/components/booking/ConfettiEffect";
+import { generateTicketPDF } from "@/components/booking/TicketPDF";
+import { Booking } from "@/types/database";
+import { useToast } from "@/hooks/use-toast";
 
 export default function BookingConfirmation() {
   const { bookingId } = useParams<{ bookingId: string }>();
@@ -32,13 +46,16 @@ export default function BookingConfirmation() {
   const fetchBookingDetails = async () => {
     try {
       const { data, error } = await supabase
-        .from('bookings')
-        .select(`*, showtime:showtimes(*, movie:movies(*), screen:screens(*, theatre:theatres(*))), booked_seats(*, seat:seats(*))`)
-        .eq('id', bookingId).single();
+        .from("bookings")
+        .select(
+          `*, showtime:showtimes(*, movie:movies(*), screen:screens(*, theatre:theatres(*))), booked_seats(*, seat:seats(*))`,
+        )
+        .eq("id", bookingId)
+        .single();
       if (error) throw error;
       setBooking(data as Booking);
     } catch (error) {
-      console.error('Error fetching booking:', error);
+      console.error("Error fetching booking:", error);
     } finally {
       setLoading(false);
     }
@@ -67,7 +84,9 @@ export default function BookingConfirmation() {
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Booking not found</h1>
-            <Button asChild><Link to="/">Go back home</Link></Button>
+            <Button asChild>
+              <Link to="/">Go back home</Link>
+            </Button>
           </div>
         </main>
         <Footer />
@@ -80,13 +99,17 @@ export default function BookingConfirmation() {
   const theatre = screen.theatre!;
   const seats = booking.booked_seats?.map((bs) => bs.seat!) || [];
 
-  const shareText = `🎬 I'm watching ${movie.title} on ${format(parseISO(booking.showtime!.show_date), 'MMM d')} at ${theatre.name}! Booked via CineBook ✨`;
+  const shareText = `🎬 I'm watching ${movie.title} on ${format(parseISO(booking.showtime!.show_date), "MMM d")} at ${theatre.name}! Booked via CineBook ✨`;
   const shareUrl = window.location.href;
 
   const handleShare = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title: `Movie Ticket - ${movie.title}`, text: shareText, url: shareUrl });
+        await navigator.share({
+          title: `Movie Ticket - ${movie.title}`,
+          text: shareText,
+          url: shareUrl,
+        });
       } catch {}
     }
   };
@@ -94,29 +117,41 @@ export default function BookingConfirmation() {
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl);
     setCopied(true);
-    toast({ title: 'Link copied!', description: 'Ticket link copied to clipboard.' });
+    toast({
+      title: "Link copied!",
+      description: "Ticket link copied to clipboard.",
+    });
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleWhatsApp = () => {
-    window.open(`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + shareUrl)}`, '_blank');
+    window.open(
+      `https://wa.me/?text=${encodeURIComponent(shareText + "\n" + shareUrl)}`,
+      "_blank",
+    );
   };
 
   const handleTwitter = () => {
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank');
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
+      "_blank",
+    );
   };
 
   const handleDownloadPDF = () => {
     generateTicketPDF(booking);
-    toast({ title: 'Ticket downloaded!', description: 'Your PDF ticket has been saved.' });
+    toast({
+      title: "Ticket downloaded!",
+      description: "Your PDF ticket has been saved.",
+    });
   };
 
   return (
-    <motion.div 
+    <motion.div
       className="min-h-screen flex flex-col bg-background"
-      initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
-      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
+      initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
+      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
       transition={{ duration: 0.42, ease: [0.25, 0.1, 0.25, 1] }}
     >
       <Header />
@@ -125,17 +160,17 @@ export default function BookingConfirmation() {
       <main className="flex-1 container mx-auto px-4 py-6 sm:py-10">
         <div className="max-w-2xl mx-auto">
           {/* Celebration Header */}
-          <motion.div 
+          <motion.div
             className="text-center mb-8"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15 }}
           >
-            <motion.div 
+            <motion.div
               className="relative inline-flex items-center justify-center w-24 h-24 mb-5"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: 'spring', stiffness: 300 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
             >
               <div className="absolute inset-0 rounded-full cinema-gradient opacity-20 animate-ping" />
               <div className="absolute inset-2 rounded-full cinema-gradient opacity-10" />
@@ -144,8 +179,12 @@ export default function BookingConfirmation() {
               </div>
             </motion.div>
 
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-2">Booking Confirmed!</h1>
-            <p className="text-muted-foreground">Your cinematic experience awaits ✨</p>
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-2">
+              Booking Confirmed!
+            </h1>
+            <p className="text-muted-foreground">
+              Your cinematic experience awaits ✨
+            </p>
           </motion.div>
 
           {/* Premium Ticket Card */}
@@ -157,16 +196,30 @@ export default function BookingConfirmation() {
             <Card className="overflow-hidden glow-card border-border/30 rounded-3xl">
               {/* Ticket Header with movie backdrop */}
               <div className="relative h-40 sm:h-48 overflow-hidden">
-                <img src={movie.backdrop_url || movie.poster_url || '/placeholder.svg'} alt="" className="w-full h-full object-cover" />
+                <img
+                  src={
+                    movie.backdrop_url || movie.poster_url || "/placeholder.svg"
+                  }
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-card via-card/60 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-r from-card/70 to-transparent" />
-                
+
                 <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
                   <div className="flex items-end gap-4">
-                    <img src={movie.poster_url || '/placeholder.svg'} alt={movie.title} className="w-16 h-24 rounded-xl shadow-2xl object-cover border border-border/20 hidden sm:block" />
+                    <img
+                      src={movie.poster_url || "/placeholder.svg"}
+                      alt={movie.title}
+                      className="w-16 h-24 rounded-xl shadow-2xl object-cover border border-border/20 hidden sm:block"
+                    />
                     <div>
-                      <h2 className="text-xl sm:text-2xl font-black tracking-tight">{movie.title}</h2>
-                      <p className="text-sm text-muted-foreground">{movie.duration_minutes} min • {movie.genre?.join(', ')}</p>
+                      <h2 className="text-xl sm:text-2xl font-black tracking-tight">
+                        {movie.title}
+                      </h2>
+                      <p className="text-sm text-muted-foreground">
+                        {movie.duration_minutes} min • {movie.genre?.join(", ")}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -182,7 +235,7 @@ export default function BookingConfirmation() {
               <CardContent className="p-5 sm:p-8 space-y-6">
                 {/* QR and Booking ID */}
                 <div className="flex flex-col sm:flex-row items-center gap-6">
-                  <motion.div 
+                  <motion.div
                     className="relative cursor-pointer"
                     onClick={() => setIsFlipped(!isFlipped)}
                     whileHover={{ scale: 1.02 }}
@@ -193,20 +246,25 @@ export default function BookingConfirmation() {
                       className="bg-white p-4 rounded-2xl shadow-xl border border-border/10"
                       animate={{ rotateY: isFlipped ? 180 : 0 }}
                       transition={{ duration: 0.6 }}
-                      style={{ transformStyle: 'preserve-3d' }}
+                      style={{ transformStyle: "preserve-3d" }}
                     >
                       {!isFlipped ? (
                         <QRCodeSVG
-                          value={`CINEBOOK-TICKET:${booking.id}|${movie.title}|${booking.showtime.show_date}|${booking.showtime.show_time}|${seats.map(s => `${s.row_label}${s.seat_number}`).join(',')}`}
+                          value={`CINEBOOK-TICKET:${booking.id}|${movie.title}|${booking.showtime.show_date}|${booking.showtime.show_time}|${seats.map((s) => `${s.row_label}${s.seat_number}`).join(",")}`}
                           size={140}
                           level="H"
                           includeMargin={false}
                         />
                       ) : (
-                        <div className="w-[140px] h-[140px] flex items-center justify-center" style={{ transform: 'rotateY(180deg)' }}>
+                        <div
+                          className="w-[140px] h-[140px] flex items-center justify-center"
+                          style={{ transform: "rotateY(180deg)" }}
+                        >
                           <div className="text-center">
                             <Film className="h-8 w-8 mx-auto mb-2 text-primary" />
-                            <p className="text-xs font-bold text-foreground">Tap to flip back</p>
+                            <p className="text-xs font-bold text-foreground">
+                              Tap to flip back
+                            </p>
                           </div>
                         </div>
                       )}
@@ -214,11 +272,15 @@ export default function BookingConfirmation() {
                   </motion.div>
 
                   <div className="text-center sm:text-left">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1">Booking ID</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1">
+                      Booking ID
+                    </p>
                     <p className="font-mono text-lg font-black tracking-wider cinema-gradient-text">
                       {booking.id.slice(0, 8).toUpperCase()}
                     </p>
-                    <p className="text-[10px] text-muted-foreground mt-2">Tap QR code to flip • Show at entry</p>
+                    <p className="text-[10px] text-muted-foreground mt-2">
+                      Tap QR code to flip • Show at entry
+                    </p>
                   </div>
                 </div>
 
@@ -227,13 +289,36 @@ export default function BookingConfirmation() {
                 {/* Showtime Grid */}
                 <div className="grid grid-cols-2 gap-4">
                   {[
-                    { icon: Calendar, label: 'Date', value: format(parseISO(booking.showtime.show_date), 'EEEE, MMM d, yyyy') },
-                    { icon: Clock, label: 'Time', value: format(parseISO(`2000-01-01T${booking.showtime.show_time}`), 'h:mm a') },
-                    { icon: MapPin, label: 'Venue', value: theatre.name, sub: `${screen.name} • ${theatre.location}` },
-                    { icon: Star, label: 'Rating', value: movie.rating ? `${movie.rating}/10` : 'N/A' },
+                    {
+                      icon: Calendar,
+                      label: "Date",
+                      value: format(
+                        parseISO(booking.showtime.show_date),
+                        "EEEE, MMM d, yyyy",
+                      ),
+                    },
+                    {
+                      icon: Clock,
+                      label: "Time",
+                      value: format(
+                        parseISO(`2000-01-01T${booking.showtime.show_time}`),
+                        "h:mm a",
+                      ),
+                    },
+                    {
+                      icon: MapPin,
+                      label: "Venue",
+                      value: theatre.name,
+                      sub: `${screen.name} • ${theatre.location}`,
+                    },
+                    {
+                      icon: Star,
+                      label: "Rating",
+                      value: movie.rating ? `${movie.rating}/10` : "N/A",
+                    },
                   ].map((item, i) => (
-                    <motion.div 
-                      key={item.label} 
+                    <motion.div
+                      key={item.label}
                       className="p-3 rounded-xl bg-muted/30 border border-border/20"
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -241,10 +326,18 @@ export default function BookingConfirmation() {
                     >
                       <div className="flex items-center gap-1.5 mb-1">
                         <item.icon className="h-3.5 w-3.5 text-primary" />
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{item.label}</span>
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+                          {item.label}
+                        </span>
                       </div>
-                      <p className="font-semibold text-sm leading-tight">{item.value}</p>
-                      {item.sub && <p className="text-[10px] text-muted-foreground mt-0.5">{item.sub}</p>}
+                      <p className="font-semibold text-sm leading-tight">
+                        {item.value}
+                      </p>
+                      {item.sub && (
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          {item.sub}
+                        </p>
+                      )}
                     </motion.div>
                   ))}
                 </div>
@@ -253,7 +346,9 @@ export default function BookingConfirmation() {
 
                 {/* Seats */}
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-2">Your Seats ({seats.length})</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-2">
+                    Your Seats ({seats.length})
+                  </p>
                   <div className="flex flex-wrap gap-2">
                     {seats.map((seat, i) => (
                       <motion.div
@@ -263,15 +358,21 @@ export default function BookingConfirmation() {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.7 + i * 0.05 }}
                       >
-                        <Badge 
-                          variant="secondary" 
+                        <Badge
+                          variant="secondary"
                           className={`px-3 py-1.5 text-sm font-bold rounded-xl ${
-                            seat.seat_type === 'vip' ? 'border-2 border-accent shadow-sm shadow-accent/20' :
-                            seat.seat_type === 'premium' ? 'border border-accent/50' : ''
+                            seat.seat_type === "vip"
+                              ? "border-2 border-accent shadow-sm shadow-accent/20"
+                              : seat.seat_type === "premium"
+                                ? "border border-accent/50"
+                                : ""
                           }`}
                         >
-                          {seat.row_label}{seat.seat_number}
-                          <span className="text-[10px] text-muted-foreground ml-1 capitalize font-medium">({seat.seat_type})</span>
+                          {seat.row_label}
+                          {seat.seat_number}
+                          <span className="text-[10px] text-muted-foreground ml-1 capitalize font-medium">
+                            ({seat.seat_type})
+                          </span>
                         </Badge>
                       </motion.div>
                     ))}
@@ -283,8 +384,12 @@ export default function BookingConfirmation() {
                 {/* Total */}
                 <div className="flex justify-between items-center p-4 rounded-2xl cinema-gradient text-primary-foreground">
                   <div>
-                    <p className="text-[10px] uppercase tracking-wider opacity-80 font-medium">Total Paid</p>
-                    <p className="text-3xl font-black tracking-tight">₹{Number(booking.total_amount).toFixed(0)}</p>
+                    <p className="text-[10px] uppercase tracking-wider opacity-80 font-medium">
+                      Total Paid
+                    </p>
+                    <p className="text-3xl font-black tracking-tight">
+                      ₹{Number(booking.total_amount).toFixed(0)}
+                    </p>
                   </div>
                   <div className="h-14 w-14 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-sm">
                     <Sparkles className="h-6 w-6" />
@@ -301,8 +406,8 @@ export default function BookingConfirmation() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
           >
-            <Button 
-              onClick={handleDownloadPDF} 
+            <Button
+              onClick={handleDownloadPDF}
               className="w-full cinema-gradient btn-professional rounded-2xl h-14 text-base font-bold shadow-xl"
             >
               <Download className="h-5 w-5 mr-2" />
@@ -319,23 +424,51 @@ export default function BookingConfirmation() {
           >
             <Card className="border-border/30 rounded-2xl overflow-hidden">
               <CardContent className="p-5">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-3">Share Your Experience</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-3">
+                  Share Your Experience
+                </p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <Button variant="outline" size="sm" onClick={handleShare} className="rounded-xl gap-2 h-10">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleShare}
+                    className="rounded-xl gap-2 h-10"
+                  >
                     <Share2 className="h-4 w-4" />
                     <span className="text-xs">Share</span>
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleWhatsApp} className="rounded-xl gap-2 h-10 hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-500">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleWhatsApp}
+                    className="rounded-xl gap-2 h-10 hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-500"
+                  >
                     <MessageCircle className="h-4 w-4" />
                     <span className="text-xs">WhatsApp</span>
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleTwitter} className="rounded-xl gap-2 h-10 hover:bg-blue-500/10 hover:border-blue-500/30 hover:text-blue-500">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleTwitter}
+                    className="rounded-xl gap-2 h-10 hover:bg-blue-500/10 hover:border-blue-500/30 hover:text-blue-500"
+                  >
                     <span className="text-xs font-bold">𝕏</span>
                     <span className="text-xs">Twitter</span>
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleCopyLink} className="rounded-xl gap-2 h-10">
-                    {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                    <span className="text-xs">{copied ? 'Copied!' : 'Copy Link'}</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopyLink}
+                    className="rounded-xl gap-2 h-10"
+                  >
+                    {copied ? (
+                      <Check className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                    <span className="text-xs">
+                      {copied ? "Copied!" : "Copy Link"}
+                    </span>
                   </Button>
                 </div>
               </CardContent>
@@ -343,7 +476,7 @@ export default function BookingConfirmation() {
           </motion.div>
 
           {/* Navigation Actions */}
-          <motion.div 
+          <motion.div
             className="flex gap-3 mt-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -352,13 +485,17 @@ export default function BookingConfirmation() {
             <Button asChild variant="outline" className="flex-1 rounded-xl">
               <Link to="/bookings">All Bookings</Link>
             </Button>
-            <Button asChild className="flex-1 cinema-gradient btn-professional rounded-xl">
+            <Button
+              asChild
+              className="flex-1 cinema-gradient btn-professional rounded-xl"
+            >
               <Link to="/">Book More</Link>
             </Button>
           </motion.div>
 
           <p className="text-center text-xs text-muted-foreground mt-6">
-            Show this ticket at the theatre counter for entry. Enjoy the show! 🎬
+            Show this ticket at the theatre counter for entry. Enjoy the show!
+            🎬
           </p>
         </div>
       </main>

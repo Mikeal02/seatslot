@@ -1,4 +1,3 @@
-
 <h1 align="center">
   <img src="public/favicon.png" alt="CineBook Logo" width="40" />  CineBook
 </h1>
@@ -133,7 +132,7 @@ Select Seats
 Review Booking
       ↓
 Confirm Ticket
-````
+```
 
 ---
 
@@ -141,36 +140,36 @@ Confirm Ticket
 
 ### Frontend
 
-* React
-* TypeScript
-* Vite
+- React
+- TypeScript
+- Vite
 
 ### Styling
 
-* Tailwind CSS
-* shadcn/ui
+- Tailwind CSS
+- shadcn/ui
 
 ### UI Components
 
-* Radix UI
-* Lucide Icons
+- Radix UI
+- Lucide Icons
 
 ### State Management
 
-* TanStack React Query
+- TanStack React Query
 
 ### Routing
 
-* React Router
+- React Router
 
 ### Validation
 
-* React Hook Form
-* Zod
+- React Hook Form
+- Zod
 
 ### APIs
 
-* TMDB API
+- TMDB API
 
 ---
 
@@ -204,8 +203,8 @@ Confirm Ticket
 
 ### Prerequisites
 
-* Node.js (LTS)
-* npm
+- Node.js (LTS)
+- npm
 
 ### Clone Repository
 
@@ -237,9 +236,11 @@ VITE_TMDB_API_KEY=YOUR_API_KEY
 ```
 
 Get your API key from:
+
 ```bash
 https://www.themoviedb.org/
 ```
+
 --
 ---
 
@@ -257,11 +258,11 @@ Cinema booking should feel as exciting as watching the movie itself.
 
 CineBook aims to provide:
 
-* Faster movie discovery
-* Better booking experiences
-* Beautiful seat selection
-* Modern cinema interfaces
-* Seamless user journeys
+- Faster movie discovery
+- Better booking experiences
+- Beautiful seat selection
+- Modern cinema interfaces
+- Seamless user journeys
 
 ---
 
@@ -269,31 +270,31 @@ CineBook aims to provide:
 
 ### Discovery
 
-* [x] Personalized Recommendations
-* [x] AI Movie Suggestions
-* [x] Advanced Filtering
-* [x] Watchlists
+- [x] Personalized Recommendations
+- [x] AI Movie Suggestions
+- [x] Advanced Filtering
+- [x] Watchlists
 
 ### Booking
 
-* [x] Payment Integration
-* [x] QR Tickets
-* [x] Booking History
-* [ ] Ticket Cancellation
+- [x] Payment Integration
+- [x] QR Tickets
+- [x] Booking History
+- [ ] Ticket Cancellation
 
 ### Social Features
 
-* [ ] User Reviews
-* [ ] Ratings
-* [ ] Friend Activity
-* [ ] Shared Watchlists
+- [ ] User Reviews
+- [ ] Ratings
+- [ ] Friend Activity
+- [ ] Shared Watchlists
 
 ### Entertainment
 
-* [ ] TV Shows Support
-* [ ] Anime Support
-* [ ] Streaming Availability
-* [x] Celebrity Profiles
+- [ ] TV Shows Support
+- [ ] Anime Support
+- [ ] Streaming Availability
+- [x] Celebrity Profiles
 
 ---
 

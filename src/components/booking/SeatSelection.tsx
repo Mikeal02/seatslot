@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo, useRef, useLayoutEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
-import { Seat } from '@/types/database';
-import { Badge } from '@/components/ui/badge';
-import { Armchair, Crown, Star, Zap } from 'lucide-react';
+import { useState, useEffect, useMemo, useRef, useLayoutEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { Seat } from "@/types/database";
+import { Badge } from "@/components/ui/badge";
+import { Armchair, Crown, Star, Zap } from "lucide-react";
 
 interface SeatSelectionProps {
   seats: Seat[];
@@ -14,9 +14,24 @@ interface SeatSelectionProps {
 }
 
 const seatTypeConfig = {
-  regular: { icon: Armchair, label: 'Regular', color: 'from-blue-500/20 to-blue-600/10', border: 'border-blue-500/30' },
-  premium: { icon: Star, label: 'Premium', color: 'from-amber-500/20 to-amber-600/10', border: 'border-amber-500/40' },
-  vip: { icon: Crown, label: 'VIP', color: 'from-purple-500/20 to-purple-600/10', border: 'border-purple-500/50' },
+  regular: {
+    icon: Armchair,
+    label: "Regular",
+    color: "from-blue-500/20 to-blue-600/10",
+    border: "border-blue-500/30",
+  },
+  premium: {
+    icon: Star,
+    label: "Premium",
+    color: "from-amber-500/20 to-amber-600/10",
+    border: "border-amber-500/40",
+  },
+  vip: {
+    icon: Crown,
+    label: "VIP",
+    color: "from-purple-500/20 to-purple-600/10",
+    border: "border-purple-500/50",
+  },
 };
 
 // Sizing bounds (px)
@@ -27,20 +42,32 @@ const GAP_MAX = 6;
 const ROW_LABEL_MIN = 18;
 const ROW_LABEL_MAX = 28;
 
-export function SeatSelection({ seats, bookedSeatIds, lockedByOtherSeatIds = [], selectedSeats, onSelectionChange }: SeatSelectionProps) {
-  const lockedByOtherSet = useMemo(() => new Set(lockedByOtherSeatIds), [lockedByOtherSeatIds]);
+export function SeatSelection({
+  seats,
+  bookedSeatIds,
+  lockedByOtherSeatIds = [],
+  selectedSeats,
+  onSelectionChange,
+}: SeatSelectionProps) {
+  const lockedByOtherSet = useMemo(
+    () => new Set(lockedByOtherSeatIds),
+    [lockedByOtherSeatIds],
+  );
   const [hoveredSeat, setHoveredSeat] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
   // Group + sort seats
   const { groupedSeats, sortedRows, maxSeatsPerRow } = useMemo(() => {
-    const grouped = seats.reduce((acc, seat) => {
-      (acc[seat.row_label] ||= []).push(seat);
-      return acc;
-    }, {} as Record<string, Seat[]>);
+    const grouped = seats.reduce(
+      (acc, seat) => {
+        (acc[seat.row_label] ||= []).push(seat);
+        return acc;
+      },
+      {} as Record<string, Seat[]>,
+    );
     Object.keys(grouped).forEach((row) =>
-      grouped[row].sort((a, b) => a.seat_number - b.seat_number)
+      grouped[row].sort((a, b) => a.seat_number - b.seat_number),
     );
     const rows = Object.keys(grouped).sort();
     const maxLen = rows.reduce((m, r) => Math.max(m, grouped[r].length), 0);
@@ -61,7 +88,12 @@ export function SeatSelection({ seats, bookedSeatIds, lockedByOtherSeatIds = [],
   // Compute optimal seat size so the whole row fits the container
   const { seatSize, gap, rowLabelW, aisleW } = useMemo(() => {
     if (!containerWidth || !maxSeatsPerRow) {
-      return { seatSize: SEAT_MAX, gap: GAP_MAX, rowLabelW: ROW_LABEL_MAX, aisleW: 16 };
+      return {
+        seatSize: SEAT_MAX,
+        gap: GAP_MAX,
+        rowLabelW: ROW_LABEL_MAX,
+        aisleW: 16,
+      };
     }
     // try several gap sizes (bigger is nicer); pick the largest that fits
     for (let g = GAP_MAX; g >= GAP_MIN; g--) {
@@ -71,8 +103,8 @@ export function SeatSelection({ seats, bookedSeatIds, lockedByOtherSeatIds = [],
         const fixed = label * 2 + g * 2 + aisle + g * (maxSeatsPerRow - 1);
         const horizontalPadding = window.innerWidth < 640 ? 24 : 16;
 
-        const available = containerWidth- fixed- horizontalPadding;
-       
+        const available = containerWidth - fixed - horizontalPadding;
+
         const size = Math.floor(available / maxSeatsPerRow);
         if (size >= SEAT_MIN) {
           return {
@@ -85,7 +117,12 @@ export function SeatSelection({ seats, bookedSeatIds, lockedByOtherSeatIds = [],
       }
     }
     // Fallback: minimum size, allow horizontal scroll
-    return { seatSize: SEAT_MIN, gap: GAP_MIN, rowLabelW: ROW_LABEL_MIN, aisleW: 8 };
+    return {
+      seatSize: SEAT_MIN,
+      gap: GAP_MIN,
+      rowLabelW: ROW_LABEL_MIN,
+      aisleW: 8,
+    };
   }, [containerWidth, maxSeatsPerRow]);
 
   const handleSeatClick = (seat: Seat) => {
@@ -93,19 +130,25 @@ export function SeatSelection({ seats, bookedSeatIds, lockedByOtherSeatIds = [],
     if (lockedByOtherSet.has(seat.id)) return;
     const isSelected = selectedSeats.some((s) => s.id === seat.id);
     onSelectionChange(
-      isSelected ? selectedSeats.filter((s) => s.id !== seat.id) : [...selectedSeats, seat]
+      isSelected
+        ? selectedSeats.filter((s) => s.id !== seat.id)
+        : [...selectedSeats, seat],
     );
   };
 
   const totalSeats = seats.length;
   const bookedCount = bookedSeatIds.length;
   const availableCount = totalSeats - bookedCount;
-  const occupancyPercent = totalSeats > 0 ? Math.round((bookedCount / totalSeats) * 100) : 0;
+  const occupancyPercent =
+    totalSeats > 0 ? Math.round((bookedCount / totalSeats) * 100) : 0;
 
-  const selectedByType = selectedSeats.reduce((acc, s) => {
-    (acc[s.seat_type] ||= []).push(s);
-    return acc;
-  }, {} as Record<string, Seat[]>);
+  const selectedByType = selectedSeats.reduce(
+    (acc, s) => {
+      (acc[s.seat_type] ||= []).push(s);
+      return acc;
+    },
+    {} as Record<string, Seat[]>,
+  );
 
   // Font size scales with seat size; hide labels if too tiny
   const seatFont = seatSize >= 28 ? 11 : seatSize >= 24 ? 10 : 9;
@@ -159,49 +202,57 @@ export function SeatSelection({ seats, bookedSeatIds, lockedByOtherSeatIds = [],
           <div className="w-20 sm:w-24 h-2 bg-muted/50 rounded-full overflow-hidden">
             <motion.div
               className={cn(
-                'h-full rounded-full',
-                occupancyPercent > 80 ? 'bg-destructive' : occupancyPercent > 50 ? 'bg-accent' : 'bg-primary'
+                "h-full rounded-full",
+                occupancyPercent > 80
+                  ? "bg-destructive"
+                  : occupancyPercent > 50
+                    ? "bg-accent"
+                    : "bg-primary",
               )}
               initial={{ width: 0 }}
               animate={{ width: `${occupancyPercent}%` }}
               transition={{ delay: 0.3, duration: 0.6 }}
             />
           </div>
-          <span className="text-muted-foreground font-semibold whitespace-nowrap">{availableCount} left</span>
+          <span className="text-muted-foreground font-semibold whitespace-nowrap">
+            {availableCount} left
+          </span>
         </div>
       </div>
 
       {/* Price cards */}
       <div className="grid grid-cols-3 gap-2 w-full">
-        {(['regular', 'premium', 'vip'] as const).map((type) => {
+        {(["regular", "premium", "vip"] as const).map((type) => {
           const config = seatTypeConfig[type];
           const Icon = config.icon;
-          const price = type === 'regular' ? '₹150' : type === 'premium' ? '₹250' : '₹400';
+          const price =
+            type === "regular" ? "₹150" : type === "premium" ? "₹250" : "₹400";
           return (
             <div
               key={type}
               className={cn(
-                'relative overflow-hidden rounded-xl p-2 sm:p-3 border bg-gradient-to-br text-center min-w-0',
+                "relative overflow-hidden rounded-xl p-2 sm:p-3 border bg-gradient-to-br text-center min-w-0",
                 config.color,
-                config.border
+                config.border,
               )}
             >
               <Icon className="h-4 w-4 mx-auto mb-1 text-foreground/70" />
-              <p className="text-[10px] sm:text-xs font-bold capitalize truncate">{config.label}</p>
-              <p className="text-xs sm:text-sm font-black cinema-gradient-text">{price}</p>
+              <p className="text-[10px] sm:text-xs font-bold capitalize truncate">
+                {config.label}
+              </p>
+              <p className="text-xs sm:text-sm font-black cinema-gradient-text">
+                {price}
+              </p>
             </div>
           );
         })}
       </div>
 
       {/* Seat grid container — measures width to compute fitting seat size */}
-      <div
-  ref={containerRef}
-  className="w-full px-2 sm:px-0 pb-2"
->
+      <div ref={containerRef} className="w-full px-2 sm:px-0 pb-2">
         <div
           className="flex flex-col items-center mx-auto"
-          style={{ gap: `${gap}px`, width: '100%' }}
+          style={{ gap: `${gap}px`, width: "100%" }}
         >
           {sortedRows.map((row, rowIndex) => {
             const rowSeats = groupedSeats[row];
@@ -219,12 +270,12 @@ export function SeatSelection({ seats, bookedSeatIds, lockedByOtherSeatIds = [],
               >
                 <span
                   className={cn(
-                    'text-[10px] sm:text-xs font-bold text-right shrink-0 select-none',
-                    rowType === 'vip'
-                      ? 'text-purple-400/70'
-                      : rowType === 'premium'
-                      ? 'text-amber-400/70'
-                      : 'text-muted-foreground'
+                    "text-[10px] sm:text-xs font-bold text-right shrink-0 select-none",
+                    rowType === "vip"
+                      ? "text-purple-400/70"
+                      : rowType === "premium"
+                        ? "text-amber-400/70"
+                        : "text-muted-foreground",
                   )}
                   style={{ width: `${rowLabelW}px` }}
                 >
@@ -234,8 +285,11 @@ export function SeatSelection({ seats, bookedSeatIds, lockedByOtherSeatIds = [],
                 <div className="flex items-center " style={{ gap: `${gap}px` }}>
                   {rowSeats.map((seat, seatIdx) => {
                     const isBooked = bookedSeatIds.includes(seat.id);
-                    const isLockedByOther = !isBooked && lockedByOtherSet.has(seat.id);
-                    const isSelected = selectedSeats.some((s) => s.id === seat.id);
+                    const isLockedByOther =
+                      !isBooked && lockedByOtherSet.has(seat.id);
+                    const isSelected = selectedSeats.some(
+                      (s) => s.id === seat.id,
+                    );
                     const isDisabled = isBooked || isLockedByOther;
                     const isAisleAfter = seatIdx === midpoint - 1;
 
@@ -243,11 +297,17 @@ export function SeatSelection({ seats, bookedSeatIds, lockedByOtherSeatIds = [],
                       <div
                         key={seat.id}
                         className="flex none"
-                        style={{ marginRight: isAisleAfter ? `${aisleW - gap}px` : undefined }}
+                        style={{
+                          marginRight: isAisleAfter
+                            ? `${aisleW - gap}px`
+                            : undefined,
+                        }}
                       >
                         <motion.button
                           onClick={() => handleSeatClick(seat)}
-                          onMouseEnter={() => !isDisabled && setHoveredSeat(seat.id)}
+                          onMouseEnter={() =>
+                            !isDisabled && setHoveredSeat(seat.id)
+                          }
                           onMouseLeave={() => setHoveredSeat(null)}
                           disabled={isDisabled}
                           whileTap={!isDisabled ? { scale: 0.9 } : undefined}
@@ -256,11 +316,12 @@ export function SeatSelection({ seats, bookedSeatIds, lockedByOtherSeatIds = [],
                           transition={{ duration: 0.2 }}
                           style={{
                             width: seatSize,
-                            aspectRatio: '1 / 1',
+                            aspectRatio: "1 / 1",
                             minWidth: seatSize,
                             minHeight: seatSize,
                             fontSize: seatFont,
-                            zIndex: hoveredSeat === seat.id || isSelected ? 5 : 1,
+                            zIndex:
+                              hoveredSeat === seat.id || isSelected ? 5 : 1,
                           }}
                           className={cn(
                             `
@@ -280,29 +341,37 @@ export function SeatSelection({ seats, bookedSeatIds, lockedByOtherSeatIds = [],
                             focus-visible:ring-primary
                             will-change-transform
                             `,
-                            isBooked && 'bg-muted/20 cursor-not-allowed opacity-20',
+                            isBooked &&
+                              "bg-muted/20 cursor-not-allowed opacity-20",
                             isLockedByOther &&
-                              'bg-muted-foreground/25 border border-muted-foreground/30 text-transparent cursor-not-allowed',
-                            isSelected && 'bg-primary text-primary-foreground shadow-md shadow-primary/40 ring-2 ring-primary/30',
+                              "bg-muted-foreground/25 border border-muted-foreground/30 text-transparent cursor-not-allowed",
+                            isSelected &&
+                              "bg-primary text-primary-foreground shadow-md shadow-primary/40 ring-2 ring-primary/30",
                             !isDisabled &&
                               !isSelected &&
-                              seat.seat_type === 'vip' &&
-                              'bg-purple-500/15 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30',
+                              seat.seat_type === "vip" &&
+                              "bg-purple-500/15 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30",
                             !isDisabled &&
                               !isSelected &&
-                              seat.seat_type === 'premium' &&
-                              'bg-amber-500/12 border border-amber-500/25 text-amber-300 hover:bg-amber-500/25',
+                              seat.seat_type === "premium" &&
+                              "bg-amber-500/12 border border-amber-500/25 text-amber-300 hover:bg-amber-500/25",
                             !isDisabled &&
                               !isSelected &&
-                              seat.seat_type === 'regular' &&
-                              'bg-secondary/60 border border-border/40 hover:bg-primary/20 hover:border-primary/30'
+                              seat.seat_type === "regular" &&
+                              "bg-secondary/60 border border-border/40 hover:bg-primary/20 hover:border-primary/30",
                           )}
                           aria-label={`${row}${seat.seat_number}, ${seat.seat_type}, ₹${seat.price}${
-                            isBooked ? ', booked' : isLockedByOther ? ', reserved by another user' : isSelected ? ', selected' : ''
+                            isBooked
+                              ? ", booked"
+                              : isLockedByOther
+                                ? ", reserved by another user"
+                                : isSelected
+                                  ? ", selected"
+                                  : ""
                           }`}
                           aria-pressed={isSelected}
                         >
-                          {showSeatNumbers ? seat.seat_number : ''}
+                          {showSeatNumbers ? seat.seat_number : ""}
                         </motion.button>
                       </div>
                     );
@@ -311,12 +380,12 @@ export function SeatSelection({ seats, bookedSeatIds, lockedByOtherSeatIds = [],
 
                 <span
                   className={cn(
-                    'text-[10px] sm:text-xs font-bold shrink-0 select-none',
-                    rowType === 'vip'
-                      ? 'text-purple-400/70'
-                      : rowType === 'premium'
-                      ? 'text-amber-400/70'
-                      : 'text-muted-foreground'
+                    "text-[10px] sm:text-xs font-bold shrink-0 select-none",
+                    rowType === "vip"
+                      ? "text-purple-400/70"
+                      : rowType === "premium"
+                        ? "text-amber-400/70"
+                        : "text-muted-foreground",
                   )}
                   style={{ width: `${rowLabelW}px` }}
                 >
@@ -333,22 +402,27 @@ export function SeatSelection({ seats, bookedSeatIds, lockedByOtherSeatIds = [],
         {selectedSeats.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 10, height: 0 }}
-            animate={{ opacity: 1, y: 0, height: 'auto' }}
+            animate={{ opacity: 1, y: 0, height: "auto" }}
             exit={{ opacity: 0, y: 10, height: 0 }}
             className="space-y-3"
           >
             <div className="flex flex-wrap justify-center gap-1.5">
               {selectedSeats.map((s, i) => (
-                <motion.div key={s.id} initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.04 }}>
+                <motion.div
+                  key={s.id}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.04 }}
+                >
                   <Badge
                     variant="outline"
                     className={cn(
-                      'text-[10px] sm:text-xs font-bold cursor-pointer hover:bg-destructive/10 hover:border-destructive/30 transition-colors',
-                      s.seat_type === 'vip'
-                        ? 'border-purple-500/40 bg-purple-500/10'
-                        : s.seat_type === 'premium'
-                        ? 'border-amber-500/30 bg-amber-500/10'
-                        : 'border-primary/30 bg-primary/5'
+                      "text-[10px] sm:text-xs font-bold cursor-pointer hover:bg-destructive/10 hover:border-destructive/30 transition-colors",
+                      s.seat_type === "vip"
+                        ? "border-purple-500/40 bg-purple-500/10"
+                        : s.seat_type === "premium"
+                          ? "border-amber-500/30 bg-amber-500/10"
+                          : "border-primary/30 bg-primary/5",
                     )}
                     onClick={() => handleSeatClick(s)}
                   >
@@ -361,11 +435,18 @@ export function SeatSelection({ seats, bookedSeatIds, lockedByOtherSeatIds = [],
 
             <div className="flex flex-wrap justify-center gap-x-3 gap-y-1.5">
               {Object.entries(selectedByType).map(([type, typeSeats]) => {
-                const config = seatTypeConfig[type as keyof typeof seatTypeConfig];
+                const config =
+                  seatTypeConfig[type as keyof typeof seatTypeConfig];
                 const Icon = config?.icon || Armchair;
-                const total = typeSeats.reduce((sum, s) => sum + Number(s.price), 0);
+                const total = typeSeats.reduce(
+                  (sum, s) => sum + Number(s.price),
+                  0,
+                );
                 return (
-                  <div key={type} className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground">
+                  <div
+                    key={type}
+                    className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground"
+                  >
                     <Icon className="h-3 w-3" />
                     <span className="capitalize">
                       {type} × {typeSeats.length}
@@ -378,8 +459,8 @@ export function SeatSelection({ seats, bookedSeatIds, lockedByOtherSeatIds = [],
 
             <motion.div layout className="flex justify-center">
               <Badge className="cinema-gradient text-primary-foreground px-5 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm shadow-xl shadow-primary/25 font-black rounded-full">
-                {selectedSeats.length} seat{selectedSeats.length > 1 ? 's' : ''} • ₹
-                {selectedSeats.reduce((sum, s) => sum + Number(s.price), 0)}
+                {selectedSeats.length} seat{selectedSeats.length > 1 ? "s" : ""}{" "}
+                • ₹{selectedSeats.reduce((sum, s) => sum + Number(s.price), 0)}
               </Badge>
             </motion.div>
           </motion.div>

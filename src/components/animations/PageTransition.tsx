@@ -1,12 +1,15 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { ReactNode } from 'react';
+import { motion, AnimatePresence } from "framer-motion";
+import { ReactNode } from "react";
 
 interface PageTransitionProps {
   children: ReactNode;
   className?: string;
 }
 
-export function PageTransition({ children, className = '' }: PageTransitionProps) {
+export function PageTransition({
+  children,
+  className = "",
+}: PageTransitionProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -28,7 +31,10 @@ interface HeroAnimationProps {
   className?: string;
 }
 
-export function HeroAnimation({ children, className = '' }: HeroAnimationProps) {
+export function HeroAnimation({
+  children,
+  className = "",
+}: HeroAnimationProps) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 1.05 }}
@@ -46,20 +52,20 @@ export function HeroAnimation({ children, className = '' }: HeroAnimationProps) 
 
 interface SlideInProps {
   children: ReactNode;
-  direction?: 'left' | 'right';
+  direction?: "left" | "right";
   delay?: number;
   className?: string;
 }
 
 export function SlideIn({
   children,
-  direction = 'left',
+  direction = "left",
   delay = 0,
-  className = '',
+  className = "",
 }: SlideInProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, x: direction === 'left' ? -40 : 40 }}
+      initial={{ opacity: 0, x: direction === "left" ? -40 : 40 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{
         duration: 0.6,
@@ -78,7 +84,7 @@ interface PulseProps {
   className?: string;
 }
 
-export function Pulse({ children, className = '' }: PulseProps) {
+export function Pulse({ children, className = "" }: PulseProps) {
   return (
     <motion.div
       animate={{
@@ -88,7 +94,7 @@ export function Pulse({ children, className = '' }: PulseProps) {
       transition={{
         duration: 2,
         repeat: Infinity,
-        ease: 'easeInOut',
+        ease: "easeInOut",
       }}
       className={className}
     >

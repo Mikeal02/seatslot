@@ -1,12 +1,12 @@
-import { motion } from 'framer-motion';
-import { ReactNode } from 'react';
+import { motion } from "framer-motion";
+import { ReactNode } from "react";
 
 interface FadeInProps {
   children: ReactNode;
   delay?: number;
   duration?: number;
   className?: string;
-  direction?: 'up' | 'down' | 'left' | 'right' | 'none';
+  direction?: "up" | "down" | "left" | "right" | "none";
 }
 
 const directionVariants = {
@@ -21,8 +21,8 @@ export function FadeIn({
   children,
   delay = 0,
   duration = 0.5,
-  className = '',
-  direction = 'up',
+  className = "",
+  direction = "up",
 }: FadeInProps) {
   return (
     <motion.div
@@ -55,7 +55,7 @@ interface StaggerContainerProps {
 
 export function StaggerContainer({
   children,
-  className = '',
+  className = "",
   staggerDelay = 0.1,
 }: StaggerContainerProps) {
   return (
@@ -83,7 +83,7 @@ interface StaggerItemProps {
   className?: string;
 }
 
-export function StaggerItem({ children, className = '' }: StaggerItemProps) {
+export function StaggerItem({ children, className = "" }: StaggerItemProps) {
   return (
     <motion.div
       variants={{
@@ -110,7 +110,7 @@ interface ScaleInProps {
   className?: string;
 }
 
-export function ScaleIn({ children, delay = 0, className = '' }: ScaleInProps) {
+export function ScaleIn({ children, delay = 0, className = "" }: ScaleInProps) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}

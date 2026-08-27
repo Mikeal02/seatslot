@@ -1,11 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
-import { qk, staleTime } from '@/data/queryKeys';
+import { useQuery } from "@tanstack/react-query";
+import { qk, staleTime } from "@/data/queryKeys";
 import {
   loyaltyRepository,
   EMPTY_BALANCE,
   type LoyaltyBalance,
   type PointsTransaction,
-} from '@/data/repositories/loyalty.repo';
+} from "@/data/repositories/loyalty.repo";
 
 export function useLoyaltyBalance(userId: string | undefined) {
   return useQuery<LoyaltyBalance>({

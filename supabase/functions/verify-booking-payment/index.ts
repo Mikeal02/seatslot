@@ -15,12 +15,12 @@ serve(async (req) => {
 
   const supabaseAdmin = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
   );
 
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    Deno.env.get("SUPABASE_ANON_KEY") ?? "",
   );
 
   try {
@@ -35,7 +35,10 @@ serve(async (req) => {
     }
 
     const { sessionId } = await req.json();
-    if (typeof sessionId !== "string" || !/^cs_[A-Za-z0-9_]+$/.test(sessionId)) {
+    if (
+      typeof sessionId !== "string" ||
+      !/^cs_[A-Za-z0-9_]+$/.test(sessionId)
+    ) {
       throw new Error("Invalid session ID");
     }
 
@@ -46,10 +49,13 @@ serve(async (req) => {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (session.payment_status !== "paid") {
-      return new Response(JSON.stringify({ success: false, error: "Payment not completed" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
+      return new Response(
+        JSON.stringify({ success: false, error: "Payment not completed" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        },
+      );
     }
 
     const userId = session.metadata?.user_id;
@@ -59,8 +65,12 @@ serve(async (req) => {
     const showtimeId = session.metadata!.showtime_id;
     const seatIds: string[] = JSON.parse(session.metadata!.seat_ids);
     const totalAmount = parseFloat(session.metadata!.total_amount);
-    const concessionTotal = parseFloat(session.metadata!.concession_total || "0");
-    const concessionItems = JSON.parse(session.metadata!.concession_items || "[]");
+    const concessionTotal = parseFloat(
+      session.metadata!.concession_total || "0",
+    );
+    const concessionItems = JSON.parse(
+      session.metadata!.concession_items || "[]",
+    );
 
     // Idempotency: one booking per Stripe session, enforced by a unique index.
     const paymentReference = session.id;
@@ -72,10 +82,13 @@ serve(async (req) => {
       .maybeSingle();
 
     if (existing) {
-      return new Response(JSON.stringify({ success: true, bookingId: existing.id }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
+      return new Response(
+        JSON.stringify({ success: true, bookingId: existing.id }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        },
+      );
     }
 
     const { data: bookingData, error: bookingError } = await supabaseAdmin
@@ -99,10 +112,13 @@ serve(async (req) => {
           .eq("payment_reference", paymentReference)
           .maybeSingle();
         if (dupe) {
-          return new Response(JSON.stringify({ success: true, bookingId: dupe.id }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-            status: 200,
-          });
+          return new Response(
+            JSON.stringify({ success: true, bookingId: dupe.id }),
+            {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+              status: 200,
+            },
+          );
         }
       }
       throw bookingError;
@@ -120,7 +136,9 @@ serve(async (req) => {
 
     if (seatsError) {
       await supabaseAdmin.from("bookings").delete().eq("id", bookingData.id);
-      throw new Error("Some seats were already booked. Payment will be refunded.");
+      throw new Error(
+        "Some seats were already booked. Payment will be refunded.",
+      );
     }
 
     await supabaseAdmin
@@ -151,16 +169,22 @@ serve(async (req) => {
       }
     }
 
-    return new Response(JSON.stringify({ success: true, bookingId: bookingData.id }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    });
+    return new Response(
+      JSON.stringify({ success: true, bookingId: bookingData.id }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      },
+    );
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     console.error("verify-booking-payment error:", msg);
-    return new Response(JSON.stringify({ success: false, error: "Could not verify payment" }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+    return new Response(
+      JSON.stringify({ success: false, error: "Could not verify payment" }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      },
+    );
   }
 });

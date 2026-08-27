@@ -1,12 +1,12 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/hooks/useAuth';
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
 import {
   useLoyaltyBalance,
   useLoyaltyTransactions,
   loyaltyRepository,
   qk,
   type LoyaltyBalance,
-} from '@/data';
+} from "@/data";
 
 const TIER_THRESHOLDS = {
   bronze: 0,
@@ -26,19 +26,24 @@ export function useLoyaltyPoints() {
   const balanceQuery = useLoyaltyBalance(user?.id);
   const transactionsQuery = useLoyaltyTransactions(user?.id);
 
-  const points: LoyaltyBalance | null = user ? balanceQuery.data ?? null : null;
-  const transactions = user ? transactionsQuery.data ?? [] : [];
-  const loading = Boolean(user) && (balanceQuery.isLoading || transactionsQuery.isLoading);
+  const points: LoyaltyBalance | null = user
+    ? (balanceQuery.data ?? null)
+    : null;
+  const transactions = user ? (transactionsQuery.data ?? []) : [];
+  const loading =
+    Boolean(user) && (balanceQuery.isLoading || transactionsQuery.isLoading);
 
   const refreshPoints = async () => {
     await queryClient.invalidateQueries({ queryKey: qk.loyalty.all });
   };
 
-  const calculateTier = (lifetimePoints: number): keyof typeof TIER_THRESHOLDS => {
-    if (lifetimePoints >= TIER_THRESHOLDS.platinum) return 'platinum';
-    if (lifetimePoints >= TIER_THRESHOLDS.gold) return 'gold';
-    if (lifetimePoints >= TIER_THRESHOLDS.silver) return 'silver';
-    return 'bronze';
+  const calculateTier = (
+    lifetimePoints: number,
+  ): keyof typeof TIER_THRESHOLDS => {
+    if (lifetimePoints >= TIER_THRESHOLDS.platinum) return "platinum";
+    if (lifetimePoints >= TIER_THRESHOLDS.gold) return "gold";
+    if (lifetimePoints >= TIER_THRESHOLDS.silver) return "silver";
+    return "bronze";
   };
 
   const getNextTier = () => {
@@ -46,25 +51,38 @@ export function useLoyaltyPoints() {
     const currentLifetime = points.lifetime_points;
 
     if (currentLifetime < TIER_THRESHOLDS.silver) {
-      return { tier: 'Silver', pointsNeeded: TIER_THRESHOLDS.silver - currentLifetime };
+      return {
+        tier: "Silver",
+        pointsNeeded: TIER_THRESHOLDS.silver - currentLifetime,
+      };
     }
     if (currentLifetime < TIER_THRESHOLDS.gold) {
-      return { tier: 'Gold', pointsNeeded: TIER_THRESHOLDS.gold - currentLifetime };
+      return {
+        tier: "Gold",
+        pointsNeeded: TIER_THRESHOLDS.gold - currentLifetime,
+      };
     }
     if (currentLifetime < TIER_THRESHOLDS.platinum) {
-      return { tier: 'Platinum', pointsNeeded: TIER_THRESHOLDS.platinum - currentLifetime };
+      return {
+        tier: "Platinum",
+        pointsNeeded: TIER_THRESHOLDS.platinum - currentLifetime,
+      };
     }
     return null;
   };
 
-  const earnPoints = async (amount: number, description: string, bookingId?: string) => {
+  const earnPoints = async (
+    amount: number,
+    description: string,
+    bookingId?: string,
+  ) => {
     if (!user) return false;
     try {
       await loyaltyRepository.award(amount, description, bookingId);
       await refreshPoints();
       return true;
     } catch (error) {
-      console.error('Error earning points:', error);
+      console.error("Error earning points:", error);
       return false;
     }
   };
@@ -76,7 +94,7 @@ export function useLoyaltyPoints() {
       await refreshPoints();
       return true;
     } catch (error) {
-      console.error('Error redeeming points:', error);
+      console.error("Error redeeming points:", error);
       return false;
     }
   };

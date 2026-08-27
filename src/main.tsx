@@ -6,5 +6,5 @@ import "./index.css";
 createRoot(document.getElementById("root")!).render(
   <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
     <App />
-  </ThemeProvider>
+  </ThemeProvider>,
 );

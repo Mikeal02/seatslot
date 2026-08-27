@@ -1,7 +1,7 @@
-import { supabase } from '@/integrations/supabase/client';
-import { unwrapList, unwrapMaybe } from '@/data/core/query';
+import { supabase } from "@/integrations/supabase/client";
+import { unwrapList, unwrapMaybe } from "@/data/core/query";
 
-export type LoyaltyTier = 'bronze' | 'silver' | 'gold' | 'platinum';
+export type LoyaltyTier = "bronze" | "silver" | "gold" | "platinum";
 
 export interface LoyaltyBalance {
   total_points: number;
@@ -12,7 +12,7 @@ export interface LoyaltyBalance {
 export interface PointsTransaction {
   id: string;
   points: number;
-  transaction_type: 'earned' | 'redeemed' | 'bonus' | 'expired';
+  transaction_type: "earned" | "redeemed" | "bonus" | "expired";
   description: string;
   created_at: string;
 }
@@ -20,10 +20,10 @@ export interface PointsTransaction {
 export const EMPTY_BALANCE: LoyaltyBalance = {
   total_points: 0,
   lifetime_points: 0,
-  tier: 'bronze',
+  tier: "bronze",
 };
 
-const SCOPE = 'loyalty';
+const SCOPE = "loyalty";
 
 export const loyaltyRepository = {
   /**
@@ -34,10 +34,10 @@ export const loyaltyRepository = {
     const row = await unwrapMaybe<LoyaltyBalance>(
       SCOPE,
       supabase
-        .from('loyalty_points')
-        .select('total_points, lifetime_points, tier')
-        .eq('user_id', userId)
-        .single()
+        .from("loyalty_points")
+        .select("total_points, lifetime_points, tier")
+        .eq("user_id", userId)
+        .single(),
     );
     return row ?? EMPTY_BALANCE;
   },
@@ -46,17 +46,21 @@ export const loyaltyRepository = {
     return unwrapList<PointsTransaction>(
       SCOPE,
       supabase
-        .from('points_transactions')
-        .select('id, points, transaction_type, description, created_at')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
+        .from("points_transactions")
+        .select("id, points, transaction_type, description, created_at")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
         .limit(limit)
-        .returns<PointsTransaction[]>()
+        .returns<PointsTransaction[]>(),
     );
   },
 
-  async award(amount: number, description: string, bookingId?: string): Promise<void> {
-    const { error } = await supabase.rpc('award_loyalty_points', {
+  async award(
+    amount: number,
+    description: string,
+    bookingId?: string,
+  ): Promise<void> {
+    const { error } = await supabase.rpc("award_loyalty_points", {
       p_amount: amount,
       p_description: description,
       p_booking_id: bookingId || null,
@@ -65,7 +69,7 @@ export const loyaltyRepository = {
   },
 
   async redeem(points: number, description: string): Promise<void> {
-    const { error } = await supabase.rpc('redeem_loyalty_points', {
+    const { error } = await supabase.rpc("redeem_loyalty_points", {
       p_points: points,
       p_description: description,
     });
