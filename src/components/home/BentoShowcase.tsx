@@ -63,15 +63,18 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
           onMouseLeave={onHeroLeave}
           className={`${tile} sheen md:col-span-8 md:row-span-4 group min-h-[440px]`}
         >
-          {featured.backdrop_url && (
+          {heroImage && (
             <motion.img
-              src={featured.backdrop_url}
+              key={heroImage}
+              src={heroImage}
               alt={`${featured.title} backdrop`}
-              style={{ x: imgX, y: imgY }}
-              className="absolute -inset-[3%] h-[106%] w-[106%] object-cover opacity-[0.55] transition-[opacity,transform] duration-[1200ms] ease-out group-hover:scale-[1.04] group-hover:opacity-70"
+              style={{ x: imgX, y: imgY, top: '-3%', left: '-3%' }}
+              className="absolute h-[106%] w-[106%] object-cover opacity-[0.55] transition-[opacity,transform] duration-[1200ms] ease-out group-hover:scale-[1.04] group-hover:opacity-70"
               loading="eager"
+              decoding="async"
             />
           )}
+
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/55 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/20 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
