@@ -120,7 +120,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
       }}
       className="cursor-pointer"
     >
-      <Card className="group overflow-hidden bg-card border-border/20 hover:border-primary/25 transition-all duration-500 glow-card h-full flex flex-col rounded-2xl">
+      <Card className="group relative flex h-full flex-col overflow-hidden rounded-[1.25rem] border-border/20 bg-card p-0 transition-all duration-500 tile-elite tile-elite-lift sheen">
         <div
           className="relative w-full overflow-hidden"
           style={{ paddingBottom: "150%" }}
