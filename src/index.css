@@ -1459,3 +1459,93 @@ body {
   /* Numeric/data alignment for tables, prices, counters */
   .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
 }
+
+/* ────────────────────────────────────────────────────────────
+   ELITE SURFACES — hairline-lit tiles, sheen, editorial type
+   ──────────────────────────────────────────────────────────── */
+@layer components {
+  /* Tile with a lit hairline edge that brightens toward the light source */
+  .tile-elite {
+    position: relative;
+    isolation: isolate;
+    border-radius: 2rem;
+    background:
+      linear-gradient(180deg, hsl(var(--surface-2)) 0%, hsl(var(--surface-1)) 100%);
+    box-shadow: var(--shadow-md);
+    transition:
+      transform var(--dur-base) var(--ease-out-quint),
+      box-shadow var(--dur-base) var(--ease-out-quint);
+  }
+  .tile-elite::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      160deg,
+      hsl(var(--hairline-strong) / 0.9) 0%,
+      hsl(var(--hairline) / 0.5) 38%,
+      hsl(var(--hairline) / 0.25) 100%
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 2;
+    transition: background var(--dur-slow) var(--ease-out-quint);
+  }
+  .tile-elite:hover::before {
+    background: linear-gradient(
+      160deg,
+      hsl(var(--glow-primary) / 0.45) 0%,
+      hsl(var(--glow-accent) / 0.22) 45%,
+      hsl(var(--hairline) / 0.3) 100%
+    );
+  }
+  .tile-elite-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Diagonal light sweep on hover */
+  .sheen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      110deg,
+      transparent 35%,
+      hsl(0 0% 100% / 0.06) 48%,
+      transparent 62%
+    );
+    transform: translateX(-120%);
+    transition: transform 900ms var(--ease-out-quint);
+    pointer-events: none;
+    z-index: 3;
+  }
+  .sheen:hover::after { transform: translateX(120%); }
+
+  /* Editorial display heading — tight optical tracking */
+  .display-tight {
+    font-family: 'Sora', sans-serif;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+    text-wrap: balance;
+  }
+
+  /* Fine caps meta line */
+  .meta-caps {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tile-elite, .tile-elite-lift:hover { transform: none; transition: none; }
+    .sheen::after { display: none; }
+  }
+}
