@@ -27,51 +27,45 @@ export function MovieGrid({ movies, title, subtitle }: MovieGridProps) {
 
       <div className="container mx-auto px-4 relative">
         <motion.div
-          className="mb-12 sm:mb-16"
+          className="mb-10 sm:mb-14"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
-          <p className="section-label mb-4">
-            {isNowShowing ? "In theatres" : "Coming up"}
-          </p>
-          <div className="flex items-center gap-4">
-            <div className="section-header-icon">
-              {isNowShowing ? <Film /> : <TrendingUp />}
-            </div>
-            <div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black">
-                {title}
-              </h2>
-              {subtitle && (
-                <p className="text-muted-foreground text-sm sm:text-base mt-1.5 leading-relaxed max-w-lg">
-                  {subtitle}
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="section-header-icon shrink-0">
+                {isNowShowing ? <Film /> : <TrendingUp />}
+              </div>
+              <div>
+                <p className="eyebrow mb-1.5">
+                  {isNowShowing ? "In theatres" : "Coming up"}
                 </p>
-              )}
+                <h2 className="display-tight text-[1.75rem] font-extrabold sm:text-4xl">
+                  {title}
+                </h2>
+                {subtitle && (
+                  <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">
+                    {subtitle}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="tabular flex items-center gap-1.5 rounded-full border border-border/40 bg-background/50 px-3.5 py-1.5 text-[11px] font-semibold text-muted-foreground backdrop-blur-md">
+              <Sparkles className="h-3 w-3 text-primary" />
+              <KineticCounter
+                to={movies.length}
+                className="cinema-gradient-text font-bold"
+              />
+              <span>{isNowShowing ? "showing" : "upcoming"}</span>
             </div>
           </div>
-          {/* Section accent line */}
-          <div className="mt-6 h-px w-24 cinema-gradient rounded-full opacity-60" />
+
+          <div className="divider-soft mt-7" />
         </motion.div>
 
-        {/* Movie count pill */}
-        <motion.div
-          className="flex items-center gap-2 mb-8"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-        >
-          <div className="flex items-center gap-1.5 glass-card px-3 py-1.5 rounded-full text-[11px] font-semibold text-muted-foreground tabular-nums">
-            <Sparkles className="h-3 w-3 text-primary" />
-            <KineticCounter
-              to={movies.length}
-              className="cinema-gradient-text font-bold"
-            />
-            <span>{isNowShowing ? "movies showing" : "upcoming titles"}</span>
-          </div>
-        </motion.div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-5">
           {movies.map((movie, index) => (

@@ -120,7 +120,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
       }}
       className="cursor-pointer"
     >
-      <Card className="group overflow-hidden bg-card border-border/20 hover:border-primary/25 transition-all duration-500 glow-card h-full flex flex-col rounded-2xl">
+      <Card className="group relative flex h-full flex-col overflow-hidden rounded-[1.25rem] border-border/20 bg-card p-0 transition-all duration-500 tile-elite tile-elite-lift sheen">
         <div
           className="relative w-full overflow-hidden"
           style={{ paddingBottom: "150%" }}
@@ -240,30 +240,29 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
           </div>
         </div>
 
-        <CardContent className="p-3.5 sm:p-4 space-y-2.5 flex-1 flex flex-col bg-card">
-          <div className="flex-1">
-            <h3 className="font-bold text-sm sm:text-[15px] line-clamp-2 group-hover:text-primary transition-colors duration-300 leading-snug">
-              {movie.title}
-            </h3>
-          </div>
+        <CardContent className="relative z-[1] flex flex-1 flex-col gap-2 bg-card p-3.5 sm:p-4">
+          <h3 className="display-tight line-clamp-2 flex-1 text-sm font-bold leading-snug transition-colors duration-300 group-hover:text-primary sm:text-[15px]">
+            {movie.title}
+          </h3>
 
-          <div className="flex items-center justify-between text-xs text-muted-foreground pt-0.5">
-            <div className="flex items-center gap-1.5">
+          <div className="flex items-center justify-between border-t border-border/40 pt-2 text-xs text-muted-foreground">
+            <span className="tabular inline-flex items-center gap-1.5 font-medium">
               <Clock className="h-3 w-3 shrink-0 text-primary/60" />
-              <span className="font-medium">{movie.duration_minutes} min</span>
-            </div>
+              {movie.duration_minutes
+                ? `${Math.floor(movie.duration_minutes / 60)}h ${movie.duration_minutes % 60}m`
+                : "—"}
+            </span>
             {nowShowing && newRelease ? (
-              <span className="text-[9px] font-bold uppercase tracking-[0.15em] flex items-center gap-1">
+              <span className="meta-caps flex items-center gap-1 text-[9px]">
                 <Flame className="h-3 w-3 text-accent" />
-                <span className="cinema-gradient-text">New Release</span>
+                <span className="cinema-gradient-text">New</span>
               </span>
             ) : nowShowing ? (
-              <span className="text-[9px] font-bold text-primary uppercase tracking-[0.15em]">
-                In Theatres
-              </span>
+              <span className="meta-caps text-[9px] text-primary">In Theatres</span>
             ) : null}
           </div>
         </CardContent>
+
       </Card>
     </motion.div>
   );
