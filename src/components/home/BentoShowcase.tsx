@@ -34,6 +34,12 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
   const navigate = useNavigate();
   const trending = movies.filter((m) => m.id !== featured.id).slice(0, 2);
   const runtime = fmtRuntime(featured.duration_minutes);
+  const heroImage =
+    featured.backdrop_url ||
+    featured.poster_url ||
+    movies.find((m) => m.backdrop_url)?.backdrop_url ||
+    null;
+
 
   // Subtle cursor parallax on the hero artwork
   const px = useMotionValue(0);
