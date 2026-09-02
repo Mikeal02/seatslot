@@ -46,7 +46,7 @@ function AnimatedCounter({
   }, [value, inView]);
 
   return (
-    <span className="text-4xl sm:text-5xl md:text-6xl font-black cinema-gradient-text tabular-nums">
+    <span className="display-tight cinema-gradient-text text-[2.5rem] font-extrabold tabular-nums sm:text-5xl md:text-6xl">
       {count.toLocaleString()}
       {suffix}
     </span>
@@ -129,28 +129,25 @@ export function StatsSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <div className="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full mb-6">
+          <div className="mx-auto mb-5 inline-flex items-center gap-2 rounded-full border border-border/40 bg-background/50 px-3.5 py-1.5 backdrop-blur-md">
             <Award className="h-3.5 w-3.5 text-accent" />
-            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
-              By the numbers
-            </span>
+            <span className="eyebrow">By the numbers</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-5">
-            Trusted by{" "}
-            <span className="cinema-gradient-text">Movie Lovers</span>
+          <h2 className="display-tight mb-4 text-[2rem] font-extrabold sm:text-4xl md:text-5xl">
+            Trusted by <span className="cinema-gradient-text">Movie Lovers</span>
           </h2>
-          <p className="text-muted-foreground text-sm sm:text-base max-w-md mx-auto leading-relaxed">
-            Join thousands of cinema enthusiasts who book with CineBook every
-            day
+          <p className="mx-auto max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
+            Join thousands of cinema enthusiasts who book with CineBook every day
           </p>
+          <div className="divider-soft mx-auto mt-9 max-w-xs" />
         </motion.div>
 
         <StaggerReveal className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
           {stats.map((stat) => (
             <StaggerRevealItem key={stat.label}>
-              <div className="text-center p-8 sm:p-10 rounded-3xl glass-card glow-card relative group">
+              <div className="tile-elite tile-elite-lift sheen group relative h-full p-7 text-center sm:p-9">
                 {/* Radial highlight on hover */}
-                <div className="absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_50%_0%,hsl(var(--primary)/0.06)_0%,transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,hsl(var(--primary)/0.08)_0%,transparent_60%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
                 {/* Icon */}
                 <div className="section-header-icon mx-auto mb-6 group-hover:shadow-primary/40 transition-shadow duration-500">
@@ -163,12 +160,11 @@ export function StatsSection() {
                   inView={inView}
                 />
 
-                <p className="text-sm font-bold text-foreground mt-4 tracking-tight">
+                <p className="display-tight relative mt-4 text-sm font-bold text-foreground">
                   {stat.label}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1.5">
-                  {stat.description}
-                </p>
+                <div className="divider-soft my-3.5" />
+                <p className="meta-caps relative">{stat.description}</p>
               </div>
             </StaggerRevealItem>
           ))}
