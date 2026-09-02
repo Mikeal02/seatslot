@@ -43,9 +43,9 @@ export function Footer() {
   ];
 
   return (
-    <footer className="bg-card/20 border-t border-border/15 mt-auto relative overflow-hidden">
-      {/* Top accent line */}
-      <div className="absolute top-0 left-0 right-0 h-[2px] cinema-gradient opacity-50" />
+    <footer className="relative mt-auto overflow-hidden border-t border-border/20 bg-card/20">
+      {/* Top hairline */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
 
       {/* Background glow */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[radial-gradient(ellipse,hsl(var(--primary)/0.03)_0%,transparent_70%)]" />
@@ -55,13 +55,11 @@ export function Footer() {
         <div className="container mx-auto px-4 py-10 sm:py-14">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6 max-w-4xl mx-auto">
             <div className="text-center sm:text-left">
-              <div className="inline-flex items-center gap-2 glass-card px-3 py-1.5 rounded-full mb-3">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border/40 bg-background/50 px-3 py-1.5 backdrop-blur-md">
                 <Sparkles className="h-3 w-3 text-accent" />
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
-                  Stay updated
-                </span>
+                <span className="eyebrow">Stay updated</span>
               </div>
-              <h3 className="text-xl sm:text-2xl font-black">
+              <h3 className="display-tight text-xl font-extrabold sm:text-2xl">
                 Never miss a{" "}
                 <span className="cinema-gradient-text">premiere</span>
               </h3>
@@ -73,9 +71,9 @@ export function Footer() {
               <input
                 type="email"
                 placeholder="your@email.com"
-                className="flex-1 sm:w-64 h-11 px-4 rounded-full bg-muted/30 border border-border/30 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all placeholder:text-muted-foreground/50"
+                className="focus-ring h-11 flex-1 rounded-xl border border-border/40 bg-background/50 px-4 text-sm backdrop-blur-md transition-colors placeholder:text-muted-foreground/50 hover:border-border/70 sm:w-64"
               />
-              <button className="h-11 px-6 rounded-full cinema-gradient btn-professional text-primary-foreground text-sm font-bold shadow-lg shadow-primary/20 shrink-0">
+              <button className="focus-ring h-11 shrink-0 rounded-xl cinema-gradient px-6 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-transform hover:-translate-y-0.5">
                 Subscribe
               </button>
             </div>
@@ -91,7 +89,7 @@ export function Footer() {
               <div className="h-10 w-10 rounded-2xl cinema-gradient flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow duration-500">
                 <Film className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-black cinema-gradient-text">
+              <span className="display-tight text-xl font-extrabold cinema-gradient-text">
                 CineBook
               </span>
             </Link>
@@ -107,7 +105,7 @@ export function Footer() {
                   href={social.href}
                   whileHover={{ scale: 1.1, y: -3 }}
                   whileTap={{ scale: 0.95 }}
-                  className="h-10 w-10 rounded-xl bg-muted/20 hover:bg-primary hover:text-primary-foreground flex items-center justify-center transition-all duration-300 border border-border/15 hover:border-primary hover:shadow-lg hover:shadow-primary/20"
+                  className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border/30 bg-background/40 backdrop-blur-md transition-colors duration-300 hover:border-primary/60 hover:bg-primary hover:text-primary-foreground"
                   aria-label={social.label}
                 >
                   <social.icon className="h-4 w-4" />
@@ -118,7 +116,7 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="section-label mb-6 text-foreground/80">
+            <h4 className="eyebrow mb-6">
               Quick Links
             </h4>
             <ul className="space-y-3.5">
@@ -138,7 +136,7 @@ export function Footer() {
 
           {/* Support Links */}
           <div>
-            <h4 className="section-label mb-6 text-foreground/80">Support</h4>
+            <h4 className="eyebrow mb-6">Support</h4>
             <ul className="space-y-3.5">
               {footerLinks.support.map((link) => (
                 <li key={link.label}>
@@ -155,7 +153,7 @@ export function Footer() {
 
           {/* Contact Info */}
           <div>
-            <h4 className="section-label mb-6 text-foreground/80">Contact</h4>
+            <h4 className="eyebrow mb-6">Contact</h4>
             <ul className="space-y-4">
               <li className="flex items-start gap-3 text-sm text-muted-foreground">
                 <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-primary/70" />
@@ -174,7 +172,8 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-16 pt-8 border-t border-border/15">
+        <div className="divider-soft mt-16" />
+        <div className="pt-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs text-muted-foreground/50 font-medium tracking-wide">
               © {currentYear} CineBook. All rights reserved.
