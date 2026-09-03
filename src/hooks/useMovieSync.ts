@@ -22,6 +22,7 @@ interface TMDBMovie {
 }
 
 const SYNC_CACHE_KEY = "movie_sync_timestamp_v5";
+const SHOWTIME_CACHE_KEY = "showtime_refresh_day_v1";
 const CACHE_DURATION = 10 * 24 * 60 * 60 * 1000; // 10 days
 
 // Fetch full details concurrently in small batches so runtime / cast / director / genres are accurate
@@ -282,9 +283,27 @@ export function useMovieSync() {
     localStorage.removeItem(SYNC_CACHE_KEY);
   }, []);
 
+  // Showtimes must roll forward daily, independent of the 10-day TMDB sync TTL.
+  const ensureShowtimes = useCallback(async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    try {
+      if (localStorage.getItem(SHOWTIME_CACHE_KEY) === today) return;
+    } catch {
+      // ignore storage errors and refresh anyway
+    }
+    const { error } = await supabase.rpc("generate_showtimes_for_movies");
+    if (error) return;
+    try {
+      localStorage.setItem(SHOWTIME_CACHE_KEY, today);
+    } catch {
+      // ignore storage errors
+    }
+  }, []);
+
   return {
     syncMovies,
     syncing,
     clearCache,
+    ensureShowtimes,
   };
 }
