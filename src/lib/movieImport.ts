@@ -160,8 +160,9 @@ export async function ensureMovieImported(
 
   if (error) throw error;
 
-  if (options.generateShowtimes !== false && status === "now_showing") {
-    await supabase.rpc("generate_showtimes_for_movies");
+  if (options.generateShowtimes !== false && status === "now_showing" && movieId) {
+    // Scoped to the single imported movie; the full catalogue is refreshed nightly server-side.
+    await supabase.rpc("generate_showtimes_for_movie", { p_movie_id: movieId });
   }
 
   return movieId;

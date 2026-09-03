@@ -260,11 +260,8 @@ export function useMovieSync() {
         // Enrich with full TMDB details so runtime/cast/director/genres are accurate
         const enriched = await enrichWithDetails(allMovies);
 
-        // Batch upsert all movies at once
+        // Batch upsert all movies at once (showtimes generated per imported movie)
         await batchUpsertMovies(enriched);
-
-        // Auto-generate showtimes server-side (bypasses RLS)
-        await supabase.rpc("generate_showtimes_for_movies");
 
         markSynced();
         return true;
@@ -283,27 +280,9 @@ export function useMovieSync() {
     localStorage.removeItem(SYNC_CACHE_KEY);
   }, []);
 
-  // Showtimes must roll forward daily, independent of the 10-day TMDB sync TTL.
-  const ensureShowtimes = useCallback(async () => {
-    const today = new Date().toISOString().slice(0, 10);
-    try {
-      if (localStorage.getItem(SHOWTIME_CACHE_KEY) === today) return;
-    } catch {
-      // ignore storage errors and refresh anyway
-    }
-    const { error } = await supabase.rpc("generate_showtimes_for_movies");
-    if (error) return;
-    try {
-      localStorage.setItem(SHOWTIME_CACHE_KEY, today);
-    } catch {
-      // ignore storage errors
-    }
-  }, []);
-
   return {
     syncMovies,
     syncing,
     clearCache,
-    ensureShowtimes,
   };
 }
