@@ -22,7 +22,7 @@ interface TMDBMovie {
 }
 
 const SYNC_CACHE_KEY = "movie_sync_timestamp_v5";
-const SHOWTIME_CACHE_KEY = "showtime_refresh_day_v1";
+
 const CACHE_DURATION = 10 * 24 * 60 * 60 * 1000; // 10 days
 
 // Fetch full details concurrently in small batches so runtime / cast / director / genres are accurate
@@ -126,26 +126,36 @@ export function useMovieSync() {
         popularity: movie.popularity || 0,
         status: determineMovieStatus(movie.release_date),
       };
-      const { error } = await supabase.rpc("import_movie_from_tmdb", {
-        p_tmdb_id: movieData.tmdb_id,
-        p_title: movieData.title,
-        p_description: movieData.description,
-        p_poster_url: movieData.poster_url,
-        p_backdrop_url: movieData.backdrop_url,
-        p_release_date: movieData.release_date,
-        p_duration_minutes: movieData.duration_minutes,
-        p_rating: movieData.rating,
-        p_genre: movieData.genre,
-        p_director: movieData.director,
-        p_cast_members: movieData.cast_members,
-        p_trailer_key: movie.trailer_key || null,
-        p_status: movieData.status,
-        p_budget: movieData.budget,
-        p_revenue: movieData.revenue,
-        p_original_language: movieData.original_language,
-        p_popularity: movieData.popularity,
-      });
+      const { data: movieId, error } = await supabase.rpc(
+        "import_movie_from_tmdb",
+        {
+          p_tmdb_id: movieData.tmdb_id,
+          p_title: movieData.title,
+          p_description: movieData.description,
+          p_poster_url: movieData.poster_url,
+          p_backdrop_url: movieData.backdrop_url,
+          p_release_date: movieData.release_date,
+          p_duration_minutes: movieData.duration_minutes,
+          p_rating: movieData.rating,
+          p_genre: movieData.genre,
+          p_director: movieData.director,
+          p_cast_members: movieData.cast_members,
+          p_trailer_key: movie.trailer_key || null,
+          p_status: movieData.status,
+          p_budget: movieData.budget,
+          p_revenue: movieData.revenue,
+          p_original_language: movieData.original_language,
+          p_popularity: movieData.popularity,
+        },
+      );
       if (error) throw error;
+
+      // Seed a rolling 7-day schedule for freshly imported, already-released movies.
+      if (movieId && movieData.status === "now_showing") {
+        await supabase.rpc("generate_showtimes_for_movie", {
+          p_movie_id: movieId,
+        });
+      }
     }
   };
 
