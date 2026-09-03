@@ -42,7 +42,7 @@ describe("ensureMovieImported", () => {
       p_cast_members: ["Matthew McConaughey"],
       p_status: "now_showing",
     });
-    expect(rpc.mock.calls[1][0]).toBe("generate_showtimes_for_movies");
+    expect(rpc.mock.calls[1][0]).toBe("generate_showtimes_for_movie");
   });
 
   it("fetches details when given a bare tmdb id and honors generateShowtimes: false", async () => {
