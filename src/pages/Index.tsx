@@ -75,7 +75,7 @@ const Index = () => {
   const [featuredMovie, setFeaturedMovie] = useState<Movie | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const { syncMovies, ensureShowtimes } = useMovieSync();
+  const { syncMovies } = useMovieSync();
 
   useEffect(() => {
     loadMovies();
@@ -133,10 +133,8 @@ const Index = () => {
       await fetchMoviesFromDB();
       setLoading(false);
 
-      // 3) Roll showtimes forward once a day so schedules never go stale
-      await ensureShowtimes();
-
-      // 4) Trigger TMDB sync only if the hook decides it's due (respects its own TTL)
+      // 3) Trigger TMDB sync only if the hook decides it's due (respects its own TTL).
+      //    Showtimes roll forward nightly via a scheduled server-side job.
       const synced = await syncMovies();
       if (synced) {
         await fetchMoviesFromDB();

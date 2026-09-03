@@ -673,6 +673,10 @@ export type Database = {
         Args: { p_showtime_id: string }
         Returns: undefined
       }
+      generate_showtimes_for_movie: {
+        Args: { p_movie_id: string }
+        Returns: undefined
+      }
       generate_showtimes_for_movies: { Args: never; Returns: undefined }
       get_movie_reviews: {
         Args: { p_movie_id: string }
