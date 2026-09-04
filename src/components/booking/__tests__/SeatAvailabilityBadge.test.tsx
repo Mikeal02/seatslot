@@ -3,15 +3,21 @@ import { screen, waitFor } from "@testing-library/react";
 import { SeatAvailabilityBadge } from "@/components/booking/SeatAvailabilityBadge";
 import { renderWithProviders } from "@/test/utils";
 
-const counts: Record<string, number> = { seats: 100, booked: 0 };
+const counts: Record<string, number> = { seats: 100, booked: 0, locked: 0 };
 
 vi.mock("@/integrations/supabase/client", () => {
+  const countFor = (table: string) =>
+    table === "seats"
+      ? counts.seats
+      : table === "booked_seats"
+        ? counts.booked
+        : counts.locked;
   const builder = (table: string) => ({
     select: () => ({
-      eq: () =>
-        Promise.resolve({
-          count: table === "seats" ? counts.seats : counts.booked,
-        }),
+      eq: () => {
+        const result = Promise.resolve({ count: countFor(table) });
+        return Object.assign(result, { gt: () => result });
+      },
     }),
   });
   return { supabase: { from: (table: string) => builder(table) } };
@@ -25,7 +31,9 @@ const renderBadge = () =>
 beforeEach(() => {
   counts.seats = 100;
   counts.booked = 0;
+  counts.locked = 0;
 });
+
 
 describe("SeatAvailabilityBadge (integration with data layer)", () => {
   it("renders remaining/total seats once availability loads", async () => {
