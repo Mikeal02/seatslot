@@ -60,4 +60,12 @@ describe("SeatAvailabilityBadge (integration with data layer)", () => {
     renderBadge();
     expect(await screen.findByText("Sold Out")).toBeInTheDocument();
   });
+
+  it("counts active seat locks as unavailable", async () => {
+    counts.booked = 20;
+    counts.locked = 30;
+    renderBadge();
+    expect(await screen.findByText("50/100")).toBeInTheDocument();
+  });
 });
+
