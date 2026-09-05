@@ -1,6 +1,6 @@
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { MouseEvent } from 'react';
+import { MouseEvent, useEffect, useMemo, useState } from 'react';
 import { Play, ArrowUpRight, Clapperboard, Ticket, Star, Sparkles } from 'lucide-react';
 import { Movie } from '@/types/database';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,8 @@ interface BentoShowcaseProps {
   featured: Movie;
   movies: Movie[];
 }
+
+const SLIDE_MS = 7000;
 
 const fmtRuntime = (mins?: number | null) => {
   if (!mins) return null;
@@ -32,14 +34,28 @@ const reveal = (delay: number) => ({
 
 export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
   const navigate = useNavigate();
-  const trending = movies.filter((m) => m.id !== featured.id).slice(0, 2);
-  const runtime = fmtRuntime(featured.duration_minutes);
-  const heroImage =
-    featured.backdrop_url ||
-    featured.poster_url ||
-    movies.find((m) => m.backdrop_url)?.backdrop_url ||
-    null;
 
+  // Rotating hero deck — featured first, then the rest of the window
+  const deck = useMemo(() => {
+    const rest = movies.filter((m) => m.id !== featured.id);
+    return [featured, ...rest].slice(0, 5);
+  }, [featured, movies]);
+
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => setIndex(0), [deck.length, featured.id]);
+
+  useEffect(() => {
+    if (paused || deck.length < 2) return;
+    const t = setInterval(() => setIndex((i) => (i + 1) % deck.length), SLIDE_MS);
+    return () => clearInterval(t);
+  }, [paused, deck.length]);
+
+  const active = deck[index] ?? featured;
+  const trending = movies.filter((m) => m.id !== featured.id).slice(0, 2);
+  const runtime = fmtRuntime(active.duration_minutes);
+  const heroImage = active.backdrop_url || active.poster_url || null;
 
   // Subtle cursor parallax on the hero artwork
   const px = useMotionValue(0);
@@ -57,90 +73,134 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
   const onHeroLeave = () => {
     px.set(0);
     py.set(0);
+    setPaused(false);
   };
 
   return (
     <section className="container mx-auto px-4 pt-6 pb-12 sm:pt-10">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-12 md:grid-rows-6 md:gap-5 md:h-[840px]">
-        {/* Hero tile */}
-        <motion.div
-          {...reveal(0)}
-          onMouseMove={onHeroMove}
-          onMouseLeave={onHeroLeave}
-          className={`${tile} sheen md:col-span-8 md:row-span-4 group min-h-[440px]`}
-        >
+      {/* Full-width cinematic hero */}
+      <motion.div
+        {...reveal(0)}
+        onMouseMove={onHeroMove}
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={onHeroLeave}
+        className={`${tile} sheen group relative mb-4 min-h-[460px] w-full md:mb-5 md:min-h-[560px]`}
+      >
+        <AnimatePresence mode="sync">
           {heroImage && (
             <motion.img
               key={heroImage}
               src={heroImage}
-              alt={`${featured.title} backdrop`}
+              alt={`${active.title} backdrop`}
+              initial={{ opacity: 0, scale: 1.06 }}
+              animate={{ opacity: 0.6, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
               style={{ x: imgX, y: imgY, top: '-3%', left: '-3%' }}
-              className="absolute h-[106%] w-[106%] object-cover opacity-[0.55] transition-[opacity,transform] duration-[1200ms] ease-out group-hover:scale-[1.04] group-hover:opacity-70"
+              className="absolute h-[106%] w-[106%] object-cover object-center"
               loading="eager"
               decoding="async"
             />
           )}
+        </AnimatePresence>
 
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/55 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/20 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/25 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
-          <div className="relative z-[1] flex h-full flex-col justify-end p-7 sm:p-10 md:p-12">
-            <div className="mb-5 flex flex-wrap items-center gap-3">
-              <span className="rounded-full cinema-gradient px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-primary-foreground">
-                Premiere
-              </span>
-              <span className="meta-caps">In theatres {fmtDate(featured.release_date)}</span>
-              {featured.rating ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-background/40 px-2.5 py-1 text-xs font-bold text-accent backdrop-blur-md tabular">
-                  <Star className="h-3.5 w-3.5 fill-current" />
-                  {Number(featured.rating).toFixed(1)}
+        <div className="relative z-[1] flex h-full flex-col justify-end p-7 sm:p-10 md:p-14">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={active.id}
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="mb-5 flex flex-wrap items-center gap-3">
+                <span className="rounded-full cinema-gradient px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-primary-foreground">
+                  Premiere
                 </span>
-              ) : null}
+                <span className="meta-caps">In theatres {fmtDate(active.release_date)}</span>
+                {active.rating ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-background/40 px-2.5 py-1 text-xs font-bold text-accent backdrop-blur-md tabular">
+                    <Star className="h-3.5 w-3.5 fill-current" />
+                    {Number(active.rating).toFixed(1)}
+                  </span>
+                ) : null}
+              </div>
+
+              <h1 className="display-tight mb-4 max-w-[15ch] text-[2.75rem] font-extrabold sm:text-6xl md:text-[4.75rem]">
+                {active.title}
+              </h1>
+
+              {active.description && (
+                <p className="mb-6 hidden max-w-xl text-[0.95rem] leading-relaxed text-muted-foreground sm:block">
+                  {active.description.slice(0, 190)}
+                  {active.description.length > 190 ? '…' : ''}
+                </p>
+              )}
+
+              <div className="mb-7 flex flex-wrap items-center gap-2.5 meta-caps">
+                {runtime && <span>{runtime}</span>}
+                {runtime && active.genre?.length ? <span className="opacity-30">/</span> : null}
+                <span>{active.genre?.slice(0, 3).join('  ·  ')}</span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  size="lg"
+                  className="h-14 rounded-2xl px-8 text-sm font-bold tracking-wide shadow-xl shadow-primary/20"
+                  onClick={() => navigate(`/movie/${active.id}`)}
+                >
+                  <Ticket className="mr-2 h-5 w-5" />
+                  Book Now
+                </Button>
+                <button
+                  onClick={() => navigate(`/movie/${active.id}?trailer=1`)}
+                  aria-label="Watch trailer"
+                  className="focus-ring flex h-14 items-center gap-2.5 rounded-2xl border border-border/50 bg-foreground/[0.06] px-5 backdrop-blur-xl transition-colors hover:bg-foreground/[0.12]"
+                >
+                  <Play className="h-4 w-4 fill-current" />
+                  <span className="text-sm font-semibold">Trailer</span>
+                </button>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Slide indicators */}
+          {deck.length > 1 && (
+            <div className="mt-8 flex items-center gap-2">
+              {deck.map((m, i) => (
+                <button
+                  key={m.id}
+                  onClick={() => setIndex(i)}
+                  aria-label={`Show ${m.title}`}
+                  aria-current={i === index}
+                  className="focus-ring group/dot h-1.5 overflow-hidden rounded-full bg-foreground/20 transition-all duration-500"
+                  style={{ width: i === index ? 56 : 20 }}
+                >
+                  {i === index && (
+                    <motion.span
+                      key={`${m.id}-${paused}`}
+                      className="block h-full cinema-gradient"
+                      initial={{ width: '0%' }}
+                      animate={{ width: paused ? '35%' : '100%' }}
+                      transition={{ duration: paused ? 0.3 : SLIDE_MS / 1000, ease: 'linear' }}
+                    />
+                  )}
+                </button>
+              ))}
             </div>
+          )}
+        </div>
+      </motion.div>
 
-            <h1 className="display-tight mb-4 max-w-[13ch] text-[2.75rem] font-extrabold sm:text-6xl md:text-[4.25rem]">
-              {featured.title}
-            </h1>
-
-            {featured.description && (
-              <p className="mb-6 hidden max-w-lg text-[0.95rem] leading-relaxed text-muted-foreground sm:block">
-                {featured.description.slice(0, 170)}
-                {featured.description.length > 170 ? '…' : ''}
-              </p>
-            )}
-
-            <div className="mb-7 flex flex-wrap items-center gap-2.5 meta-caps">
-              {runtime && <span>{runtime}</span>}
-              {runtime && featured.genre?.length ? <span className="opacity-30">/</span> : null}
-              <span>{featured.genre?.slice(0, 3).join('  ·  ')}</span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Button
-                size="lg"
-                className="h-14 rounded-2xl px-8 text-sm font-bold tracking-wide shadow-xl shadow-primary/20"
-                onClick={() => navigate(`/movies/${featured.id}`)}
-              >
-                <Ticket className="mr-2 h-5 w-5" />
-                Book Now
-              </Button>
-              <button
-                onClick={() => navigate(`/movies/${featured.id}?trailer=1`)}
-                aria-label="Watch trailer"
-                className="focus-ring flex h-14 items-center gap-2.5 rounded-2xl border border-border/50 bg-foreground/[0.06] px-5 backdrop-blur-xl transition-colors hover:bg-foreground/[0.12]"
-              >
-                <Play className="h-4 w-4 fill-current" />
-                <span className="text-sm font-semibold">Trailer</span>
-              </button>
-            </div>
-          </div>
-        </motion.div>
-
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-12 md:gap-5">
         {/* Quick booking tile */}
         <motion.div
           {...reveal(0.08)}
-          className={`${tile} md:col-span-4 md:row-span-2 flex flex-col justify-between p-7 sm:p-8`}
+          className={`${tile} md:col-span-4 flex flex-col justify-between p-7 sm:p-8`}
         >
           <div className="space-y-1.5">
             <p className="eyebrow">Fast lane</p>
@@ -151,7 +211,7 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
             {movies.slice(0, 2).map((m) => (
               <Link
                 key={m.id}
-                to={`/movies/${m.id}`}
+                to={`/movie/${m.id}`}
                 className="focus-ring group/q flex items-center justify-between rounded-xl border border-border/40 bg-background/50 px-4 py-3 transition-all hover:border-primary/40 hover:bg-background"
               >
                 <span className="truncate pr-3 text-sm font-medium">{m.title}</span>
@@ -168,7 +228,7 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
         <motion.button
           {...reveal(0.14)}
           onClick={() => navigate('/movies')}
-          className="group sheen relative isolate flex flex-col justify-between overflow-hidden rounded-[2rem] cinema-gradient p-7 text-left focus-ring sm:p-8 md:col-span-4 md:row-span-2"
+          className="group sheen relative isolate flex min-h-[220px] flex-col justify-between overflow-hidden rounded-[2rem] cinema-gradient p-7 text-left focus-ring sm:p-8 md:col-span-4"
         >
           <div className="flex items-start justify-between">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-background/90 shadow-lg">
@@ -193,9 +253,9 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
           <motion.div
             key={m.id}
             {...reveal(0.2 + i * 0.07)}
-            className={`${tile} md:col-span-3 md:row-span-2 group min-h-[230px]`}
+            className={`${tile} md:col-span-2 group min-h-[230px]`}
           >
-            <Link to={`/movies/${m.id}`} className="focus-ring block h-full">
+            <Link to={`/movie/${m.id}`} className="focus-ring block h-full">
               {(m.backdrop_url || m.poster_url) && (
                 <img
                   src={m.backdrop_url || m.poster_url || ''}
@@ -216,7 +276,7 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
         {/* Membership tile */}
         <motion.div
           {...reveal(0.32)}
-          className={`${tile} md:col-span-6 md:row-span-2 flex flex-wrap items-center justify-between gap-5 p-7 sm:p-8`}
+          className={`${tile} md:col-span-12 flex flex-wrap items-center justify-between gap-5 p-7 sm:p-8`}
         >
           <div className="min-w-[220px] max-w-[60%]">
             <p className="eyebrow mb-2">Membership</p>
