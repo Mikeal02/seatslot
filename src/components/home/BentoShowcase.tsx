@@ -108,16 +108,16 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
         <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/25 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
-        {/* Rotating rectangular poster */}
+        {/* Rectangular poster */}
         {active.poster_url && (
           <AnimatePresence mode="wait">
             <motion.div
               key={`poster-${active.id}`}
-              initial={{ opacity: 0, x: 34, rotate: 4 }}
-              animate={{ opacity: 1, x: 0, rotate: 2 }}
-              exit={{ opacity: 0, x: -22, rotate: -2 }}
+              initial={{ opacity: 0, x: 34, rotate: 0 }}
+              animate={{ opacity: 1, x: 0, rotate: 0 }}
+              exit={{ opacity: 0, x: -22, rotate: 0 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute right-10 top-1/2 z-[1] hidden aspect-[2/3] w-[190px] -translate-y-1/2 overflow-hidden rounded-2xl border border-foreground/15 shadow-2xl shadow-black/50 md:block lg:right-14 lg:w-[230px]"
+              className="absolute right-10 top-8 z-[1] hidden aspect-[2/3] w-[190px] overflow-hidden rounded-2xl border border-foreground/15 shadow-2xl shadow-black/50 md:block lg:right-14 lg:top-10 lg:w-[230px]"
             >
               <img
                 src={active.poster_url}
