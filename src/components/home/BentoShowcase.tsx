@@ -92,10 +92,10 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
               key={heroImage}
               src={heroImage}
               alt={`${active.title} backdrop`}
-              initial={{ opacity: 0, scale: 1.06 }}
-              animate={{ opacity: 0.6, scale: 1 }}
+              initial={{ opacity: 0, scale: 1.1 }}
+              animate={{ opacity: 0.62, scale: 1.02 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ opacity: { duration: 1.1 }, scale: { duration: 9, ease: 'linear' } }}
               style={{ x: imgX, y: imgY, top: '-3%', left: '-3%' }}
               className="absolute h-[106%] w-[106%] object-cover object-center"
               loading="eager"
@@ -106,6 +106,24 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
 
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/25 to-transparent" />
+        {/* Cinematic vignette + film grain */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse at 30% 45%, transparent 35%, hsl(var(--background) / 0.75) 100%)',
+          }}
+        />
+        <div aria-hidden className="noise-overlay pointer-events-none absolute inset-0 opacity-[0.35]" />
+        {/* Ember light-leak */}
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute -right-24 -top-24 h-[420px] w-[420px] rounded-full blur-[110px]"
+          style={{ background: 'hsl(var(--primary) / 0.22)' }}
+          animate={{ opacity: [0.5, 0.85, 0.5], scale: [1, 1.08, 1] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+        />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
         {/* Rectangular poster */}
@@ -117,22 +135,30 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
               animate={{ opacity: 1, x: 0, rotate: 0 }}
               exit={{ opacity: 0, x: -22, rotate: 0 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute right-10 top-8 z-[1] hidden aspect-[2/3] w-[190px] overflow-hidden rounded-2xl border border-foreground/15 shadow-2xl shadow-black/50 md:block lg:right-14 lg:top-10 lg:w-[230px]"
+              whileHover={{ y: -6 }}
+              className="group/poster absolute right-10 top-8 z-[1] hidden aspect-[2/3] w-[190px] overflow-hidden rounded-2xl border border-foreground/15 shadow-2xl shadow-black/50 md:block lg:right-14 lg:top-10 lg:w-[230px]"
             >
               <img
                 src={active.poster_url}
                 alt={`${active.title} poster`}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-cover transition-transform duration-700 group-hover/poster:scale-[1.05]"
                 loading="eager"
                 decoding="async"
               />
               <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-foreground/10" />
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-foreground/5 to-foreground/15" />
+              {active.rating ? (
+                <div className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-foreground/15 bg-background/70 px-2.5 py-1 text-[11px] font-bold text-accent backdrop-blur-md tabular">
+                  <Star className="h-3 w-3 fill-current" />
+                  {Number(active.rating).toFixed(1)}
+                </div>
+              ) : null}
             </motion.div>
           </AnimatePresence>
         )}
 
         <div className="relative z-[1] flex h-full flex-col justify-end p-7 sm:p-10 md:p-14 md:pr-[280px] lg:pr-[330px]">
+
           <AnimatePresence mode="wait">
             <motion.div
               key={active.id}
