@@ -108,7 +108,31 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
         <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/25 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
-        <div className="relative z-[1] flex h-full flex-col justify-end p-7 sm:p-10 md:p-14">
+        {/* Rotating rectangular poster */}
+        {active.poster_url && (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`poster-${active.id}`}
+              initial={{ opacity: 0, x: 34, rotate: 4 }}
+              animate={{ opacity: 1, x: 0, rotate: 2 }}
+              exit={{ opacity: 0, x: -22, rotate: -2 }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute right-10 top-1/2 z-[1] hidden aspect-[2/3] w-[190px] -translate-y-1/2 overflow-hidden rounded-2xl border border-foreground/15 shadow-2xl shadow-black/50 md:block lg:right-14 lg:w-[230px]"
+            >
+              <img
+                src={active.poster_url}
+                alt={`${active.title} poster`}
+                className="h-full w-full object-cover"
+                loading="eager"
+                decoding="async"
+              />
+              <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-foreground/10" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-foreground/5 to-foreground/15" />
+            </motion.div>
+          </AnimatePresence>
+        )}
+
+        <div className="relative z-[1] flex h-full flex-col justify-end p-7 sm:p-10 md:p-14 md:pr-[280px] lg:pr-[330px]">
           <AnimatePresence mode="wait">
             <motion.div
               key={active.id}
