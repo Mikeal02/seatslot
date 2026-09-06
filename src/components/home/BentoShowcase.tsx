@@ -135,9 +135,25 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
           animate={{ opacity: [0.5, 0.85, 0.5], scale: [1, 1.08, 1] }}
           transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
         />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
+        {/* Floating "Now Showing" ribbon */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4, duration: 0.6 }}
+          className="absolute left-6 top-6 z-[2] hidden items-center gap-2 rounded-full border border-border/40 bg-background/60 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-foreground backdrop-blur-xl sm:flex"
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+          </span>
+          Now Showing
+        </motion.div>
+
         {/* Rectangular poster */}
+
         {active.poster_url && (
           <AnimatePresence mode="wait">
             <motion.div
