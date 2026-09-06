@@ -9,9 +9,28 @@ export { qk, staleTime } from "./queryKeys";
 export { DataError, sel, NIL_UUID } from "./core/query";
 
 export {
+  moviesRepository,
+  moviesCache,
+} from "./repositories/movies.repo";
+export {
+  buildCatalogue,
+  toMovieView,
+  formatRuntime,
+  EMPTY_CATALOGUE,
+  type MovieView,
+  type MovieCatalogue,
+} from "./models/movie";
+export {
+  useMovies,
+  useMovieCatalogue,
+  useMovie,
+  useInvalidateMovies,
+} from "./hooks/useMoviesQuery";
+export {
   statsRepository,
   type PlatformCounts,
 } from "./repositories/stats.repo";
+
 export {
   seatsRepository,
   type SeatAvailability,

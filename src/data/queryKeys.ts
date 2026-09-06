@@ -5,10 +5,16 @@
  *   queryClient.invalidateQueries({ queryKey: qk.bookings.all })
  */
 export const qk = {
+  movies: {
+    all: ["movies"] as const,
+    list: () => [...qk.movies.all, "list"] as const,
+    byId: (id: string) => [...qk.movies.all, "detail", id] as const,
+  },
   stats: {
     all: ["stats"] as const,
     platform: () => [...qk.stats.all, "platform"] as const,
   },
+
   seats: {
     all: ["seats"] as const,
     availability: (showtimeId: string, screenId: string) =>
