@@ -52,6 +52,17 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
     return () => clearInterval(t);
   }, [paused, deck.length]);
 
+  // Keyboard navigation for the hero carousel
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') setIndex((i) => (i + 1) % deck.length);
+      if (e.key === 'ArrowLeft') setIndex((i) => (i - 1 + deck.length) % deck.length);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [deck.length]);
+
+
   const active = deck[index] ?? featured;
   const trending = movies.filter((m) => m.id !== featured.id).slice(0, 2);
   const runtime = fmtRuntime(active.duration_minutes);
@@ -124,9 +135,25 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
           animate={{ opacity: [0.5, 0.85, 0.5], scale: [1, 1.08, 1] }}
           transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
         />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
+        {/* Floating "Now Showing" ribbon */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4, duration: 0.6 }}
+          className="absolute left-6 top-6 z-[2] hidden items-center gap-2 rounded-full border border-border/40 bg-background/60 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-foreground backdrop-blur-xl sm:flex"
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+          </span>
+          Now Showing
+        </motion.div>
+
         {/* Rectangular poster */}
+
         {active.poster_url && (
           <AnimatePresence mode="wait">
             <motion.div
@@ -192,12 +219,19 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
               )}
 
               <div className="mb-7 flex flex-wrap items-center gap-2.5 meta-caps">
-                {runtime && <span>{runtime}</span>}
-                {runtime && active.genre?.length ? <span className="opacity-30">/</span> : null}
-                <span>{active.genre?.slice(0, 3).join('  ·  ')}</span>
+                {runtime && <span className="inline-flex items-center rounded-md border border-border/40 bg-background/40 px-2 py-1">{runtime}</span>}
+                {active.genre?.slice(0, 3).map((g) => (
+                  <span
+                    key={g}
+                    className="inline-flex items-center rounded-md border border-primary/20 bg-primary/10 px-2 py-1 text-primary"
+                  >
+                    {g}
+                  </span>
+                ))}
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
+
                 <Button
                   size="lg"
                   className="h-14 rounded-2xl px-8 text-sm font-bold tracking-wide shadow-xl shadow-primary/20"
@@ -225,10 +259,11 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
                 <button
                   key={m.id}
                   onClick={() => setIndex(i)}
+                  title={m.title}
                   aria-label={`Show ${m.title}`}
                   aria-current={i === index}
-                  className="focus-ring group/dot h-1.5 overflow-hidden rounded-full bg-foreground/20 transition-all duration-500"
-                  style={{ width: i === index ? 56 : 20 }}
+                  className="focus-ring group/dot relative h-2 overflow-hidden rounded-full bg-foreground/20 transition-all duration-500 hover:scale-110"
+                  style={{ width: i === index ? 64 : 22 }}
                 >
                   {i === index && (
                     <motion.span
@@ -243,6 +278,7 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
               ))}
             </div>
           )}
+
         </div>
       </motion.div>
 
