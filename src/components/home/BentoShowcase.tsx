@@ -219,12 +219,19 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
               )}
 
               <div className="mb-7 flex flex-wrap items-center gap-2.5 meta-caps">
-                {runtime && <span>{runtime}</span>}
-                {runtime && active.genre?.length ? <span className="opacity-30">/</span> : null}
-                <span>{active.genre?.slice(0, 3).join('  ·  ')}</span>
+                {runtime && <span className="inline-flex items-center rounded-md border border-border/40 bg-background/40 px-2 py-1">{runtime}</span>}
+                {active.genre?.slice(0, 3).map((g) => (
+                  <span
+                    key={g}
+                    className="inline-flex items-center rounded-md border border-primary/20 bg-primary/10 px-2 py-1 text-primary"
+                  >
+                    {g}
+                  </span>
+                ))}
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
+
                 <Button
                   size="lg"
                   className="h-14 rounded-2xl px-8 text-sm font-bold tracking-wide shadow-xl shadow-primary/20"
