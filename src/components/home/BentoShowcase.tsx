@@ -259,10 +259,11 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
                 <button
                   key={m.id}
                   onClick={() => setIndex(i)}
+                  title={m.title}
                   aria-label={`Show ${m.title}`}
                   aria-current={i === index}
-                  className="focus-ring group/dot h-1.5 overflow-hidden rounded-full bg-foreground/20 transition-all duration-500"
-                  style={{ width: i === index ? 56 : 20 }}
+                  className="focus-ring group/dot relative h-2 overflow-hidden rounded-full bg-foreground/20 transition-all duration-500 hover:scale-110"
+                  style={{ width: i === index ? 64 : 22 }}
                 >
                   {i === index && (
                     <motion.span
@@ -277,6 +278,7 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
               ))}
             </div>
           )}
+
         </div>
       </motion.div>
 
