@@ -9,7 +9,7 @@ const base: Movie = {
   poster_url: null,
   backdrop_url: null,
   duration_minutes: 134,
-  rating: 7.85,
+  rating: 7.84,
   genre: ["Drama"],
   cast_members: [],
   director: null,
@@ -34,7 +34,7 @@ describe("movie model", () => {
     const fresh = toMovieView({ ...base, release_date: daysAgo(5) });
     expect(fresh.isReleased).toBe(true);
     expect(fresh.isNewRelease).toBe(true);
-    expect(fresh.ratingLabel).toBe("7.9");
+    expect(fresh.ratingLabel).toBe("7.8");
     expect(fresh.runtimeLabel).toBe("2h 14m");
     expect(fresh.primaryGenre).toBe("Drama");
 
