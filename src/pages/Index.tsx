@@ -116,13 +116,7 @@ const Index = () => {
       <main id="main-content" className="flex-1">
         {/* Bento showcase — hero, quick booking, genres, trending, membership */}
         {featuredMovie && (
-          <BentoShowcase
-            featured={featuredMovie}
-            movies={rotatedWindow(
-              nowShowing.filter((m) => m.backdrop_url),
-              6,
-            )}
-          />
+          <BentoShowcase featured={featuredMovie} movies={spotlight} />
         )}
 
         {/* Cinema Ticker — film reel marquee */}
