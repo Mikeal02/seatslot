@@ -52,6 +52,17 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
     return () => clearInterval(t);
   }, [paused, deck.length]);
 
+  // Keyboard navigation for the hero carousel
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') setIndex((i) => (i + 1) % deck.length);
+      if (e.key === 'ArrowLeft') setIndex((i) => (i - 1 + deck.length) % deck.length);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [deck.length]);
+
+
   const active = deck[index] ?? featured;
   const trending = movies.filter((m) => m.id !== featured.id).slice(0, 2);
   const runtime = fmtRuntime(active.duration_minutes);
