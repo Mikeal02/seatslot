@@ -135,9 +135,9 @@ border-border/30"
                     src={m.poster_url || "/placeholder.svg"}
                     alt={m.title}
                     loading="lazy"
-                    className="block w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="block w-full h-full object-cover brightness-105 contrast-105 transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-60" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-50" />
                   {m.rating > 0 && (
                     <div className="absolute top-2 right-2 flex items-center gap-1 bg-card/90 backdrop-blur-xl px-2 py-0.5 rounded-full text-[10px] font-bold border border-border/20">
                       <Star className="h-2.5 w-2.5 fill-accent text-accent" />

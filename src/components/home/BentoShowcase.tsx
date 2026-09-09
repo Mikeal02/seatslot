@@ -163,17 +163,16 @@ export function BentoShowcase({ featured, movies }: BentoShowcaseProps) {
               exit={{ opacity: 0, x: -22, rotate: 0 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               whileHover={{ y: -6 }}
-              className="group/poster absolute right-10 top-8 z-[1] hidden aspect-[2/3] w-[190px] overflow-hidden rounded-2xl border border-foreground/15 shadow-2xl shadow-black/50 md:block lg:right-14 lg:top-10 lg:w-[230px]"
+              className="group/poster absolute right-10 top-8 z-[1] hidden aspect-[2/3] w-[190px] overflow-hidden rounded-2xl border border-foreground/10 shadow-lg shadow-black/30 md:block lg:right-14 lg:top-10 lg:w-[230px]"
             >
               <img
                 src={active.poster_url}
                 alt={`${active.title} poster`}
-                className="h-full w-full object-cover transition-transform duration-700 group-hover/poster:scale-[1.05]"
+                className="h-full w-full object-cover brightness-110 contrast-105 transition-transform duration-700 group-hover/poster:scale-[1.05]"
                 loading="eager"
                 decoding="async"
               />
               <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-foreground/10" />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-foreground/5 to-foreground/15" />
               {active.rating ? (
                 <div className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-foreground/15 bg-background/70 px-2.5 py-1 text-[11px] font-bold text-accent backdrop-blur-md tabular">
                   <Star className="h-3 w-3 fill-current" />

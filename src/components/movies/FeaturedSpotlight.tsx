@@ -67,14 +67,14 @@ export function FeaturedSpotlight({ movies }: FeaturedSpotlightProps) {
             transition={{ duration: 0.6 }}
           >
             <Link to={`/movie/${hero.id}`} className="group block">
-              <div className="relative rounded-3xl overflow-hidden glow-card border border-border/20 aspect-[4/3]">
+              <div className="relative rounded-3xl overflow-hidden border border-border/20 bg-card shadow-md aspect-[4/3] transition-all duration-500 hover:shadow-lg">
                 <img
                   src={
                     hero.backdrop_url || hero.poster_url || "/placeholder.svg"
                   }
                   alt={hero.title}
                   loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  className="absolute inset-0 w-full h-full object-cover brightness-105 contrast-105 transition-transform duration-700 ease-out group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-r from-card/60 to-transparent" />
@@ -143,13 +143,13 @@ export function FeaturedSpotlight({ movies }: FeaturedSpotlightProps) {
                 transition={{ duration: 0.5, delay: 0.1 * (i + 1) }}
               >
                 <Link to={`/movie/${movie.id}`} className="group block">
-                  <div className="relative rounded-2xl overflow-hidden glow-card border border-border/20 flex h-[180px] sm:h-[200px]">
+                  <div className="relative rounded-2xl overflow-hidden border border-border/20 bg-card shadow-md flex h-[180px] sm:h-[200px] transition-all duration-500 hover:shadow-lg">
                     <div className="relative w-[130px] sm:w-[150px] shrink-0 overflow-hidden">
                       <img
                         src={movie.poster_url || "/placeholder.svg"}
                         alt={movie.title}
                         loading="lazy"
-                        className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                        className="w-full h-full object-cover brightness-105 contrast-105 transition-transform duration-500 ease-out group-hover:scale-105"
                       />
                     </div>
                     <div className="flex-1 p-4 sm:p-5 flex flex-col justify-between bg-card">
