@@ -140,17 +140,17 @@ function TrendingCard({ movie, index }: { movie: Movie; index: number }) {
       to={`/movie/${movie.id}`}
       className="flex-shrink-0 w-[280px] sm:w-[320px] group"
     >
-      <div className="relative rounded-2xl overflow-hidden glow-card border border-border/20 bg-card">
+      <div className="relative rounded-2xl overflow-hidden border border-border/20 bg-card shadow-md transition-all duration-500 hover:shadow-lg hover:-translate-y-1">
         {/* Poster */}
         <div className="relative aspect-[16/10] overflow-hidden">
           <img
             src={movie.backdrop_url || movie.poster_url || "/placeholder.svg"}
             alt={movie.title}
             loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+            className="w-full h-full object-cover brightness-105 contrast-105 transition-transform duration-700 ease-out group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-card via-card/30 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-card/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-r from-card/40 to-transparent opacity-0 group-hover:opacity-80 transition-opacity duration-500" />
 
           {/* Rank badge */}
           <div className="absolute top-3 left-3">

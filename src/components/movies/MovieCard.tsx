@@ -120,7 +120,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
       }}
       className="cursor-pointer"
     >
-      <Card className="group relative flex h-full flex-col overflow-hidden rounded-[1.25rem] border-border/20 bg-card p-0 transition-all duration-500 tile-elite tile-elite-lift sheen">
+      <Card className="group relative flex h-full flex-col overflow-hidden rounded-[1.25rem] border-border/20 bg-card p-0 transition-all duration-500 tile-elite tile-elite-lift">
         <div
           className="relative w-full overflow-hidden"
           style={{ paddingBottom: "150%" }}
@@ -129,7 +129,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
             src={movie.poster_url || "/placeholder.svg"}
             alt={`${movie.title} movie poster`}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+            className="absolute inset-0 w-full h-full object-cover brightness-105 contrast-105 transition-transform duration-700 ease-out group-hover:scale-110"
           />
 
           {/* Holographic glare on hover
@@ -138,14 +138,14 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
               className="absolute inset-0 pointer-events-none z-10"
               style={{ background: glareBackground }}
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              animate={{ opacity: 0.7 }}
               transition={{ duration: 0.3 }}
             />
           )} */}
 
           {/* Gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-80" />
-          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent opacity-0 group-hover:opacity-60 transition-opacity duration-500" />
 
           {/* NEW RELEASE badge — animated pulse glow */}
           {nowShowing && newRelease && (
