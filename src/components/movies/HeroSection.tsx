@@ -105,22 +105,9 @@ export function HeroSection({
       </AnimatePresence>
 
       {/* Multi-layer cinematic overlays */}
-      <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/65 to-background/10" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-background/20" />
-      <div className="absolute bottom-0 left-0 right-0 h-80 bg-gradient-to-t from-background/90 via-background/70 to-transparent" />
-
-      {/* Animated cinematic light leak */}
-      <motion.div
-        className="absolute inset-0 pointer-events-none"
-        animate={{
-          background: [
-            "radial-gradient(ellipse at 0% 100%, hsl(var(--primary) / 0.08) 0%, transparent 50%)",
-            "radial-gradient(ellipse at 20% 70%, hsl(var(--accent) / 0.05) 0%, transparent 50%)",
-            "radial-gradient(ellipse at 10% 90%, hsl(var(--primary) / 0.08) 0%, transparent 50%)",
-          ],
-        }}
-        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-      />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/75 via-background/35 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/55 via-transparent to-background/10" />
+      <div className="absolute bottom-0 left-0 right-0 h-80 bg-gradient-to-t from-background/65 via-background/25 to-transparent" />
 
       {/* Film grain overlay */}
       <div className="absolute inset-0 noise-overlay pointer-events-none" />

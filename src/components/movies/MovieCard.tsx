@@ -64,13 +64,13 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
     stiffness: 250,
     damping: 25,
   });
-  const glareX = useTransform(mouseX, [-0.5, 0.5], [0, 100]);
-  const glareY = useTransform(mouseY, [-0.5, 0.5], [0, 100]);
-  const glareBackground = useTransform(
-    [glareX, glareY],
-    ([x, y]) =>
-      `radial-gradient(circle at ${x}% ${y}%, hsl(var(--primary) / 0.12) 0%, transparent 55%)`,
-  );
+  // const glareX = useTransform(mouseX, [-0.5, 0.5], [0, 100]);
+  // const glareY = useTransform(mouseY, [-0.5, 0.5], [0, 100]);
+  // const glareBackground = useTransform(
+  //   [glareX, glareY],
+  //   ([x, y]) =>
+  //     `radial-gradient(circle at ${x}% ${y}%, hsl(var(--primary) / 0.12) 0%, transparent 55%)`,
+  // );
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!cardRef.current) return;
@@ -132,7 +132,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
           />
 
-          {/* Holographic glare on hover */}
+          {/* Holographic glare on hover
           {isHovered && (
             <motion.div
               className="absolute inset-0 pointer-events-none z-10"
@@ -141,7 +141,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
             />
-          )}
+          )} */}
 
           {/* Gradient overlays */}
           <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-80" />
@@ -258,11 +258,12 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
                 <span className="cinema-gradient-text">New</span>
               </span>
             ) : nowShowing ? (
-              <span className="meta-caps text-[9px] text-primary">In Theatres</span>
+              <span className="meta-caps text-[9px] text-primary">
+                In Theatres
+              </span>
             ) : null}
           </div>
         </CardContent>
-
       </Card>
     </motion.div>
   );
