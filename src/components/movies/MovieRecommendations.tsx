@@ -190,16 +190,16 @@ export function MovieRecommendations({
               transition={{ delay: idx * 0.06, duration: 0.4 }}
             >
               <Link to={`/movie/${movie.id}`}>
-                <Card className="overflow-hidden group hover:border-primary/30 transition-all duration-500 glow-card rounded-xl border-border/40">
+                <Card className="overflow-hidden group hover:border-primary/30 transition-all duration-500 rounded-xl border-border/40 shadow-md hover:shadow-lg">
                   <div className="relative aspect-[2/3] overflow-hidden">
                     <img
                       src={movie.poster_url || "/placeholder.svg"}
                       alt={movie.title}
                       loading="lazy"
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      className="w-full h-full object-cover brightness-105 contrast-105 transition-transform duration-700 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-60" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-50" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent opacity-0 group-hover:opacity-60 transition-opacity duration-500" />
 
                     {movie.rating && movie.rating > 0 && (
                       <div className="absolute top-2 right-2 flex items-center gap-1 bg-card/90 backdrop-blur-md px-2 py-1 rounded-full border border-border/30">
