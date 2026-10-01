@@ -40,31 +40,38 @@ export default function PaymentSuccess() {
   }, [searchParams]);
 
   const verifyPayment = async (sessionId: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke(
-        "verify-booking-payment",
-        {
-          body: { sessionId },
-        },
-      );
+    // Verification is idempotent server-side, so retrying is always safe.
+    // Back off on transient failures and on "not paid yet" (Stripe can lag).
+    const MAX_ATTEMPTS = 5;
+    let lastError = "Payment verification failed.";
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      try {
+        const { data, error } = await supabase.functions.invoke(
+          "verify-booking-payment",
+          { body: { sessionId } },
+        );
+        if (error) throw error;
 
-      if (error) throw error;
-
-      if (data?.success && data?.bookingId) {
-        setProgress(100);
-        setStatus("success");
-        setTimeout(() => {
-          navigate(`/booking-confirmation/${data.bookingId}`);
-        }, 1800);
-      } else {
-        setStatus("error");
-        setErrorMsg(data?.error || "Payment verification failed.");
+        if (data?.success && data?.bookingId) {
+          setProgress(100);
+          setStatus("success");
+          setTimeout(
+            () => navigate(`/booking-confirmation/${data.bookingId}`, { replace: true }),
+            1200,
+          );
+          return;
+        }
+        lastError = data?.error || lastError;
+        const retryable =
+          data?.retryable === true || data?.error === "Payment not completed";
+        if (!retryable) break;
+      } catch (err: any) {
+        lastError = err?.message || "Failed to verify payment.";
       }
-    } catch (err: any) {
-      console.error("Payment verification error:", err);
-      setStatus("error");
-      setErrorMsg(err.message || "Failed to verify payment.");
+      await new Promise((r) => setTimeout(r, Math.min(800 * 2 ** attempt, 6000)));
     }
+    setStatus("error");
+    setErrorMsg(lastError);
   };
 
   return (
