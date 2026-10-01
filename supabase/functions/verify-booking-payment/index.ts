@@ -135,9 +135,39 @@ serve(async (req) => {
       .insert(bookedSeatsData);
 
     if (seatsError) {
+      // Compensating transaction: undo the booking and refund the charge so the
+      // customer is never billed for seats they did not get.
       await supabaseAdmin.from("bookings").delete().eq("id", bookingData.id);
-      throw new Error(
-        "Some seats were already booked. Payment will be refunded.",
+      let refunded = false;
+      try {
+        const pi =
+          typeof session.payment_intent === "string"
+            ? session.payment_intent
+            : session.payment_intent?.id;
+        if (pi) {
+          await stripe.refunds.create(
+            { payment_intent: pi, reason: "duplicate" },
+            { idempotencyKey: `refund-${session.id}` },
+          );
+          refunded = true;
+        }
+      } catch (refundErr) {
+        console.error("refund failed:", refundErr);
+      }
+      return new Response(
+        JSON.stringify({
+          success: false,
+          code: "SEAT_CONFLICT",
+          retryable: false,
+          refunded,
+          error: refunded
+            ? "Those seats were taken just before your payment cleared. Your payment has been fully refunded."
+            : "Those seats were taken just before your payment cleared. A refund will be issued — please contact support.",
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        },
       );
     }
 
@@ -180,10 +210,15 @@ serve(async (req) => {
     const msg = error instanceof Error ? error.message : String(error);
     console.error("verify-booking-payment error:", msg);
     return new Response(
-      JSON.stringify({ success: false, error: "Could not verify payment" }),
+      JSON.stringify({
+        success: false,
+        code: "TRANSIENT",
+        retryable: true,
+        error: "Could not verify payment",
+      }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500,
+        status: 200,
       },
     );
   }
